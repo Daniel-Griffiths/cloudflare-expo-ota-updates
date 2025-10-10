@@ -20,6 +20,7 @@ export class R2Storage {
     await this.bucket.put(filePath, fileBuffer, {
       httpMetadata: {
         contentType: this.getContentType(filePath),
+        cacheControl: "public, max-age=31536000, immutable",
       },
     });
 
