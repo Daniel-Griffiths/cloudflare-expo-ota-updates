@@ -1,0 +1,20 @@
+name = "expo-ota-updates"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "expo-ota-updates"
+database_id = "YOUR_DATABASE_ID"  # Replace with your D1 database ID from `wrangler d1 create`
+
+# R2 Bucket binding
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "expo-ota-updates"
+
+# Environment variables
+[vars]
+BUCKET_URL = "https://pub-example.r2.dev"  # Replace with your R2 public domain URL (custom domain or R2.dev subdomain)
+MAX_UPDATES_TO_KEEP = 0  # Number of updates to keep per branch/platform/runtime (0 = keep all)
+ALLOWED_UPLOAD_IPS = ""  # Comma-separated list of IPs allowed to upload (empty = allow all). IPv6 matches on /64 prefix

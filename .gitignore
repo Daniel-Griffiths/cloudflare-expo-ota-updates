@@ -1,0 +1,43 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.pnpm-debug.log
+
+# macOS
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# Testing
+coverage/
+.nyc_output/
+
+# Build outputs
+build/
+.cache/
+
+# Wrangler (Cloudflare)
+wrangler.toml
+.wrangler/
+.dev.vars
+worker/dist/
+miniflare-*
+
+# TypeScript
+*.tsbuildinfo
