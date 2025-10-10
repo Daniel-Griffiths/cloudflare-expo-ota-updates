@@ -14,11 +14,8 @@ const app = new Hono<{ Bindings: IEnv }>();
 
 app.get("/manifest", manifestHandler);
 app.post("/upload", uploadHandler);
-app.get("/health", (context) => {
-  return context.json({
-    status: "ok",
-    timestamp: new Date().toISOString(),
-  });
+app.notFound(() => {
+  return new Response(null, { status: 404 });
 });
 
 export default app;

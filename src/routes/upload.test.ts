@@ -29,9 +29,9 @@ describe('Upload Route', () => {
     const response = await app.fetch(request, env, ctx);
     await waitOnExecutionContext(ctx);
 
-    expect(response.status).toBe(401);
-    const json = await response.json();
-    expect(json).toEqual({ success: false });
+    expect(response.status).toBe(404);
+    const body = await response.text();
+    expect(body).toBe('');
   });
 
   it('should reject upload with invalid API key', async () => {
@@ -52,9 +52,9 @@ describe('Upload Route', () => {
     const response = await app.fetch(request, env, ctx);
     await waitOnExecutionContext(ctx);
 
-    expect(response.status).toBe(401);
-    const json = await response.json();
-    expect(json).toEqual({ success: false });
+    expect(response.status).toBe(404);
+    const body = await response.text();
+    expect(body).toBe('');
   });
 
   it('should reject upload without runtime version', async () => {
@@ -74,9 +74,9 @@ describe('Upload Route', () => {
     const response = await app.fetch(request, env, ctx);
     await waitOnExecutionContext(ctx);
 
-    expect(response.status).toBe(400);
-    const json = await response.json();
-    expect(json).toEqual({ success: false });
+    expect(response.status).toBe(404);
+    const body = await response.text();
+    expect(body).toBe('');
   });
 
   it('should reject upload with invalid platform', async () => {
@@ -97,9 +97,9 @@ describe('Upload Route', () => {
     const response = await app.fetch(request, env, ctx);
     await waitOnExecutionContext(ctx);
 
-    expect(response.status).toBe(400);
-    const json = await response.json();
-    expect(json).toEqual({ success: false });
+    expect(response.status).toBe(404);
+    const body = await response.text();
+    expect(body).toBe('');
   });
 
   it('should reject upload without bundle file', async () => {
@@ -120,9 +120,9 @@ describe('Upload Route', () => {
     const response = await app.fetch(request, env, ctx);
     await waitOnExecutionContext(ctx);
 
-    expect(response.status).toBe(400);
-    const json = await response.json();
-    expect(json).toEqual({ success: false });
+    expect(response.status).toBe(404);
+    const body = await response.text();
+    expect(body).toBe('');
   });
 
   it('should successfully upload bundle', async () => {
@@ -225,8 +225,8 @@ describe('Upload Route', () => {
     const response = await app.fetch(request, env, ctx);
     await waitOnExecutionContext(ctx);
 
-    expect(response.status).toBe(400);
-    const json = await response.json();
-    expect(json).toEqual({ success: false });
+    expect(response.status).toBe(404);
+    const body = await response.text();
+    expect(body).toBe('');
   });
 });

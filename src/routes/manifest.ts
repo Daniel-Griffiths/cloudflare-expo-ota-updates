@@ -106,7 +106,7 @@ export async function manifestHandler(
     });
 
     if (!headerValidation.success) {
-      return context.json({ success: false }, 400);
+      return new Response(null, { status: 404 });
     }
 
     const {
@@ -178,6 +178,6 @@ export async function manifestHandler(
     );
   } catch (error) {
     console.error("Error serving manifest:", error);
-    return context.text("Internal server error", 500);
+    return new Response(null, { status: 500 });
   }
 }
