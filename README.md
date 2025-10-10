@@ -8,7 +8,7 @@ This is a open source update OTA update service for Expo apps, using a Cloudflar
 
 ## Getting Started
 
-To get things setup, please see the docs below to get the server and app setup.
+To get started, please see the documentation below for setting up the worker/app.
 
 ## Documentation
 
