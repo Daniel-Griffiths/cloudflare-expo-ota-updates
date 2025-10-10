@@ -5,19 +5,6 @@ import { R2Storage } from "../utils/storage";
 import { IEnv } from "../index";
 import { Platform } from "../enums/platform";
 
-const manifestHeadersSchema = z.object({
-  "expo-app-id": z.string().min(1, "expo-app-id is required"),
-  "expo-runtime-version": z.string().min(1, "expo-runtime-version is required"),
-  "expo-platform": z.enum([Platform.IOS, Platform.ANDROID]),
-  "expo-channel-name": z.string().min(1, "expo-channel-name is required"),
-  "expo-current-update-id": z.string().optional(),
-  "expo-protocol-version": z
-    .string()
-    .optional()
-    .default("0")
-    .transform((v) => parseInt(v, 10)),
-});
-
 export interface IUpdateManifest {
   id: string;
   createdAt: string;
@@ -44,14 +31,33 @@ export interface INoUpdateAvailableDirective {
   type: "noUpdateAvailable";
 }
 
+const manifestHeadersSchema = z.object({
+  "expo-app-id": z.string().min(1, "expo-app-id is required"),
+  "expo-runtime-version": z.string().min(1, "expo-runtime-version is required"),
+  "expo-platform": z.enum([Platform.IOS, Platform.ANDROID]),
+  "expo-channel-name": z.string().min(1, "expo-channel-name is required"),
+  "expo-current-update-id": z.string().optional(),
+  "expo-protocol-version": z
+    .string()
+    .optional()
+    .default("0")
+    .transform((v) => parseInt(v, 10)),
+});
+
+/**
+ * Sends a multipart response.
+ *
+ * @param content The content to send.
+ * @param fieldName The name of the field to send the content in.
+ * @param protocolVersion The Expo protocol version.
+ * @returns A Response object.
+ */
 function sendMultipartResponse(
-  context: Context<{ Bindings: IEnv }>,
   content: IUpdateManifest | INoUpdateAvailableDirective,
-  fieldName: string,
+  fieldName: "manifest" | "directive",
   protocolVersion: number
 ): Response {
-  const boundary = "blah";
-  const contentJson = JSON.stringify(content);
+  const boundary = "ExpoUpdateBoundary";
 
   const body = [
     `--${boundary}`,
@@ -59,7 +65,7 @@ function sendMultipartResponse(
     `Content-Type: application/json`,
     `content-type: application/json; charset=utf-8`,
     "",
-    contentJson,
+    JSON.stringify(content),
     `--${boundary}--`,
     "",
   ].join("\r\n");
@@ -74,24 +80,36 @@ function sendMultipartResponse(
   });
 }
 
+/**
+ * Sends a "no update available" response.
+ *
+ * @param context The request context.
+ * @param protocolVersion The Expo protocol version.
+ * @returns A Response object.
+ */
 function sendNoUpdateAvailable(
   context: Context<{ Bindings: IEnv }>,
   protocolVersion: number
 ): Response {
-  if (protocolVersion >= 1) {
-    const directive: INoUpdateAvailableDirective = {
-      type: "noUpdateAvailable",
-    };
-    return sendMultipartResponse(
-      context,
-      directive,
-      "directive",
-      protocolVersion
-    );
+  if (protocolVersion < 1) {
+    return new Response(null, { status: 404 });
   }
-  return new Response(null, { status: 204 });
+
+  return sendMultipartResponse(
+    {
+      type: "noUpdateAvailable",
+    },
+    "directive",
+    protocolVersion
+  );
 }
 
+/**
+ * Handles the manifest request.
+ *
+ * @param context The request context.
+ * @returns A Response object.
+ */
 export async function manifestHandler(
   context: Context<{ Bindings: IEnv }>
 ): Promise<Response> {
@@ -170,12 +188,7 @@ export async function manifestHandler(
       },
     };
 
-    return sendMultipartResponse(
-      context,
-      manifest,
-      "manifest",
-      protocolVersion
-    );
+    return sendMultipartResponse(manifest, "manifest", protocolVersion);
   } catch (error) {
     console.error("Error serving manifest:", error);
     return new Response(null, { status: 500 });

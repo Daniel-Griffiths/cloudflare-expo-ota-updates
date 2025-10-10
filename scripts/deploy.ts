@@ -99,7 +99,7 @@ async function uploadBundle(
 
   if (fs.existsSync(assetsPath) && platformAssets.length > 0) {
     const platformAssetFiles = new Set(
-      platformAssets.map((asset: any) => path.basename(asset.path))
+      platformAssets.map((asset: { path: string }) => path.basename(asset.path))
     );
 
     const assetFiles = fs.readdirSync(assetsPath);

@@ -40,6 +40,12 @@ const uploadFormFieldsSchema = z.object({
     }),
 });
 
+/**
+ * Handles the upload request.
+ *
+ * @param context The request context.
+ * @returns A Response object.
+ */
 export async function uploadHandler(
   context: Context<{ Bindings: IEnv }>
 ): Promise<Response> {
@@ -160,7 +166,7 @@ export async function uploadHandler(
     const appId = app.id;
 
     // Extract asset metadata from parsed metadata
-    let assetMetadata: any = null; // 💩
+    let assetMetadata = null;
     if (metadata) {
       assetMetadata = metadata.fileMetadata?.[platform]?.assets || [];
     }
@@ -169,10 +175,12 @@ export async function uploadHandler(
     const createdAt = new Date().toISOString();
 
     const bundleFile = files.find(
-      (f) => f.fieldName === "bundle" || f.filename?.endsWith(".bundle")
+      (file) =>
+        file.fieldName === "bundle" || file.filename?.endsWith(".bundle")
     );
     const assetFiles = files.filter(
-      (f) => f.fieldName === "assets" || f.fieldName.startsWith("asset-")
+      (file) =>
+        file.fieldName === "assets" || file.fieldName.startsWith("asset-")
     );
 
     if (!bundleFile) {
@@ -220,7 +228,8 @@ export async function uploadHandler(
 
         // Try metadata first
         const assetMeta = assetMetadata?.find(
-          (a: any) => a.path === `assets/${filename}`
+          (asset: { path: string; ext?: string }) =>
+            asset.path === `assets/${filename}`
         );
         if (assetMeta?.ext) {
           ext = "." + assetMeta.ext;
@@ -266,8 +275,7 @@ export async function uploadHandler(
       const configBuffer = encoder.encode(JSON.stringify(expoConfig, null, 2));
       await storage.uploadFile(
         `${appId}/${channel}/${runtimeVersion}/${updateId}/expoConfig.json`,
-        // @ts-ignore - oh no
-        configBuffer
+        configBuffer as unknown as ArrayBuffer
       );
     }
 
