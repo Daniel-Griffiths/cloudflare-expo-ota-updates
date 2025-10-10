@@ -2,9 +2,7 @@
 
 **Finding Your Worker URL**
 
-After deployment, you can find your Worker URL in two ways:
-
-**Option 1: Cloudflare Dashboard**
+After deployment, you can find your Worker URL by doing the following:
 
 1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
 2. Select **Workers & Pages** from the left sidebar
@@ -13,18 +11,9 @@ After deployment, you can find your Worker URL in two ways:
 5. Scroll down to **Triggers** section
 6. Your URL will be listed under **Routes** (e.g., `https://expo-ota-update.your-subdomain.workers.dev`)
 
-**Option 2: Test the health endpoint**
-
-```bash
-# Try the common URL pattern
-curl https://expo-ota-update.<your-subdomain>.workers.dev/health
-
-# Should return: {"status":"ok","timestamp":"..."}
-```
-
 The URL format is: `https://<worker-name>.<your-account-subdomain>.workers.dev`
 
-Note this URL - you'll need it for your Expo app configuration.
+Save this URL, you will need it for your Expo app configuration later on.
 
 <details>
 <summary>Local Development with Cloudflare Tunnel</summary>
