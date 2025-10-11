@@ -121,3 +121,22 @@ yarn exec wrangler -- deploy
 
 > [!NOTE]  
 > If you are having issues use `yarn exec wrangler -- tail` to debug the worker logs when sending/downloading updates
+
+**9. Security (optional)**
+
+It's very common for malicious bot's to scan domains for security exploits, this eats into your free worker usage. To prevent this it's highly recomended to setup security rules for your domain.
+
+1. Go to Cloudflare Dashboard → choose your domain
+2. Select **Security** → **Security Rules**
+3. Click **Create Rule** → **Custom Rule**
+4. Click **Edit Expression**
+
+Then you can paste this, but we sure to enter the update domain we created earlier:
+
+```
+(http.host eq "updates.yourdomain.com" and http.request.uri.path ne "/upload" and http.request.uri.path ne "/manifest")
+```
+
+Then you can click **Save**. This will now prevent bots access random url's like `updates.yourdomain.com/wp-admin` racking up your worker usage.
+
+You could also create addtional rules here, for example you could restrict your upload endpoint to only be accessible from a particular country, or retrict it by IP to add an additional layer on top of the build in worker IP list.
