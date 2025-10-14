@@ -4,6 +4,7 @@
     "module": "ES2022",
     "lib": ["ES2022"],
     "moduleResolution": "bundler",
+    "types": ["@cloudflare/workers-types", "@types/node"],
     "resolveJsonModule": true,
     "allowJs": true,
     "checkJs": false,
@@ -13,14 +14,9 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@cloudflare-expo-ota/worker": ["apps/worker/src/index.ts"],
-      "@cloudflare-expo-ota/deploy": ["packages/deploy/index.ts"]
+      "@/*": ["src/*"]
     }
   },
-  "include": [],
-  "exclude": ["node_modules"],
-  "references": [
-    { "path": "./apps/worker/tsconfig.json" },
-    { "path": "./packages/deploy/tsconfig.json" }
-  ]
+  "include": ["src/**/*", "cli/**/*"],
+  "exclude": ["node_modules", "**/*.test.ts", "**/test-setup.ts"]
 }

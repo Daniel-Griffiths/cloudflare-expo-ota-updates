@@ -6,9 +6,20 @@
 
 This is a open source update OTA update service for Expo apps, using a Cloudflare worker, D1 database and R2 storage.
 
+## Project Structure
+
+This is a monorepo using pnpm workspaces:
+- `apps/worker` - The Cloudflare Worker application and CLI
+- `packages/deploy` - Deploy tool for publishing OTA updates (future npm package)
+
 ## Getting Started
 
-To get started, please see the documentation below for setting up the worker/app.
+1. **Install dependencies:**
+```bash
+pnpm install
+```
+
+2. **Follow the setup guides** below for configuring the worker and your app.
 
 ## Documentation
 

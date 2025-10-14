@@ -23,7 +23,7 @@ When developing locally, you can use Cloudflare Tunnel to expose your local serv
 **1. Start your local development server:**
 
 ```bash
-yarn dev
+pnpm run dev
 ```
 
 This starts the worker on `http://localhost:8787`
@@ -90,11 +90,13 @@ To configure your Expo app to use this OTA update server, add the following to y
 
 ## Deploying Updates from Your Expo App
 
-To make deploying updates easier, we provide an example upload script that you can copy into your Expo project. **Zero dependencies required** - uses Node.js native TypeScript support (Node 22.6+).
+To make deploying updates easier, we provide a deploy package that can be used with your Expo project.
 
-**1. Copy the Upload Script**
+**1. Use the Deploy Script**
 
-Copy the `scripts/deploy.ts` file from this repository into your Expo project:
+The deploy script is located at `packages/deploy/deploy.ts` in this repository. You can either:
+- Copy it to your Expo project
+- Use it directly once published as an npm package
 
 **2. Configure Environment Variables**
 
@@ -124,5 +126,10 @@ Add this script to your Expo app's `package.json`:
 Deploy updates to your OTA server:
 
 ```bash
-yarn deploy
+pnpm run deploy
+```
+
+Or use npx once the package is published:
+```bash
+npx easc --channel production
 ```

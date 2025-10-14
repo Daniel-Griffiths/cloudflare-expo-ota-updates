@@ -3,19 +3,19 @@
 **1. Install Dependencies**
 
 ```bash
-yarn install
+pnpm install
 ```
 
 **2. Create D1 Database**
 
 ```bash
-yarn exec wrangler -- d1 create expo-ota-updates
+pnpm exec wrangler d1 create expo-ota-updates
 ```
 
-Take the `database_id` returned from this command and add it to `wranger.toml`
+Take the `database_id` returned from this command and add it to `wrangler.toml`
 
 ```bash
-cp wrangler.example.toml wrangler.toml
+cp apps/worker/wrangler.example.toml apps/worker/wrangler.toml
 ```
 
 ```toml
@@ -28,10 +28,10 @@ Create the initial database tables:
 
 ```bash
 # Local
-yarn exec wrangler -- d1 migrations apply expo-ota-updates --local
+pnpm exec wrangler d1 migrations apply expo-ota-updates --local
 
 # Remote
-yarn exec wrangler -- d1 migrations apply expo-ota-updates --remote
+pnpm exec wrangler d1 migrations apply expo-ota-updates --remote
 ```
 
 **4. Add Your First App to The Database**
@@ -39,7 +39,7 @@ yarn exec wrangler -- d1 migrations apply expo-ota-updates --remote
 Use the CLI to create a new app in the database:
 
 ```bash
-yarn cli create-app
+pnpm run cli create-app
 ```
 
 > [!NOTE]  
@@ -50,7 +50,7 @@ yarn cli create-app
 This is where your update files will be stored.
 
 ```bash
-yarn exec wrangler -- r2 bucket create expo-ota-updates
+pnpm exec wrangler r2 bucket create expo-ota-updates
 ```
 
 **6. Configure R2 Public Access**
@@ -66,7 +66,7 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 5. Enter your custom domain (e.g., `updates.yourdomain.com`)
    - The domain must be on Cloudflare DNS
    - DNS will be automatically configured
-6. Update `wrangler.toml` with your domain in the `BUCKET_URL` variable:
+6. Update `apps/worker/wrangler.toml` with your domain in the `BUCKET_URL` variable:
    ```toml
    BUCKET_URL = "https://updates.yourdomain.com"
    ```
@@ -76,18 +76,18 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 1. Enable R2.dev subdomain:
 
    ```bash
-   yarn exec wrangler -- r2 bucket domain enable expo-ota-updates
+   pnpm exec wrangler r2 bucket domain enable expo-ota-updates
    ```
 
 2. Get the public URL:
 
    ```bash
-   yarn exec wrangler -- r2 bucket domain list expo-ota-updates
+   pnpm exec wrangler r2 bucket domain list expo-ota-updates
    ```
 
    This will output something like: `https://pub-abc123def456.r2.dev`
 
-3. Update `wrangler.toml` with this URL in the `BUCKET_URL` variable:
+3. Update `apps/worker/wrangler.toml` with this URL in the `BUCKET_URL` variable:
    ```toml
    BUCKET_URL = "https://pub-abc123def456.r2.dev"
    ```
@@ -97,7 +97,7 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 
 **7. Check wrangler.toml**
 
-Ok so before we deploy, let's make sure everything looks correct in `wrangler.toml`
+Ok so before we deploy, let's make sure everything looks correct in `apps/worker/wrangler.toml`
 
 | Variable              | Required | Description                                                                                     |
 | --------------------- | -------- | ----------------------------------------------------------------------------------------------- |
@@ -116,11 +116,11 @@ Lastly, upload the worker to Cloudflare! If you ever change the .toml values you
 
 ```bash
 # Deploy to Cloudflare Workers
-yarn exec wrangler -- deploy
+pnpm run deploy
 ```
 
-> [!NOTE]  
-> If you are having issues use `yarn exec wrangler -- tail` to debug the worker logs when sending/downloading updates
+> [!NOTE]
+> If you are having issues use `pnpm exec wrangler tail` to debug the worker logs when sending/downloading updates
 
 **9. Security (optional)**
 
