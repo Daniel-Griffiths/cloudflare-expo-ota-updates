@@ -34,8 +34,5 @@ jobs:
       - name: Test worker package
         run: pnpm --filter worker test
 
-      - name: Test deploy package
+      - name: Test easc package
         run: pnpm --filter easc test
-
-      - name: Build deploy package
-        run: pnpm --filter easc build

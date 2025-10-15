@@ -15,9 +15,7 @@
     "cli": "pnpm --filter worker cli",
     "db:generate": "pnpm --filter worker db:generate",
     "db:studio": "pnpm --filter worker db:studio",
-    "build:deploy": "pnpm --filter easc build",
-    "test:deploy": "pnpm --filter easc test",
-    "build:all": "pnpm -r build",
+    "test:easc": "pnpm --filter easc test",
     "test:all": "pnpm -r test"
   },
   "devDependencies": {
