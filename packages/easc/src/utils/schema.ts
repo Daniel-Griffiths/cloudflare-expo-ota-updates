@@ -24,7 +24,7 @@ const configSchema = z.object({
 // Type exports
 export type Config = z.infer<typeof configSchema>;
 
-export interface ValidationResult {
+export interface IValidationResult {
   valid: boolean;
   errors: string[];
 }
@@ -70,7 +70,7 @@ function formatZodError(error: z.ZodError, context?: string): string[] {
 /**
  * Validate environment variables using zod
  */
-export function validateEnvironment(): ValidationResult {
+export function validateEnvironment(): IValidationResult {
   const result = envSchema.safeParse({
     OTA_SERVER: process.env.OTA_SERVER,
     OTA_API_KEY: process.env.OTA_API_KEY,
@@ -89,7 +89,7 @@ export function validateEnvironment(): ValidationResult {
 /**
  * Validate a channel name using zod
  */
-export function validateChannel(channel: string | undefined): ValidationResult {
+export function validateChannel(channel: string | undefined): IValidationResult {
   if (!channel) {
     return {
       valid: false,
@@ -117,7 +117,7 @@ export function validateChannel(channel: string | undefined): ValidationResult {
 /**
  * Validate all configuration
  */
-export function validateConfig(channel: string | undefined): ValidationResult {
+export function validateConfig(channel: string | undefined): IValidationResult {
   const envResult = validateEnvironment();
   const channelResult = validateChannel(channel);
 

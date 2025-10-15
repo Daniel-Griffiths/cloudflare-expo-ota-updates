@@ -2,9 +2,11 @@
 
 **E**xpo **A**pp **S**erver for **C**loudflare - Deploy tool for Expo OTA updates to Cloudflare Workers.
 
+A drop in replacement for `eas`.
+
 ## Usage
 
-The tool requires the following environment variables:
+The tool requires the following environment variables to be set:
 
 - `OTA_SERVER`: The URL of your OTA server
 - `OTA_API_KEY`: Your API key for authentication

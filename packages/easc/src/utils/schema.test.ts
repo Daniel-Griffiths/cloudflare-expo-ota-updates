@@ -5,9 +5,9 @@ import {
   validateConfig,
   getConfig,
   validateServerUrl,
-} from "./validation";
+} from "./schema";
 
-describe("Validation utilities", () => {
+describe("Schema utilities", () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
@@ -70,7 +70,13 @@ describe("Validation utilities", () => {
 
   describe("validateChannel", () => {
     it("should pass for valid channel names", () => {
-      const validChannels = ["production", "staging", "dev", "test-123", "feature_branch"];
+      const validChannels = [
+        "production",
+        "staging",
+        "dev",
+        "test-123",
+        "feature_branch",
+      ];
 
       for (const channel of validChannels) {
         const result = validateChannel(channel);

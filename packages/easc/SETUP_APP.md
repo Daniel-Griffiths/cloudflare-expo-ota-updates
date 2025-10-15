@@ -94,7 +94,7 @@ To make deploying updates easier, we provide a deploy package that can be used w
 
 **1. Use the Deploy Script**
 
-The deploy script is located at `packages/deploy/deploy.ts` in this repository. You can either:
+The deploy script is located at `packages/easc/deploy.ts` in this repository. You can either:
 - Copy it to your Expo project
 - Use it directly once published as an npm package
 

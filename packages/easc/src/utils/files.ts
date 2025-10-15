@@ -1,13 +1,14 @@
 import fs from "fs";
 import path from "path";
-import { AppJson } from "./runtime";
+import { IAppJson } from "./runtime";
+import { Platform, PlatformType } from "../enums/platform";
 
-export interface Metadata {
+export interface IMetadata {
   fileMetadata?: {
-    ios?: {
+    [Platform.iOS]?: {
       assets: Array<{ path: string }>;
     };
-    android?: {
+    [Platform.Android]?: {
       assets: Array<{ path: string }>;
     };
   };
@@ -16,7 +17,7 @@ export interface Metadata {
 /**
  * Read and parse app.json file
  */
-export function readAppJson(appDir: string = process.cwd()): AppJson {
+export function readAppJson(appDir: string = process.cwd()): IAppJson {
   const appJsonPath = path.join(appDir, "app.json");
 
   if (!fs.existsSync(appJsonPath)) {
@@ -34,11 +35,13 @@ export function readAppJson(appDir: string = process.cwd()): AppJson {
 /**
  * Read and parse metadata.json from the export directory
  */
-export function readMetadata(exportDir: string): Metadata {
+export function readMetadata(exportDir: string): IMetadata {
   const metadataPath = path.join(exportDir, "metadata.json");
 
   if (!fs.existsSync(metadataPath)) {
-    throw new Error(`metadata.json not found in ${exportDir}. Did you run 'expo export'?`);
+    throw new Error(
+      `metadata.json not found in ${exportDir}. Did you run 'expo export'?`
+    );
   }
 
   try {
@@ -52,7 +55,10 @@ export function readMetadata(exportDir: string): Metadata {
 /**
  * Find the bundle file for a platform
  */
-export function findBundleFile(exportDir: string, platform: "ios" | "android"): string {
+export function findBundleFile(
+  exportDir: string,
+  platform: PlatformType
+): string {
   const bundlePath = path.join(exportDir, `_expo/static/js/${platform}`);
 
   if (!fs.existsSync(bundlePath)) {
@@ -73,14 +79,21 @@ export function findBundleFile(exportDir: string, platform: "ios" | "android"): 
 /**
  * Get asset files for a platform
  */
-export function getAssetFiles(exportDir: string, metadata: Metadata, platform: "ios" | "android"): string[] {
+export function getAssetFiles(
+  exportDir: string,
+  metadata: IMetadata,
+  platform: PlatformType
+): string[] {
   const assetsPath = path.join(exportDir, "assets");
 
   if (!fs.existsSync(assetsPath)) {
     return [];
   }
 
-  const platformMetadata = platform === "ios" ? metadata.fileMetadata?.ios : metadata.fileMetadata?.android;
+  const platformMetadata =
+    platform === Platform.iOS
+      ? metadata.fileMetadata?.[Platform.iOS]
+      : metadata.fileMetadata?.[Platform.Android];
   const platformAssets = platformMetadata?.assets || [];
 
   if (platformAssets.length === 0) {
@@ -108,7 +121,10 @@ export function getAssetFiles(exportDir: string, metadata: Metadata, platform: "
  * Check if the export directory exists and has been built
  * Supports custom export directories (EAS-compatible)
  */
-export function checkExportDirectory(exportDir: string, appDir: string = process.cwd()): string {
+export function checkExportDirectory(
+  exportDir: string,
+  appDir: string = process.cwd()
+): string {
   // If exportDir is relative, resolve it from appDir
   const resolvedExportDir = path.isAbsolute(exportDir)
     ? exportDir
@@ -117,7 +133,7 @@ export function checkExportDirectory(exportDir: string, appDir: string = process
   if (!fs.existsSync(resolvedExportDir)) {
     throw new Error(
       `Export directory not found: ${resolvedExportDir}\n` +
-      `Run 'npx expo export' or use --export-dir to specify a different directory.`
+        `Run 'npx expo export' or use --export-dir to specify a different directory.`
     );
   }
 
@@ -131,7 +147,7 @@ export function checkExportDirectory(exportDir: string, appDir: string = process
     if (!fs.existsSync(expectedPath)) {
       throw new Error(
         `Invalid export directory structure in: ${resolvedExportDir}\n` +
-        `Run 'npx expo export' to generate a valid export.`
+          `Run 'npx expo export' to generate a valid export.`
       );
     }
   }

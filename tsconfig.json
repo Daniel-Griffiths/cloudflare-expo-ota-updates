@@ -14,13 +14,13 @@
     "baseUrl": ".",
     "paths": {
       "@cloudflare-expo-ota/worker": ["apps/worker/src/index.ts"],
-      "@cloudflare-expo-ota/deploy": ["packages/deploy/index.ts"]
+      "@cloudflare-expo-ota/deploy": ["packages/easc/index.ts"]
     }
   },
   "include": [],
   "exclude": ["node_modules"],
   "references": [
     { "path": "./apps/worker/tsconfig.json" },
-    { "path": "./packages/deploy/tsconfig.json" }
+    { "path": "./packages/easc/tsconfig.json" }
   ]
 }

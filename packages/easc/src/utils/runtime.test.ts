@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { resolveRuntimeVersion, getPlatforms, type AppJson } from "./runtime";
+import { resolveRuntimeVersion, getPlatforms, type IAppJson } from "./runtime";
 
 describe("resolveRuntimeVersion", () => {
   it("should return string runtime version directly", () => {
-    const appJson: AppJson = {
+    const appJson: IAppJson = {
       expo: {
         runtimeVersion: "1.0.0",
       },
@@ -12,7 +12,7 @@ describe("resolveRuntimeVersion", () => {
   });
 
   it("should resolve appVersion policy", () => {
-    const appJson: AppJson = {
+    const appJson: IAppJson = {
       expo: {
         runtimeVersion: { policy: "appVersion" },
         version: "2.1.0",
@@ -22,7 +22,7 @@ describe("resolveRuntimeVersion", () => {
   });
 
   it("should throw error when appVersion policy is used but version is missing", () => {
-    const appJson: AppJson = {
+    const appJson: IAppJson = {
       expo: {
         runtimeVersion: { policy: "appVersion" },
       },
@@ -33,7 +33,7 @@ describe("resolveRuntimeVersion", () => {
   });
 
   it("should throw error for invalid runtime version configuration", () => {
-    const appJson: AppJson = {
+    const appJson: IAppJson = {
       expo: {},
     };
     expect(() => resolveRuntimeVersion(appJson)).toThrow(
@@ -42,7 +42,7 @@ describe("resolveRuntimeVersion", () => {
   });
 
   it("should throw error for unsupported policy", () => {
-    const appJson: AppJson = {
+    const appJson: IAppJson = {
       expo: {
         runtimeVersion: { policy: "unsupported" } as any,
       },
@@ -55,7 +55,7 @@ describe("resolveRuntimeVersion", () => {
 
 describe("getPlatforms", () => {
   it("should return specified platforms", () => {
-    const appJson: AppJson = {
+    const appJson: IAppJson = {
       expo: {
         platforms: ["ios", "android"],
       },
@@ -64,14 +64,14 @@ describe("getPlatforms", () => {
   });
 
   it("should default to both platforms when not specified", () => {
-    const appJson: AppJson = {
+    const appJson: IAppJson = {
       expo: {},
     };
     expect(getPlatforms(appJson)).toEqual(["ios", "android"]);
   });
 
   it("should filter out invalid platforms", () => {
-    const appJson: AppJson = {
+    const appJson: IAppJson = {
       expo: {
         platforms: ["ios", "web", "android"],
       },
@@ -80,7 +80,7 @@ describe("getPlatforms", () => {
   });
 
   it("should handle iOS-only", () => {
-    const appJson: AppJson = {
+    const appJson: IAppJson = {
       expo: {
         platforms: ["ios"],
       },
@@ -89,7 +89,7 @@ describe("getPlatforms", () => {
   });
 
   it("should handle Android-only", () => {
-    const appJson: AppJson = {
+    const appJson: IAppJson = {
       expo: {
         platforms: ["android"],
       },

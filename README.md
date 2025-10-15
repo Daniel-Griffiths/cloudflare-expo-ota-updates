@@ -1,20 +1,19 @@
 <div align="center">
-  <img src="docs/assets/logo.png" alt="Cloudflare Expo OTA Updates" width="120"/>
+  <img src="logo.png" alt="Cloudflare Expo OTA Updates" width="120"/>
 </div>
 
 # Cloudflare - Expo OTA Updates
 
-This is a open source update OTA update service for Expo apps, using a Cloudflare worker, D1 database and R2 storage.
+This is a open source update OTA update service for Expo apps, using Cloudflare workers, D1 database and R2 storage.
 
-## Project Structure
+## Why Use This Project?
 
-This is a monorepo using pnpm workspaces:
-- `apps/worker` - The Cloudflare Worker application and CLI
-- `packages/deploy` - Deploy tool for publishing OTA updates (future npm package)
+If you are in the fortunate position of having an Expo app with a large number of users then the price of OTA updates on EAS can add up very quickly. Self hosting on Cloudflare can drastically lower these costs and potentially even get the price down to $0 per month, as Cloudflare has an extremely generous free tier for it's services.
 
 ## Getting Started
 
 1. **Install dependencies:**
+
 ```bash
 pnpm install
 ```
@@ -23,13 +22,12 @@ pnpm install
 
 ## Documentation
 
-- [Cloudflare Setup](docs/SETUP_CLOUDFLARE.md) - Configure Cloudflare Workers, D1, and R2
-- [App Setup](docs/SETUP_APP.md) - Integrate OTA updates into your Expo app
-- [CLI Usage](docs/CLI.md) - Command-line tools for managing updates
+- [Cloudflare Setup](apps/worker/README.md) - Configure Cloudflare Workers, D1, and R2
+- [App Setup](packages/easc/README.md) - Integrate OTA updates into your Expo app
 
 ## Features
 
-- Support multiple applications for OTA updates
+- Manage and deploy updates for multiple apps
 - Secure deployments using api keys and ip restrictions
-- Super fast CDN Integration using Cloudflare
-- ...save money!
+- Super fast CDN integration using Cloudflare R2
+- Easily migrate existing apps using `easc` (a drop in replacement for `eas`)

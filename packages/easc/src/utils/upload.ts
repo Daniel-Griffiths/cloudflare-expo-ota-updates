@@ -1,29 +1,26 @@
 import fs from "fs";
 import FormData from "form-data";
-import { AppJson } from "./runtime";
-import { Metadata } from "./files";
-import { Config } from "./validation";
+import { IAppJson } from "./runtime";
+import { IMetadata } from "./files";
+import { Config } from "./schema";
+import { PlatformType } from "../enums/platform";
 
-export interface UploadOptions {
-  platform: "ios" | "android";
+export interface IUploadOptions {
+  platform: PlatformType;
   channel: string;
   runtimeVersion: string;
   commitHash?: string;
   bundlePath: string;
   assetPaths: string[];
-  expoConfig: AppJson["expo"];
-  metadata: Metadata;
+  expoConfig: IAppJson["expo"];
+  metadata: IMetadata;
   config: Config;
-
-  // EAS-compatible metadata
-  alias?: string;
-  id?: string;
 }
 
 /**
  * Upload a bundle and assets for a platform
  */
-export async function uploadBundle(options: UploadOptions): Promise<void> {
+export async function uploadBundle(options: IUploadOptions): Promise<void> {
   const {
     platform,
     channel,
@@ -34,8 +31,6 @@ export async function uploadBundle(options: UploadOptions): Promise<void> {
     expoConfig,
     metadata,
     config,
-    alias,
-    id,
   } = options;
 
   const form = new FormData();
@@ -47,15 +42,6 @@ export async function uploadBundle(options: UploadOptions): Promise<void> {
 
   if (commitHash) {
     form.append("commitHash", commitHash);
-  }
-
-  // Add EAS-compatible metadata
-  if (alias) {
-    form.append("alias", alias);
-  }
-
-  if (id) {
-    form.append("deploymentId", id);
   }
 
   // Add bundle
@@ -91,14 +77,12 @@ export async function uploadBundle(options: UploadOptions): Promise<void> {
  * Create a dry run summary
  */
 export function createDryRunSummary(options: {
-  platform: "ios" | "android";
+  platform: PlatformType;
   bundlePath: string;
   assetPaths: string[];
   channel: string;
   runtimeVersion: string;
   commitHash?: string;
-  alias?: string;
-  id?: string;
 }): string {
   const {
     platform,
@@ -107,8 +91,6 @@ export function createDryRunSummary(options: {
     channel,
     runtimeVersion,
     commitHash,
-    alias,
-    id,
   } = options;
 
   const bundleSize = fs.statSync(bundlePath).size;
@@ -126,14 +108,6 @@ export function createDryRunSummary(options: {
     lines.push(`Commit: ${commitHash}`);
   }
 
-  if (alias) {
-    lines.push(`Alias: ${alias}`);
-  }
-
-  if (id) {
-    lines.push(`Deployment ID: ${id}`);
-  }
-
   lines.push(
     `Bundle: ${formatBytes(bundleSize)}`,
     `Assets: ${assetPaths.length} files (${formatBytes(totalAssetSize)})`
@@ -149,5 +123,5 @@ function formatBytes(bytes: number): string {
   const sizes = ["Bytes", "KB", "MB", "GB"];
   if (bytes === 0) return "0 Bytes";
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + " " + sizes[i];
+  return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
 }
