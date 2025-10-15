@@ -12,8 +12,7 @@
   "files": [
     "bin",
     "index.ts",
-    "src",
-    "README.md"
+    "src"
   ],
   "scripts": {
     "build": "tsc",
