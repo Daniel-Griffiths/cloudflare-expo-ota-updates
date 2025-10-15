@@ -1,5 +1,4 @@
 import fs from "fs";
-import FormData from "form-data";
 import { IAppJson } from "./runtime";
 import { IMetadata } from "./files";
 import { Config } from "./schema";
@@ -46,29 +45,36 @@ export async function uploadBundle(options: IUploadOptions): Promise<void> {
 
   // Add bundle
   const bundleBuffer = fs.readFileSync(bundlePath);
+  const bundleBlob = new Blob([bundleBuffer]);
   const bundleFileName = bundlePath.split("/").pop()!;
-  form.append("bundle", bundleBuffer, bundleFileName);
+  form.append("bundle", bundleBlob, bundleFileName);
 
   // Add assets
   assetPaths.forEach((assetPath, index) => {
     const assetBuffer = fs.readFileSync(assetPath);
+    const assetBlob = new Blob([assetBuffer]);
     const assetFileName = assetPath.split("/").pop()!;
-    form.append(`asset-${index}`, assetBuffer, assetFileName);
+    form.append(`asset-${index}`, assetBlob, assetFileName);
   });
 
   // Upload
   const url = new URL("/upload", config.otaServer);
+
   const response = await fetch(url.toString(), {
     method: "POST",
     headers: {
       "x-ota-api-key": config.apiKey,
-      ...form.getHeaders(),
     },
     body: form,
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
+    let errorText = "";
+    try {
+      errorText = await response.text();
+    } catch (e) {
+      errorText = "Unable to read error response";
+    }
     throw new Error(`Upload failed: ${response.status} ${errorText}`);
   }
 }
