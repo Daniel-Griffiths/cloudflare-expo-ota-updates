@@ -1,6 +1,6 @@
 {
   "name": "easc",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Expo App Services for Cloudflare - Deploy tool for Expo OTA updates to Cloudflare Workers",
   "type": "module",
   "license": "MIT",
@@ -39,7 +39,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/cloudflare-expo-ota-updates.git",
+    "url": "git+https://github.com/Daniel-Griffiths/cloudflare-expo-ota-updates.git",
     "directory": "packages/easc"
   },
   "keywords": [

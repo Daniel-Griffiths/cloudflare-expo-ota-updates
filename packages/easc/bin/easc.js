@@ -14,9 +14,9 @@ if (isBun) {
   // Bun natively supports TypeScript, just import directly
   await import(indexPath);
 } else {
-  // Node.js - use tsx loader with --env-file if .env exists
+  // Node.js - use tsx for TypeScript support
   const envPath = join(process.cwd(), '.env');
-  const nodeArgs = ['--import', 'tsx'];
+  const nodeArgs = ['--import', 'tsx/esm'];
 
   // Add --env-file flag if .env exists in current directory
   if (existsSync(envPath)) {

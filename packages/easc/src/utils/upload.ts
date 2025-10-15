@@ -1,8 +1,8 @@
 import fs from "fs";
-import { IAppJson } from "./runtime";
-import { IMetadata } from "./files";
-import { Config } from "./schema";
-import { PlatformType } from "../enums/platform";
+import { IAppJson } from "./runtime.ts";
+import { IMetadata } from "./files.ts";
+import { Config } from "./schema.ts";
+import { PlatformType } from "../enums/platform.ts";
 
 export interface IUploadOptions {
   platform: PlatformType;
