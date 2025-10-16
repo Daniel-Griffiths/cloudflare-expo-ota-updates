@@ -91,7 +91,7 @@ export function parseArguments(argv: string[] = process.argv): ICliOptions {
     );
   }
 
-  if (!channel && !args.help) {
+  if (!channel && !args["help"]) {
     console.error(chalk.red("Error: Channel is required"));
     console.log("Use one of the following:");
     console.log("  easc --channel production");
@@ -111,6 +111,6 @@ export function parseArguments(argv: string[] = process.argv): ICliOptions {
       | undefined,
     exportDir: args.exportDir as string,
     prod: args.prod as boolean,
-    help: args.help as boolean | undefined,
+    help: args["help"] as boolean | undefined,
   };
 }
