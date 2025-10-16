@@ -139,18 +139,18 @@ export async function uploadHandler(
     }
 
     const fieldValidation = uploadFormFieldsSchema.safeParse({
-      channel: fields.channel?.[0],
-      runtimeVersion: fields.runtimeVersion?.[0],
-      platform: fields.platform?.[0],
-      commitHash: fields.commitHash?.[0],
-      expoConfig: fields.expoConfig?.[0],
-      metadata: fields.metadata?.[0],
+      channel: fields["channel"]?.[0],
+      runtimeVersion: fields["runtimeVersion"]?.[0],
+      platform: fields["platform"]?.[0],
+      commitHash: fields["commitHash"]?.[0],
+      expoConfig: fields["expoConfig"]?.[0],
+      metadata: fields["metadata"]?.[0],
     });
 
     if (!fieldValidation.success) {
       console.log(
         "❌ Invalid form fields:",
-        fieldValidation.error.issues[0].message
+        fieldValidation.error.issues[0]?.message
       );
       return new Response(null, { status: 404 });
     }

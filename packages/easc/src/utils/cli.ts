@@ -3,13 +3,13 @@ import { hideBin } from "yargs/helpers";
 import chalk from "chalk";
 
 export interface ICliOptions {
-  channel?: string;
+  channel?: string | undefined;
   skipBuild: boolean;
   dryRun: boolean;
-  environment?: "development" | "preview" | "production";
+  environment?: "development" | "preview" | "production" | undefined;
   exportDir: string;
   prod: boolean;
-  help?: boolean;
+  help?: boolean | undefined;
 }
 
 /**

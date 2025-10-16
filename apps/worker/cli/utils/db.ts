@@ -2,21 +2,6 @@ import { execSync } from "child_process";
 import type { IApp, IUpdate } from "../../src/db/schema.js";
 
 /*
- * Utility type to convert camelCase to snake_case keys
- */
-type SnakeCaseKeys<T> = {
-  [K in keyof T as K extends string
-    ? K extends `${infer A}${infer B}`
-      ? B extends Uncapitalize<B>
-        ? `${Lowercase<A>}${SnakeCaseKeys<{ [P in B]: unknown }>}`
-        : `${Lowercase<A>}_${Lowercase<B>}${K extends `${A}${B}${infer Rest}`
-            ? SnakeCaseKeys<{ [P in Rest]: unknown }>
-            : ""}`
-      : Lowercase<K>
-    : never]: T[K];
-};
-
-/*
  * Helper to convert a single key from camelCase to snake_case
  */
 type CamelToSnake<S extends string> = S extends `${infer T}${infer U}`
@@ -51,8 +36,20 @@ export async function queryDatabase<T>(sql: string): Promise<T[]> {
       throw new Error("Failed to parse database output");
     }
 
-    const parsed = JSON.parse(jsonMatch[0]) as Array<IQueryResult<T>>;
-    return parsed[0]?.results || [];
+    const parsed: unknown = JSON.parse(jsonMatch[0]);
+
+    // Validate the parsed structure
+    if (!Array.isArray(parsed)) {
+      throw new Error("Invalid database output: expected array");
+    }
+
+    const firstResult = parsed[0];
+    if (!firstResult || typeof firstResult !== "object") {
+      return [];
+    }
+
+    const queryResult = firstResult as IQueryResult<T>;
+    return queryResult.results || [];
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Database query failed: ${error.message}`);

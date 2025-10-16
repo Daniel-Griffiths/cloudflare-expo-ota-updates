@@ -8,7 +8,7 @@ export interface IUploadOptions {
   config: IConfig;
   channel: string;
   bundlePath: string;
-  commitHash?: string;
+  commitHash?: string | undefined;
   metadata: IMetadata;
   assetPaths: string[];
   platform: PlatformType;
@@ -46,14 +46,20 @@ export async function uploadBundle(options: IUploadOptions): Promise<void> {
   // Add bundle
   const bundleBuffer = fs.readFileSync(bundlePath);
   const bundleBlob = new Blob([bundleBuffer]);
-  const bundleFileName = bundlePath.split("/").pop()!;
+  const bundleFileName = bundlePath.split("/").pop();
+  if (!bundleFileName) {
+    throw new Error(`Invalid bundle path: ${bundlePath}`);
+  }
   form.append("bundle", bundleBlob, bundleFileName);
 
   // Add assets
   assetPaths.forEach((assetPath, index) => {
     const assetBuffer = fs.readFileSync(assetPath);
     const assetBlob = new Blob([assetBuffer]);
-    const assetFileName = assetPath.split("/").pop()!;
+    const assetFileName = assetPath.split("/").pop();
+    if (!assetFileName) {
+      throw new Error(`Invalid asset path: ${assetPath}`);
+    }
     form.append(`asset-${index}`, assetBlob, assetFileName);
   });
 
@@ -85,7 +91,7 @@ export async function uploadBundle(options: IUploadOptions): Promise<void> {
 export function createDryRunSummary(options: {
   channel: string;
   bundlePath: string;
-  commitHash?: string;
+  commitHash?: string | undefined;
   assetPaths: string[];
   platform: PlatformType;
   runtimeVersion: string;

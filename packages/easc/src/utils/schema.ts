@@ -72,8 +72,8 @@ function formatZodError(error: z.ZodError, context?: string): string[] {
  */
 export function validateEnvironment(): IValidationResult {
   const result = envSchema.safeParse({
-    OTA_SERVER: process.env.OTA_SERVER,
-    OTA_API_KEY: process.env.OTA_API_KEY,
+    OTA_SERVER: process.env["OTA_SERVER"],
+    OTA_API_KEY: process.env["OTA_API_KEY"],
   });
 
   if (!result.success) {
@@ -135,8 +135,8 @@ export function validateConfig(channel: string | undefined): IValidationResult {
 export function getConfig(channel: string): IConfig {
   return {
     channel,
-    apiKey: process.env.OTA_API_KEY!,
-    otaServer: process.env.OTA_SERVER!,
+    apiKey: process.env["OTA_API_KEY"]!,
+    otaServer: process.env["OTA_SERVER"]!,
   };
 }
 

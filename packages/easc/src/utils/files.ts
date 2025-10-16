@@ -73,7 +73,12 @@ export function findBundleFile(
     throw new Error(`No bundle found for ${platform}`);
   }
 
-  return path.join(bundlePath, bundleFiles[0]);
+  const [firstBundle] = bundleFiles;
+  if (!firstBundle) {
+    throw new Error(`No bundle found for ${platform}`);
+  }
+
+  return path.join(bundlePath, firstBundle);
 }
 
 /**
