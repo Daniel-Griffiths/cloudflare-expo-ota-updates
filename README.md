@@ -23,7 +23,7 @@ pnpm install
 ## Documentation
 
 - [Cloudflare Setup](apps/worker/README.md) - Configure Cloudflare Workers, D1, and R2
-- [App Setup](packages/easc/README.md) - Integrate OTA updates into your Expo app
+- [App Setup](apps/easc/README.md) - Integrate OTA updates into your Expo app
 
 ## Features
 
