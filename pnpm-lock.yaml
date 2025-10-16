@@ -12,6 +12,40 @@ importers:
         specifier: ^5.3.3
         version: 5.9.3
 
+  apps/easc:
+    dependencies:
+      chalk:
+        specifier: 5.6.0
+        version: 5.6.0
+      ora:
+        specifier: ^9.0.0
+        version: 9.0.0
+      tsx:
+        specifier: ^4.20.6
+        version: 4.20.6
+      yargs:
+        specifier: ^18.0.0
+        version: 18.0.0
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.12
+    devDependencies:
+      '@types/node':
+        specifier: ^24.8.0
+        version: 24.8.0
+      '@types/yargs':
+        specifier: ^17.0.33
+        version: 17.0.33
+      '@vitest/ui':
+        specifier: ^3.0.0
+        version: 3.2.4(vitest@3.2.4)
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.8.0)(@vitest/ui@3.2.4)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
+
   apps/worker:
     dependencies:
       '@inquirer/prompts':
@@ -72,40 +106,6 @@ importers:
       yargs:
         specifier: ^18.0.0
         version: 18.0.0
-
-  packages/easc:
-    dependencies:
-      chalk:
-        specifier: 5.6.0
-        version: 5.6.0
-      ora:
-        specifier: ^9.0.0
-        version: 9.0.0
-      tsx:
-        specifier: ^4.20.6
-        version: 4.20.6
-      yargs:
-        specifier: ^18.0.0
-        version: 18.0.0
-      zod:
-        specifier: ^4.1.12
-        version: 4.1.12
-    devDependencies:
-      '@types/node':
-        specifier: ^24.8.0
-        version: 24.8.0
-      '@types/yargs':
-        specifier: ^17.0.33
-        version: 17.0.33
-      '@vitest/ui':
-        specifier: ^3.0.0
-        version: 3.2.4(vitest@3.2.4)
-      typescript:
-        specifier: ^5.3.3
-        version: 5.9.3
-      vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@24.8.0)(@vitest/ui@3.2.4)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
 packages:
 
