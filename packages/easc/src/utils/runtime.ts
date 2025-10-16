@@ -2,7 +2,7 @@
  * Utilities for handling Expo runtime versions
  */
 
-import { Platform, PlatformType } from "../enums/platform";
+import { PlatformType } from "../enums/platform";
 
 export interface IAppJson {
   expo: {
