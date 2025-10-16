@@ -9,7 +9,7 @@ pnpm install
 **2. Create D1 Database**
 
 ```bash
-pnpm exec wrangler d1 create expo-ota-updates
+npx wrangler d1 create expo-ota-updates
 ```
 
 Take the `database_id` returned from this command and add it to `wrangler.toml`
@@ -28,10 +28,10 @@ Create the initial database tables:
 
 ```bash
 # Local
-pnpm exec wrangler d1 migrations apply expo-ota-updates --local
+npx wrangler d1 migrations apply expo-ota-updates --local
 
 # Remote
-pnpm exec wrangler d1 migrations apply expo-ota-updates --remote
+npx wrangler d1 migrations apply expo-ota-updates --remote
 ```
 
 **4. Add Your First App to The Database**
@@ -50,7 +50,7 @@ pnpm run cli create-app
 This is where your update files will be stored.
 
 ```bash
-pnpm exec wrangler r2 bucket create expo-ota-updates
+npx wrangler r2 bucket create expo-ota-updates
 ```
 
 **6. Configure R2 Public Access**
@@ -76,13 +76,13 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 1. Enable R2.dev subdomain:
 
    ```bash
-   pnpm exec wrangler r2 bucket domain enable expo-ota-updates
+   npx wrangler r2 bucket domain enable expo-ota-updates
    ```
 
 2. Get the public URL:
 
    ```bash
-   pnpm exec wrangler r2 bucket domain list expo-ota-updates
+   npx wrangler r2 bucket domain list expo-ota-updates
    ```
 
    This will output something like: `https://pub-abc123def456.r2.dev`
@@ -120,7 +120,7 @@ pnpm run deploy
 ```
 
 > [!NOTE]
-> If you are having issues use `pnpm exec wrangler tail` to debug the worker logs when sending/downloading updates
+> If you are having issues use `npx wrangler tail` to debug the worker logs when sending/downloading updates
 
 **9. Security (optional)**
 

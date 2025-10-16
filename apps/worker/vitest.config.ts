@@ -15,11 +15,12 @@ export default defineWorkersConfig(async () => {
       setupFiles: [path.join(__dirname, "src/test-setup.ts")],
       poolOptions: {
         workers: {
-          wrangler: { configPath: path.join(__dirname, "wrangler.example.toml") },
+          wrangler: {
+            configPath: path.join(__dirname, "wrangler.example.toml"),
+          },
           miniflare: {
             // Automatically uses D1 and R2 bindings from wrangler.example.toml
             bindings: {
-              // Override ALLOWED_UPLOAD_IPS for tests to disable IP whitelist
               ALLOWED_UPLOAD_IPS: "",
               TEST_MIGRATIONS: migrations,
             },

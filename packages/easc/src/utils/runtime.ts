@@ -15,16 +15,17 @@ export interface IAppJson {
 /**
  * Resolve the runtime version from app.json
  * Supports both string values and policy objects
+ *
+ * When using `appVersion` the version is infered from
+ * the `version` property in `app.json`
  */
 export function resolveRuntimeVersion(appJson: IAppJson): string {
   const runtimeVersionConfig = appJson.expo.runtimeVersion;
 
-  // If it's a string, use it directly
   if (typeof runtimeVersionConfig === "string") {
     return runtimeVersionConfig;
   }
 
-  // If it's an object with policy: appVersion
   if (
     typeof runtimeVersionConfig === "object" &&
     runtimeVersionConfig?.policy === "appVersion"
@@ -50,5 +51,7 @@ export function resolveRuntimeVersion(appJson: IAppJson): string {
  */
 export function getPlatforms(appJson: IAppJson): PlatformType[] {
   const platforms = appJson.expo.platforms || ["ios", "android"];
-  return platforms.filter(p => p === "ios" || p === "android") as PlatformType[];
+  return platforms.filter(
+    (p) => p === "ios" || p === "android"
+  ) as PlatformType[];
 }

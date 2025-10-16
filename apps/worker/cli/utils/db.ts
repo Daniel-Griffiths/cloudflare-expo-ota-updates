@@ -40,7 +40,7 @@ interface IQueryResult<T> {
 
 export async function queryDatabase<T>(sql: string): Promise<T[]> {
   try {
-    const command = `yarn exec wrangler -- d1 execute expo-ota-updates --remote --command="${sql.replace(
+    const command = `npx wrangler d1 execute expo-ota-updates --remote --command="${sql.replace(
       /"/g,
       '\\"'
     )}"`;

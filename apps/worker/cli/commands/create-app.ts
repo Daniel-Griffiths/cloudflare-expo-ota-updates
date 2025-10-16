@@ -37,7 +37,7 @@ export async function createApp() {
   try {
     const envFlag = environment === "local" ? "--local" : "--remote";
     const sql = `INSERT INTO apps (id, name, api_key) VALUES ('${appId}', '${appName}', '${apiKey}')`;
-    const command = `yarn exec wrangler -- d1 execute expo-ota-updates ${envFlag} --command="${sql}"`;
+    const command = `npx wrangler d1 execute expo-ota-updates ${envFlag} --command="${sql}"`;
 
     execSync(command, { encoding: "utf-8", stdio: "pipe" });
 

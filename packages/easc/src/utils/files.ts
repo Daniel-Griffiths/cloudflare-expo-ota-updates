@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import { IAppJson } from "./runtime.ts";
-import { Platform, PlatformType } from "../enums/platform.ts";
+import { IAppJson } from "./runtime";
+import { Platform, PlatformType } from "../enums/platform";
 
 export interface IMetadata {
   fileMetadata?: {

@@ -2,20 +2,20 @@
 import { execSync } from "child_process";
 import fs from "fs";
 import chalk from "chalk";
-import { parseArguments } from "./src/utils/cli.ts";
-import { validateConfig, getConfig } from "./src/utils/schema.ts";
-import { resolveRuntimeVersion, getPlatforms } from "./src/utils/runtime.ts";
-import { getCommitHash, getShortCommitHash, isGitClean } from "./src/utils/git.ts";
+import { parseArguments } from "./src/utils/cli";
+import { validateConfig, getConfig } from "./src/utils/schema";
+import { resolveRuntimeVersion, getPlatforms } from "./src/utils/runtime";
+import { getCommitHash, getShortCommitHash, isGitClean } from "./src/utils/git";
 import {
   readAppJson,
   readMetadata,
   findBundleFile,
   getAssetFiles,
   checkExportDirectory,
-} from "./src/utils/files.ts";
-import { uploadBundle, createDryRunSummary } from "./src/utils/upload.ts";
-import { Logger } from "./src/utils/logger.ts";
-import { PlatformType } from "./src/enums/platform.ts";
+} from "./src/utils/files";
+import { uploadBundle, createDryRunSummary } from "./src/utils/upload";
+import { Logger } from "./src/utils/logger";
+import { PlatformType } from "./src/enums/platform";
 
 type IDeploymentResult = {
   platform: PlatformType;

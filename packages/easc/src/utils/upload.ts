@@ -1,19 +1,19 @@
 import fs from "fs";
-import { IAppJson } from "./runtime.ts";
-import { IMetadata } from "./files.ts";
-import { Config } from "./schema.ts";
-import { PlatformType } from "../enums/platform.ts";
+import { IAppJson } from "./runtime";
+import { IMetadata } from "./files";
+import { IConfig } from "./schema";
+import { PlatformType } from "../enums/platform";
 
 export interface IUploadOptions {
-  platform: PlatformType;
+  config: IConfig;
   channel: string;
-  runtimeVersion: string;
-  commitHash?: string;
   bundlePath: string;
-  assetPaths: string[];
-  expoConfig: IAppJson["expo"];
+  commitHash?: string;
   metadata: IMetadata;
-  config: Config;
+  assetPaths: string[];
+  platform: PlatformType;
+  runtimeVersion: string;
+  expoConfig: IAppJson["expo"];
 }
 
 /**
@@ -21,23 +21,23 @@ export interface IUploadOptions {
  */
 export async function uploadBundle(options: IUploadOptions): Promise<void> {
   const {
-    platform,
+    config,
     channel,
-    runtimeVersion,
+    platform,
+    metadata,
     commitHash,
     bundlePath,
     assetPaths,
     expoConfig,
-    metadata,
-    config,
+    runtimeVersion,
   } = options;
 
   const form = new FormData();
   form.append("channel", channel);
-  form.append("runtimeVersion", runtimeVersion);
   form.append("platform", platform);
-  form.append("expoConfig", JSON.stringify(expoConfig));
+  form.append("runtimeVersion", runtimeVersion);
   form.append("metadata", JSON.stringify(metadata));
+  form.append("expoConfig", JSON.stringify(expoConfig));
 
   if (commitHash) {
     form.append("commitHash", commitHash);
@@ -83,20 +83,20 @@ export async function uploadBundle(options: IUploadOptions): Promise<void> {
  * Create a dry run summary
  */
 export function createDryRunSummary(options: {
-  platform: PlatformType;
-  bundlePath: string;
-  assetPaths: string[];
   channel: string;
-  runtimeVersion: string;
+  bundlePath: string;
   commitHash?: string;
+  assetPaths: string[];
+  platform: PlatformType;
+  runtimeVersion: string;
 }): string {
   const {
+    channel,
     platform,
     bundlePath,
     assetPaths,
-    channel,
-    runtimeVersion,
     commitHash,
+    runtimeVersion,
   } = options;
 
   const bundleSize = fs.statSync(bundlePath).size;

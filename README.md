@@ -4,11 +4,11 @@
 
 # Cloudflare - Expo OTA Updates
 
-This is a open source update OTA update service for Expo apps, using Cloudflare workers, D1 database and R2 storage.
+This is a open source OTA update service for Expo apps, using Cloudflare workers, D1 database and R2 storage.
 
 ## Why Use This Project?
 
-If you are in the fortunate position of having an Expo app with a large number of users then the price of OTA updates on EAS can add up very quickly. Self hosting on Cloudflare can drastically lower these costs and potentially even get the price down to $0 per month, as Cloudflare has an extremely generous free tier for it's services.
+When deploying Expo OTA updates to an app with a large number of users the price can add up very quickly. Self hosting on Cloudflare can **drastically** lower these costs and potentially even get the price down to $0 per month (Cloudflare has an extremely generous free tier for it's services).
 
 ## Getting Started
 

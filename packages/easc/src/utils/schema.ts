@@ -1,9 +1,8 @@
 import chalk from "chalk";
 import { z } from "zod";
 
-// Zod schemas
 const envSchema = z.object({
-  OTA_SERVER: z.string().url("OTA_SERVER must be a valid URL"),
+  OTA_SERVER: z.url("OTA_SERVER must be a valid URL"),
   OTA_API_KEY: z.string().min(1, "OTA_API_KEY is required"),
 });
 
@@ -16,13 +15,12 @@ const channelSchema = z
   );
 
 const configSchema = z.object({
-  otaServer: z.string().url(),
-  apiKey: z.string().min(1),
   channel: channelSchema,
+  otaServer: z.url(),
+  apiKey: z.string().min(1),
 });
 
-// Type exports
-export type Config = z.infer<typeof configSchema>;
+export type IConfig = z.infer<typeof configSchema>;
 
 export interface IValidationResult {
   valid: boolean;
@@ -40,7 +38,9 @@ function formatZodError(error: z.ZodError, context?: string): string[] {
     if (context === "environment") {
       if (path === "OTA_SERVER") {
         return (
-          `${chalk.red("OTA_SERVER")} environment variable is required or invalid\n` +
+          `${chalk.red(
+            "OTA_SERVER"
+          )} environment variable is required or invalid\n` +
           `   Set it in your .env file or export it:\n` +
           `   export OTA_SERVER="https://your-ota-server.com"`
         );
@@ -89,15 +89,17 @@ export function validateEnvironment(): IValidationResult {
 /**
  * Validate a channel name using zod
  */
-export function validateChannel(channel: string | undefined): IValidationResult {
+export function validateChannel(
+  channel: string | undefined
+): IValidationResult {
   if (!channel) {
     return {
       valid: false,
       errors: [
         `${chalk.red("--channel")} flag is required\n` +
-        `   Specify which channel to deploy to:\n` +
-        `   easc --channel production\n` +
-        `   easc --channel staging`,
+          `   Specify which channel to deploy to:\n` +
+          `   easc --channel production\n` +
+          `   easc --channel staging`,
       ],
     };
   }
@@ -130,11 +132,11 @@ export function validateConfig(channel: string | undefined): IValidationResult {
 /**
  * Get configuration from environment and arguments
  */
-export function getConfig(channel: string): Config {
+export function getConfig(channel: string): IConfig {
   return {
-    otaServer: process.env.OTA_SERVER!,
-    apiKey: process.env.OTA_API_KEY!,
     channel,
+    apiKey: process.env.OTA_API_KEY!,
+    otaServer: process.env.OTA_SERVER!,
   };
 }
 

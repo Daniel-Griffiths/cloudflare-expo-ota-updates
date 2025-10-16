@@ -17,10 +17,9 @@ export interface ICliOptions {
  */
 function mapEnvironmentToChannel(
   environment?: string,
-  prod?: boolean
+  isShorthandProd?: boolean
 ): string | undefined {
-  if (prod) return "production";
-  if (environment === "production") return "production";
+  if (environment === "production" || isShorthandProd) return "production";
   if (environment === "preview") return "staging";
   if (environment === "development") return "dev";
   return undefined;
@@ -92,7 +91,6 @@ export function parseArguments(argv: string[] = process.argv): ICliOptions {
     );
   }
 
-  // Validation: ensure we have a channel
   if (!channel && !args.help) {
     console.error(chalk.red("Error: Channel is required"));
     console.log("Use one of the following:");
