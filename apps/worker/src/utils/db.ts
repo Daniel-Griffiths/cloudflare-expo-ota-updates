@@ -30,7 +30,7 @@ export interface IUpdateMetadata {
     contentType: string;
     url: string;
   }>;
-  commitHash?: string;
+  commitHash?: string | undefined;
 }
 
 /**

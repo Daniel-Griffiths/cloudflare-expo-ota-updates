@@ -7,13 +7,13 @@ The project includes a powerful CLI for managing your OTA updates, with both int
 **Interactive Mode**
 
 ```bash
-yarn cli
+pnpm run cli
 ```
 
 **Direct Commands**
 
 ```bash
-yarn cli <command>
+pnpm run cli <command>
 ```
 
 ## Available Commands

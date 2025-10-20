@@ -1,40 +1,24 @@
 {
-  "name": "ota-cloudflare-workers",
+  "name": "@cloudflare-expo-ota/root",
   "version": "1.0.0",
-  "description": "OTA update server on Cloudflare Workers",
+  "description": "Cloudflare Workers OTA Update Server for Expo Apps",
   "type": "module",
   "license": "MIT",
-  "main": "src/index.ts",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
   "scripts": {
-    "dev": "wrangler dev",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "typecheck": "tsc --noEmit",
-    "cli": "tsx cli/index.ts",
-    "db:generate": "drizzle-kit generate",
-    "db:studio": "drizzle-kit studio"
-  },
-  "dependencies": {
-    "@inquirer/prompts": "^7.8.6",
-    "drizzle-orm": "^0.44.6",
-    "form-data": "^4.0.4",
-    "hono": "^4.0.0",
-    "mrmime": "^2.0.1",
-    "zod": "^4.1.12"
+    "dev": "pnpm --filter worker dev",
+    "deploy": "pnpm --filter worker deploy",
+    "test": "pnpm --filter worker test",
+    "test:watch": "pnpm --filter worker test:watch",
+    "typecheck": "pnpm -r typecheck",
+    "cli": "pnpm --filter worker cli",
+    "db:generate": "pnpm --filter worker db:generate",
+    "db:studio": "pnpm --filter worker db:studio",
+    "test:easc": "pnpm --filter easc test",
+    "test:all": "pnpm -r test"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.9.10",
-    "@cloudflare/workers-types": "^4.20241127.0",
-    "@types/node": "^24.7.0",
-    "@types/yargs": "^17.0.33",
-    "chalk": "5.6.0",
-    "cli-table3": "^0.6.5",
-    "drizzle-kit": "^0.31.5",
-    "ora": "^9.0.0",
-    "tsx": "^4.20.6",
-    "typescript": "^5.3.3",
-    "vitest": "^3.2.4",
-    "wrangler": "^4.42.0",
-    "yargs": "^18.0.0"
+    "typescript": "^5.3.3"
   }
 }

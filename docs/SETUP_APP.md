@@ -23,7 +23,7 @@ When developing locally, you can use Cloudflare Tunnel to expose your local serv
 **1. Start your local development server:**
 
 ```bash
-yarn dev
+pnpm run dev
 ```
 
 This starts the worker on `http://localhost:8787`
@@ -88,15 +88,9 @@ To configure your Expo app to use this OTA update server, add the following to y
 - The `expo-channel-name` corresponds to the `channel` parameter when uploading updates
 - The `runtimeVersion` should match between your app and uploaded updates
 
-## Deploying Updates from Your Expo App
+## Deploying Updates
 
-To make deploying updates easier, we provide an example upload script that you can copy into your Expo project. **Zero dependencies required** - uses Node.js native TypeScript support (Node 22.6+).
-
-**1. Copy the Upload Script**
-
-Copy the `scripts/deploy.ts` file from this repository into your Expo project:
-
-**2. Configure Environment Variables**
+**1. Configure Environment Variables**
 
 Create a `.env` file in your Expo project root:
 
@@ -107,22 +101,14 @@ OTA_API_KEY=your-api-key-from-step-4
 
 **Important:** Use the actual Worker URL you found in the [Finding Your Worker URL](#finding-your-worker-url) section above.
 
-**3. Add Package.json Script**
+**2. Add Package.json Script**
 
-Add this script to your Expo app's `package.json`:
-
-```json
-{
-  "scripts": {
-    "deploy": "node --env-file=.env --experimental-strip-types ./scripts/deploy.ts --channel production"
-  }
-}
-```
-
-**4. Deploy Updates**
-
-Deploy updates to your OTA server:
+Deploy your update with `easc`
 
 ```bash
-yarn deploy
+npx easc --channel production
+
+# or see a full list of commands/options
+
+npx easc help
 ```

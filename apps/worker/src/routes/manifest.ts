@@ -88,7 +88,7 @@ function sendMultipartResponse(
  * @returns A Response object.
  */
 function sendNoUpdateAvailable(
-  context: Context<{ Bindings: IEnv }>,
+  _context: Context<{ Bindings: IEnv }>,
   protocolVersion: number
 ): Response {
   if (protocolVersion < 1) {

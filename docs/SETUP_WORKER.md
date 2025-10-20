@@ -1,59 +1,69 @@
-# Setup Cloudflare
+# Setup Cloudflare Worker
 
 **1. Install Dependencies**
 
 ```bash
-yarn install
+pnpm install
 ```
 
-**2. Create D1 Database**
+**2. Login to Cloudflare**
+
+Authenticate with your Cloudflare account:
 
 ```bash
-yarn exec wrangler -- d1 create expo-ota-updates
+npx wrangler login
 ```
 
-Take the `database_id` returned from this command and add it to `wranger.toml`
+This will open a browser window to authorize Wrangler.
+
+**3. Create D1 Database**
 
 ```bash
-cp wrangler.example.toml wrangler.toml
+npx wrangler d1 create expo-ota-updates
+```
+
+Take the `database_id` returned from this command and add it to `wrangler.toml`
+
+```bash
+cp apps/worker/wrangler.example.toml apps/worker/wrangler.toml
 ```
 
 ```toml
 database_id = "1234-1234-1234-1234"
 ```
 
-**3. Initialize Database Schema**
+**4. Initialize Database Schema**
 
 Create the initial database tables:
 
 ```bash
 # Local
-yarn exec wrangler -- d1 migrations apply expo-ota-updates --local
+npx wrangler d1 migrations apply expo-ota-updates --local
 
 # Remote
-yarn exec wrangler -- d1 migrations apply expo-ota-updates --remote
+npx wrangler d1 migrations apply expo-ota-updates --remote
 ```
 
-**4. Add Your First App to The Database**
+**5. Add Your First App to The Database**
 
 Use the CLI to create a new app in the database:
 
 ```bash
-yarn cli create-app
+pnpm run cli create-app
 ```
 
 > [!NOTE]  
 > Save your `YOUR_API_KEY` - you'll need it for uploading updates later.
 
-**5. Create R2 Bucket**
+**6. Create R2 Bucket**
 
 This is where your update files will be stored.
 
 ```bash
-yarn exec wrangler -- r2 bucket create expo-ota-updates
+npx wrangler r2 bucket create expo-ota-updates
 ```
 
-**6. Configure R2 Public Access**
+**7. Configure R2 Public Access**
 
 Choose one of the following options to make your R2 bucket publicly accessible:
 
@@ -66,7 +76,7 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 5. Enter your custom domain (e.g., `updates.yourdomain.com`)
    - The domain must be on Cloudflare DNS
    - DNS will be automatically configured
-6. Update `wrangler.toml` with your domain in the `BUCKET_URL` variable:
+6. Update `apps/worker/wrangler.toml` with your domain in the `BUCKET_URL` variable:
    ```toml
    BUCKET_URL = "https://updates.yourdomain.com"
    ```
@@ -76,18 +86,18 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 1. Enable R2.dev subdomain:
 
    ```bash
-   yarn exec wrangler -- r2 bucket domain enable expo-ota-updates
+   npx wrangler r2 bucket domain enable expo-ota-updates
    ```
 
 2. Get the public URL:
 
    ```bash
-   yarn exec wrangler -- r2 bucket domain list expo-ota-updates
+   npx wrangler r2 bucket domain list expo-ota-updates
    ```
 
    This will output something like: `https://pub-abc123def456.r2.dev`
 
-3. Update `wrangler.toml` with this URL in the `BUCKET_URL` variable:
+3. Update `apps/worker/wrangler.toml` with this URL in the `BUCKET_URL` variable:
    ```toml
    BUCKET_URL = "https://pub-abc123def456.r2.dev"
    ```
@@ -95,9 +105,9 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 > [!WARNING]  
 > R2.dev URLs are rate-limited and intended for testing only. Use a custom domain for production.
 
-**7. Check wrangler.toml**
+**8. Check wrangler.toml**
 
-Ok so before we deploy, let's make sure everything looks correct in `wrangler.toml`
+Ok so before we deploy, let's make sure everything looks correct in `apps/worker/wrangler.toml`
 
 | Variable              | Required | Description                                                                                     |
 | --------------------- | -------- | ----------------------------------------------------------------------------------------------- |
@@ -110,19 +120,19 @@ Ok so before we deploy, let's make sure everything looks correct in `wrangler.to
 > [!NOTE]  
 > When using ALLOWED_UPLOAD_IPS, be sure to add both your ipv4 and ipv6 addresses (if you use ipv6)
 
-**8. Deployment**
+**9. Deployment**
 
-Lastly, upload the worker to Cloudflare! If you ever change the .toml values you must redeploy the worker (or manually update them in Cloudflare).
+Now let's deploy the worker to Cloudflare! If you ever change the .toml values you must redeploy the worker (or manually update them in Cloudflare).
 
 ```bash
 # Deploy to Cloudflare Workers
-yarn exec wrangler -- deploy
+pnpm run deploy
 ```
 
-> [!NOTE]  
-> If you are having issues use `yarn exec wrangler -- tail` to debug the worker logs when sending/downloading updates
+> [!NOTE]
+> If you are having issues use `npx wrangler tail` to debug the worker logs when sending/downloading updates
 
-**9. Security (optional)**
+**10. Secure The Worker**
 
 It's very common for malicious bot's to scan domains for security exploits, this eats into your free worker usage. To prevent this it's highly recomended to setup security rules for your domain.
 
