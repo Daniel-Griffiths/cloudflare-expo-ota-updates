@@ -1,0 +1,56 @@
+{
+  "name": "easc",
+  "version": "0.0.2",
+  "description": "Expo App Services for Cloudflare - Deploy tool for Expo OTA updates to Cloudflare Workers",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "easc": "./bin/easc.js"
+  },
+  "files": [
+    "bin",
+    "index.ts",
+    "src"
+  ],
+  "scripts": {
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run test"
+  },
+  "dependencies": {
+    "chalk": "5.6.0",
+    "ora": "^9.0.0",
+    "tsx": "^4.20.6",
+    "yargs": "^18.0.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.8.0",
+    "@types/yargs": "^17.0.33",
+    "@vitest/ui": "^3.0.0",
+    "typescript": "^5.3.3",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Daniel-Griffiths/cloudflare-expo-ota-updates.git",
+    "directory": "apps/easc"
+  },
+  "keywords": [
+    "expo",
+    "ota",
+    "cloudflare",
+    "workers",
+    "deploy",
+    "updates"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

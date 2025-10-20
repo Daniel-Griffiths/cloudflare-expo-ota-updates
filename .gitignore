@@ -33,11 +33,15 @@ build/
 .cache/
 
 # Wrangler (Cloudflare)
-wrangler.toml
-.wrangler/
-.dev.vars
-worker/dist/
+apps/worker/wrangler.toml
+apps/worker/.wrangler/
+apps/worker/.dev.vars
+apps/worker/dist/
 miniflare-*
+
+# Build directories
+dist/
+packages/deploy/dist/
 
 # TypeScript
 *.tsbuildinfo
