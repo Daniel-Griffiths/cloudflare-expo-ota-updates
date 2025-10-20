@@ -4,13 +4,7 @@ Cloudflare Worker that serves OTA (Over-The-Air) updates for Expo applications. 
 
 ## Getting Started
 
-### 1. Install Dependencies
-
-```bash
-pnpm install
-```
-
-### 2. Configure Wrangler
+### 1. Configure Wrangler
 
 Copy the example configuration:
 
@@ -18,13 +12,7 @@ Copy the example configuration:
 cp apps/worker/wrangler.example.toml apps/worker/wrangler.toml
 ```
 
-### 3. Login to Cloudflare
-
-```bash
-npx wrangler login
-```
-
-### 4. Create Local D1 Database
+### 2. Create Local D1 Database
 
 For local development, Wrangler automatically creates a local SQLite database. Initialize the schema:
 
@@ -34,7 +22,7 @@ pnpm db:generate
 npx wrangler d1 migrations apply expo-ota-updates --local
 ```
 
-### 5. Start dev Server
+### 3. Start dev Server
 
 ```bash
 pnpm --filter worker dev

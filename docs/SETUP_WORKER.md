@@ -1,22 +1,6 @@
 # Setup Cloudflare Worker
 
-**1. Install Dependencies**
-
-```bash
-pnpm install
-```
-
-**2. Login to Cloudflare**
-
-Authenticate with your Cloudflare account:
-
-```bash
-npx wrangler login
-```
-
-This will open a browser window to authorize Wrangler.
-
-**3. Create D1 Database**
+**1. Create D1 Database**
 
 ```bash
 npx wrangler d1 create expo-ota-updates
@@ -32,7 +16,7 @@ cp apps/worker/wrangler.example.toml apps/worker/wrangler.toml
 database_id = "1234-1234-1234-1234"
 ```
 
-**4. Initialize Database Schema**
+**2. Initialize Database Schema**
 
 Create the initial database tables:
 
@@ -44,7 +28,7 @@ npx wrangler d1 migrations apply expo-ota-updates --local
 npx wrangler d1 migrations apply expo-ota-updates --remote
 ```
 
-**5. Add Your First App to The Database**
+**3. Add Your First App to The Database**
 
 Use the CLI to create a new app in the database:
 
@@ -55,7 +39,7 @@ pnpm run cli create-app
 > [!NOTE]  
 > Save your `YOUR_API_KEY` - you'll need it for uploading updates later.
 
-**6. Create R2 Bucket**
+**4. Create R2 Bucket**
 
 This is where your update files will be stored.
 
@@ -63,7 +47,7 @@ This is where your update files will be stored.
 npx wrangler r2 bucket create expo-ota-updates
 ```
 
-**7. Configure R2 Public Access**
+**5. Configure R2 Public Access**
 
 Choose one of the following options to make your R2 bucket publicly accessible:
 
@@ -105,7 +89,7 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 > [!WARNING]  
 > R2.dev URLs are rate-limited and intended for testing only. Use a custom domain for production.
 
-**8. Check wrangler.toml**
+**6. Check wrangler.toml**
 
 Ok so before we deploy, let's make sure everything looks correct in `apps/worker/wrangler.toml`
 
@@ -120,7 +104,7 @@ Ok so before we deploy, let's make sure everything looks correct in `apps/worker
 > [!NOTE]  
 > When using ALLOWED_UPLOAD_IPS, be sure to add both your ipv4 and ipv6 addresses (if you use ipv6)
 
-**9. Deployment**
+**7. Deployment**
 
 Now let's deploy the worker to Cloudflare! If you ever change the .toml values you must redeploy the worker (or manually update them in Cloudflare).
 
@@ -132,7 +116,7 @@ pnpm run deploy
 > [!NOTE]
 > If you are having issues use `npx wrangler tail` to debug the worker logs when sending/downloading updates
 
-**10. Secure The Worker**
+**8. Secure The Worker**
 
 It's very common for malicious bot's to scan domains for security exploits, this eats into your free worker usage. To prevent this it's highly recomended to setup security rules for your domain.
 

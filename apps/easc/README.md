@@ -4,13 +4,7 @@
 
 ## Getting Started
 
-### 1. Install Dependencies
-
-```bash
-pnpm install
-```
-
-### 2. Link for Local Testing
+### 1. Link for Local Testing
 
 To test the easc locally, you link the package to replace the published package with your local copy.
 

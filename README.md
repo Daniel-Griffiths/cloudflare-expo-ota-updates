@@ -12,15 +12,21 @@ When deploying Expo OTA updates to an app with a large number of users the price
 
 ## Getting Started
 
-1. **Install dependencies:**
+Install dependencies
 
 ```bash
 pnpm install
 ```
 
-2. **Follow the setup guides** below for configuring the worker and your app.
+Authenticate with your Cloudflare account (This will open a browser window to authorize Wrangler)
 
-## Documentation
+```bash
+npx wrangler login
+```
+
+## Setup Guide
+
+Next follow the setup guides below for configuring the worker and your app.
 
 - [Cloudflare Setup](docs/SETUP_WORKER.md) - Configure Cloudflare Workers, D1, and R2
 - [App Setup](docs/SETUP_APP.md) - Integrate OTA updates into your Expo app
