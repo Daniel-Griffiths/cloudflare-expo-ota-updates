@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="logo.png" alt="Cloudflare Expo OTA Updates" width="120"/>
+  <img src="docs/assets/logo.png" alt="Cloudflare Expo OTA Updates" width="120"/>
 </div>
 
 # Cloudflare - Expo OTA Updates
@@ -22,8 +22,8 @@ pnpm install
 
 ## Documentation
 
-- [Cloudflare Setup](apps/worker/README.md) - Configure Cloudflare Workers, D1, and R2
-- [App Setup](apps/easc/README.md) - Integrate OTA updates into your Expo app
+- [Cloudflare Setup](docs/SETUP_WORKER.md) - Configure Cloudflare Workers, D1, and R2
+- [App Setup](docs/SETUP_APP.md) - Integrate OTA updates into your Expo app
 
 ## Features
 
