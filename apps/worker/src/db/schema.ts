@@ -21,6 +21,7 @@ export const updates = sqliteTable(
     runtimeVersion: text("runtime_version").notNull(),
     platform: text("platform").notNull(),
     createdAt: text("created_at").notNull(),
+    lastDownloadedAt: text("last_downloaded_at"),
     launchAssetKey: text("launch_asset_key").notNull(),
     launchAssetHash: text("launch_asset_hash").notNull(),
     launchAssetFileExtension: text("launch_asset_file_extension").notNull(),
@@ -29,6 +30,7 @@ export const updates = sqliteTable(
     assetsJson: text("assets_json").notNull(),
     downloadCount: integer("download_count").notNull().default(0),
     commitHash: text("commit_hash"),
+    expoConfigJson: text("expo_config_json"),
   },
   (table) => [
     index("idx_updates_lookup").on(

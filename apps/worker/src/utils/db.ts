@@ -31,6 +31,7 @@ export interface IUpdateMetadata {
     url: string;
   }>;
   commitHash?: string | undefined;
+  expoConfigJson?: string | undefined;
 }
 
 /**
@@ -81,6 +82,7 @@ export async function saveUpdate(
     launchAssetUrl: metadata.launchAsset.url,
     assetsJson: JSON.stringify(metadata.assets),
     commitHash: metadata.commitHash || null,
+    expoConfigJson: metadata.expoConfigJson || null,
   });
 }
 
@@ -138,6 +140,7 @@ export async function getLatestUpdate(
     },
     assets,
     commitHash: row.commitHash || undefined,
+    expoConfigJson: row.expoConfigJson || undefined,
   };
 }
 

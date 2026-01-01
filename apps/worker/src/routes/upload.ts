@@ -268,8 +268,10 @@ export async function uploadHandler(
       },
       assets,
       commitHash,
+      expoConfigJson: expoConfig ? JSON.stringify(expoConfig) : undefined,
     };
 
+    // Also save to R2 for backward compatibility with existing updates
     if (expoConfig) {
       const encoder = new TextEncoder();
       const configBuffer = encoder.encode(JSON.stringify(expoConfig, null, 2));

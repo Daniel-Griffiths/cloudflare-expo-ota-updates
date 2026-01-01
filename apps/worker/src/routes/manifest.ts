@@ -155,25 +155,44 @@ export async function manifestHandler(
       return sendNoUpdateAvailable(context, protocolVersion);
     }
 
-    const expoConfigPath = `${appId}/${channel}/${runtimeVersion}/${latestUpdate.id}/expoConfig.json`;
+    // Try to get expoConfig from database first (new updates)
+    // Fall back to R2 storage for older updates or if DB parse fails
+    // TODO: remove this in a few months
     let expoClient = {};
+    let dbParseFailed = false;
 
-    try {
-      const expoConfigBuffer = await storage.downloadFile(expoConfigPath);
-      if (expoConfigBuffer) {
-        const decoder = new TextDecoder();
-        expoClient = JSON.parse(decoder.decode(expoConfigBuffer));
+    if (latestUpdate.expoConfigJson) {
+      // New path: Get from database (fast!)
+      try {
+        expoClient = JSON.parse(latestUpdate.expoConfigJson);
+      } catch (error) {
+        console.error("Failed to parse expoConfigJson from database:", error);
+        dbParseFailed = true;
       }
-    } catch (error) {
-      // Continue without config
     }
 
-    await db
-      .prepare(
-        "UPDATE updates SET download_count = download_count + 1 WHERE id = ?"
-      )
-      .bind(latestUpdate.id)
-      .run();
+    // Fallback to R2 storage if DB doesn't have it or parsing failed
+    if (!latestUpdate.expoConfigJson || dbParseFailed) {
+      try {
+        const expoConfigPath = `${appId}/${channel}/${runtimeVersion}/${latestUpdate.id}/expoConfig.json`;
+        const expoConfigBuffer = await storage.downloadFile(expoConfigPath);
+        if (expoConfigBuffer) {
+          const decoder = new TextDecoder();
+          expoClient = JSON.parse(decoder.decode(expoConfigBuffer));
+        }
+      } catch (error) {
+        // Continue without config
+      }
+    }
+
+    context.executionCtx.waitUntil(
+      db
+        .prepare(
+          "UPDATE updates SET download_count = download_count + 1, last_downloaded_at = ? WHERE id = ?"
+        )
+        .bind(new Date().toISOString(), latestUpdate.id)
+        .run()
+    );
 
     const manifest: IUpdateManifest = {
       id: latestUpdate.id,
