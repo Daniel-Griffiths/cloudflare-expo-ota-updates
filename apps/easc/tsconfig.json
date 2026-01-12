@@ -15,7 +15,6 @@
     "declarationMap": true,
     "outDir": "./dist",
     "rootDir": ".",
-    "baseUrl": ".",
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,

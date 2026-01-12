@@ -19,6 +19,6 @@
     "test:all": "pnpm -r test"
   },
   "devDependencies": {
-    "typescript": "^5.3.3"
+    "@typescript/native-preview": "^7.0.0-dev.20250601"
   }
 }

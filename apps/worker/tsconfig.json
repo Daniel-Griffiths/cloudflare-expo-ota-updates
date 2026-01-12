@@ -23,9 +23,8 @@
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
 
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src/**/*", "cli/**/*"],

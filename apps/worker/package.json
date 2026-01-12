@@ -11,7 +11,7 @@
     "deploy": "npx wrangler deploy",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsgo --noEmit",
     "cli": "tsx cli/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio"
@@ -34,7 +34,7 @@
     "drizzle-kit": "^0.31.5",
     "ora": "^9.0.0",
     "tsx": "^4.20.6",
-    "typescript": "^5.3.3",
+    "@typescript/native-preview": "^7.0.0-dev.20250601",
     "vite": "^7.0.0",
     "vitest": "^3.2.4",
     "yargs": "^18.0.0"
