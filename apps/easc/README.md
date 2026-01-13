@@ -29,9 +29,8 @@ tsx index.ts update --help
 To publish this package to npm:
 
 ```bash
-cd packages/deploy
-pnpm run build
-pnpm publish
+cd apps/easc
+npm publish
 ```
 
 Keep in mind that you'll have to change the name to somthing other than easc if you are not a admin on this project. You may wish to publish your own custom version for extra security.
