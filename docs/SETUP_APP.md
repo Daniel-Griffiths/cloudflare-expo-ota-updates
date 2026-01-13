@@ -106,9 +106,10 @@ OTA_API_KEY=your-api-key-from-step-4
 Deploy your update with `easc`
 
 ```bash
-npx easc --channel production
+npx easc update --channel production
 
 # or see a full list of commands/options
 
-npx easc help
+npx easc --help
+npx easc update --help
 ```

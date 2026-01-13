@@ -14,12 +14,14 @@ pnpm link --global
 
 # Now you can use 'easc' command globally
 easc --help
+easc update --help
 ```
 
 Or can also run directly with tsx:
 
 ```bash
 tsx index.ts --help
+tsx index.ts update --help
 ```
 
 ## Publishing
