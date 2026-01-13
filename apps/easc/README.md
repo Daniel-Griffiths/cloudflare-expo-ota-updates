@@ -24,6 +24,33 @@ tsx index.ts --help
 tsx index.ts update --help
 ```
 
+## Commands
+
+### update
+
+Deploy an OTA update to the specified channel.
+
+```bash
+easc update --channel production        # Deploy OTA update
+easc update --prod                      # Shorthand for production
+easc update --dry-run                   # Preview without uploading
+easc update --skip-build                # Use existing export
+```
+
+### build
+
+Build the app locally and optionally submit to app stores.
+
+```bash
+easc build                              # Build all platforms locally
+easc build --platform ios               # iOS only
+easc build --platform android           # Android only
+easc build --profile development        # Use dev profile
+easc build --auto-submit                # Auto-submit to stores
+easc build --clear-cache                # Clean prebuild
+easc build --output ./build.ipa         # Custom output path
+```
+
 ## Publishing
 
 To publish this package to npm:
