@@ -17,7 +17,7 @@ const envArgs = existsSync(envPath) ? ["--env-file", envPath] : [];
 const scriptArgs = [indexPath, ...process.argv.slice(2)];
 
 function getRuntime() {
-  const runtime = typeof Bun !== "undefined" ? Runtime.BUN : Runtime.NODE;
+  const runtime = !!process.versions["bun"] ? Runtime.BUN : Runtime.NODE;
 
   switch (runtime) {
     case Runtime.BUN:
