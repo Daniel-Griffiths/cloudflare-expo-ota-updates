@@ -1,4 +1,3 @@
-import { execSync } from "child_process";
 import fs from "fs";
 import chalk from "chalk";
 import type { CommandModule } from "yargs";
@@ -15,6 +14,7 @@ import {
 import { uploadBundle, createDryRunSummary } from "../utils/upload";
 import { Logger } from "../utils/logger";
 import { PlatformType } from "../enums/platform";
+import { runx } from "../utils/runx";
 
 interface IArgs {
   channel?: string;
@@ -106,14 +106,11 @@ export const update: CommandModule = {
     if (!args.skipBuild) {
       logger.startSpinner("Building app bundles...");
 
-      execSync(
+      runx(
         args.exportDir !== "dist"
-          ? `npx expo export --output-dir ${args.exportDir}`
-          : "npx expo export",
-        {
-          cwd: process.cwd(),
-          stdio: "ignore",
-        }
+          ? `expo export --output-dir ${args.exportDir}`
+          : `expo export`,
+        { cwd: process.cwd(), stdio: "ignore" }
       );
 
       logger.succeedSpinner("Build completed");

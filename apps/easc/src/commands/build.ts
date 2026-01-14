@@ -1,10 +1,10 @@
-import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import chalk from "chalk";
 import type { CommandModule } from "yargs";
 import { Logger } from "../utils/logger";
 import { Platform, PlatformType } from "../enums/platform";
+import { runx } from "../utils/runx";
 
 interface IArgs {
   platform: PlatformType | "all";
@@ -23,9 +23,11 @@ function findBuildArtifact(pattern: string): string | null {
 
   if (files.length === 0) return null;
 
-  return files
-    .map((f) => ({ name: f, mtime: fs.statSync(path.join(cwd, f)).mtime }))
-    .sort((a, b) => b.mtime.getTime() - a.mtime.getTime())[0]?.name ?? null;
+  return (
+    files
+      .map((f) => ({ name: f, mtime: fs.statSync(path.join(cwd, f)).mtime }))
+      .sort((a, b) => b.mtime.getTime() - a.mtime.getTime())[0]?.name ?? null
+  );
 }
 
 export const build: CommandModule = {
@@ -81,7 +83,7 @@ export const build: CommandModule = {
 
         if (args.clearCache) {
           logger.startSpinner(`Running prebuild for ${platformName}...`);
-          execSync(`npx expo prebuild --platform ${platform} --clean`, {
+          runx(`expo prebuild --platform ${platform} --clean`, {
             cwd: process.cwd(),
             stdio: "ignore",
           });
@@ -101,7 +103,7 @@ export const build: CommandModule = {
           .filter(Boolean)
           .join(" ");
 
-        execSync(`eas build ${buildFlags}`, {
+        runx(`expo eas ${buildFlags}`, {
           cwd: process.cwd(),
           stdio: "inherit",
         });
@@ -124,7 +126,7 @@ export const build: CommandModule = {
 
           logger.info(`Found artifact: ${artifactPath}`);
 
-          execSync(
+          runx(
             `eas submit --platform ${platform} --path "${artifactPath}" --non-interactive`,
             { cwd: process.cwd(), stdio: "inherit" }
           );
