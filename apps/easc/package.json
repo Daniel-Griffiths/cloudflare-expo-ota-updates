@@ -1,6 +1,6 @@
 {
   "name": "easc",
-  "version": "0.0.12",
+  "version": "0.0.14",
   "description": "Expo App Services for Cloudflare - Deploy tool for Expo OTA updates to Cloudflare Workers",
   "type": "module",
   "license": "MIT",

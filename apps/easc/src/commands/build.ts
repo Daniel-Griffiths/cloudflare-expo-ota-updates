@@ -86,6 +86,7 @@ export const build: CommandModule = {
           runx(`expo prebuild --platform ${platform} --clean`, {
             cwd: process.cwd(),
             stdio: "ignore",
+            env: { ...process.env, CI: "1" },
           });
           logger.succeedSpinner("Prebuild completed");
         }
@@ -103,7 +104,7 @@ export const build: CommandModule = {
           .filter(Boolean)
           .join(" ");
 
-        runx(`expo eas ${buildFlags}`, {
+        runx(`eas build ${buildFlags}`, {
           cwd: process.cwd(),
           stdio: "inherit",
         });
