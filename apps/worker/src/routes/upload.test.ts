@@ -29,9 +29,9 @@ describe('Upload Route', () => {
     const response = await app.fetch(request, env, ctx);
     await waitOnExecutionContext(ctx);
 
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(401);
     const body = await response.text();
-    expect(body).toBe('');
+    expect(body).toBe('Access denied');
   });
 
   it('should reject upload with invalid API key', async () => {
@@ -52,9 +52,9 @@ describe('Upload Route', () => {
     const response = await app.fetch(request, env, ctx);
     await waitOnExecutionContext(ctx);
 
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(401);
     const body = await response.text();
-    expect(body).toBe('');
+    expect(body).toBe('Access denied');
   });
 
   it('should reject upload without runtime version', async () => {
@@ -74,9 +74,9 @@ describe('Upload Route', () => {
     const response = await app.fetch(request, env, ctx);
     await waitOnExecutionContext(ctx);
 
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(400);
     const body = await response.text();
-    expect(body).toBe('');
+    expect(body).toBe('Bad request');
   });
 
   it('should reject upload with invalid platform', async () => {
@@ -97,9 +97,9 @@ describe('Upload Route', () => {
     const response = await app.fetch(request, env, ctx);
     await waitOnExecutionContext(ctx);
 
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(400);
     const body = await response.text();
-    expect(body).toBe('');
+    expect(body).toBe('Bad request');
   });
 
   it('should reject upload without bundle file', async () => {
@@ -120,9 +120,9 @@ describe('Upload Route', () => {
     const response = await app.fetch(request, env, ctx);
     await waitOnExecutionContext(ctx);
 
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(400);
     const body = await response.text();
-    expect(body).toBe('');
+    expect(body).toBe('Bad request');
   });
 
   it('should successfully upload bundle', async () => {
@@ -225,8 +225,8 @@ describe('Upload Route', () => {
     const response = await app.fetch(request, env, ctx);
     await waitOnExecutionContext(ctx);
 
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(400);
     const body = await response.text();
-    expect(body).toBe('');
+    expect(body).toBe('Bad request');
   });
 });

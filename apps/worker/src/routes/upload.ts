@@ -84,7 +84,7 @@ export async function uploadHandler(
         console.log(
           `❌ Blocked upload attempt from IP: ${clientIP || "unknown"}`
         );
-        return new Response(null, { status: 404 });
+        return new Response("Access denied", { status: 401 });
       }
       console.log("✅ IP check passed");
     }
@@ -94,7 +94,7 @@ export async function uploadHandler(
 
     if (!apiKey) {
       console.log("❌ Missing API key");
-      return new Response(null, { status: 404 });
+      return new Response("Access denied", { status: 401 });
     }
 
     const db = context.env.DB;
@@ -102,7 +102,7 @@ export async function uploadHandler(
 
     if (!app) {
       console.log("❌ Invalid API key");
-      return new Response(null, { status: 404 });
+      return new Response("Access denied", { status: 401 });
     }
 
     const formData = await context.req.formData();
@@ -152,7 +152,7 @@ export async function uploadHandler(
         "❌ Invalid form fields:",
         fieldValidation.error.issues[0]?.message
       );
-      return new Response(null, { status: 404 });
+      return new Response("Bad request", { status: 400 });
     }
 
     const {
@@ -185,7 +185,7 @@ export async function uploadHandler(
 
     if (!bundleFile) {
       console.log("❌ Missing bundle file");
-      return new Response(null, { status: 404 });
+      return new Response("Bad request", { status: 400 });
     }
 
     const storage = new R2Storage(context.env.BUCKET, context.env.BUCKET_URL);
@@ -317,6 +317,6 @@ export async function uploadHandler(
     return context.json({ success: true });
   } catch (error) {
     console.error("❌ Error processing upload:", error);
-    return new Response(null, { status: 500 });
+    return new Response("Server error", { status: 500 });
   }
 }
