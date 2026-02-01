@@ -44,7 +44,7 @@ export async function listUpdates() {
       ],
     });
 
-    let query = `SELECT id, channel, runtime_version, platform, created_at, launch_asset_url, download_count, commit_hash FROM updates WHERE app_id = '${appId}'`;
+    let query = `SELECT id, channel, runtime_version, platform, created_at, last_downloaded_at, launch_asset_url, download_count, commit_hash FROM updates WHERE app_id = '${appId}'`;
 
     if (channel) {
       query += ` AND channel = '${channel}'`;
@@ -80,12 +80,13 @@ export async function listUpdates() {
         chalk.cyan("Commit"),
         chalk.cyan("Update ID"),
         chalk.cyan("Created"),
+        chalk.cyan("Last Downloaded"),
       ],
       style: {
         head: [],
         border: ["gray"],
       },
-      colWidths: [12, 15, 10, 12, 10, 38, 25],
+      colWidths: [12, 15, 10, 12, 10, 38, 25, 25],
     });
 
     for (const update of updates) {
@@ -100,6 +101,16 @@ export async function listUpdates() {
         chalk.yellow(commitShort),
         chalk.gray(update.id),
         new Date(update.created_at).toLocaleString(),
+        update.last_downloaded_at
+          ? (() => {
+              const date = new Date(update.last_downloaded_at);
+              const daysSince = (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24);
+              const formatted = date.toLocaleString();
+              if (daysSince > 365) return chalk.red(formatted);
+              if (daysSince > 30) return chalk.yellow(formatted);
+              return formatted;
+            })()
+          : "-",
       ]);
     }
 
