@@ -25,10 +25,10 @@ npx wrangler login
 npx wrangler d1 create expo-ota-updates
 ```
 
-Take the `database_id` returned from this command and update `apps/worker/wrangler.toml`
+Take the `database_id` returned from this command and update `apps/worker/wrangler.jsonc`
 
-```toml
-database_id = "1234-1234-1234-1234"
+```jsonc
+"database_id": "1234-1234-1234-1234"
 ```
 
 **2. Initialize Database Schema**
@@ -66,9 +66,9 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 5. Enter your custom domain (e.g., `updates.yourdomain.com`)
    - The domain must be on Cloudflare DNS
    - DNS will be automatically configured
-6. Update `apps/worker/wrangler.toml` with your domain in the `BUCKET_URL` variable:
-   ```toml
-   BUCKET_URL = "https://updates.yourdomain.com"
+6. Update `apps/worker/wrangler.jsonc` with your domain in the `BUCKET_URL` variable:
+   ```jsonc
+   "BUCKET_URL": "https://updates.yourdomain.com"
    ```
 
 **Option B: R2.dev Subdomain (For Testing/Development)**
@@ -87,9 +87,9 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 
    This will output something like: `https://pub-abc123def456.r2.dev`
 
-3. Update `apps/worker/wrangler.toml` with this URL in the `BUCKET_URL` variable:
-   ```toml
-   BUCKET_URL = "https://pub-abc123def456.r2.dev"
+3. Update `apps/worker/wrangler.jsonc` with this URL in the `BUCKET_URL` variable:
+   ```jsonc
+   "BUCKET_URL": "https://pub-abc123def456.r2.dev"
    ```
 
 > [!WARNING]  
@@ -97,20 +97,23 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 
 **5. Custom Domain (Optional)**
 
-If you want to use a custom domain for your worker (e.g., `updates.yourdomain.com`), uncomment and update the routes section in `apps/worker/wrangler.toml`:
+If you want to use a custom domain for your worker (e.g., `updates.yourdomain.com`), add a routes section in `apps/worker/wrangler.jsonc`:
 
-```toml
-[[routes]]
-pattern = "updates.yourdomain.com/*"
-zone_name = "yourdomain.com"
+```jsonc
+"routes": [
+  {
+    "pattern": "updates.yourdomain.com/*",
+    "zone_name": "yourdomain.com"
+  }
+]
 ```
 
 > [!NOTE]
 > The domain must already be on Cloudflare DNS for this to work.
 
-**6. Check wrangler.toml**
+**6. Check wrangler.jsonc**
 
-Ok so before we deploy, let's make sure everything looks correct in `apps/worker/wrangler.toml`
+Ok so before we deploy, let's make sure everything looks correct in `apps/worker/wrangler.jsonc`
 
 | Variable              | Required | Description                                                                                     |
 | --------------------- | -------- | ----------------------------------------------------------------------------------------------- |
@@ -125,7 +128,7 @@ Ok so before we deploy, let's make sure everything looks correct in `apps/worker
 
 **7. Deployment**
 
-Now let's deploy the worker to Cloudflare! If you ever change the .toml values you must redeploy the worker (or manually update them in Cloudflare).
+Now let's deploy the worker to Cloudflare! If you ever change the .jsonc values you must redeploy the worker (or manually update them in Cloudflare).
 
 ```bash
 # Deploy to Cloudflare Workers

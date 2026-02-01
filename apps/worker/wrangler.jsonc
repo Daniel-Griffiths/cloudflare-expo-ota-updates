@@ -1,0 +1,38 @@
+{
+  "name": "expo-ota-updates",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-01-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "expo-ota-updates",
+      "database_id": "YOUR_DATABASE_ID"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "expo-ota-updates"
+    }
+  ],
+  // Custom domain routes (optional, see setup guide)
+  // "routes": [
+  //   {
+  //     "pattern": "updates.yourdomain.com/*",
+  //     "zone_name": "yourdomain.com"
+  //   }
+  // ],
+  "vars": {
+    "BUCKET_URL": "",
+    "MAX_UPDATES_TO_KEEP": "",
+    "ALLOWED_UPLOAD_IPS": ""
+  },
+  "observability": {
+    "enabled": false,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true
+    }
+  }
+}
