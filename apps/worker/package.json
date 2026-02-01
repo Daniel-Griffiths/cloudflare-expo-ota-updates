@@ -19,13 +19,13 @@
   "cloudflare": {
     "bindings": {
       "BUCKET_URL": {
-        "description": "(Required) The public URL for your R2 bucket (custom domain or R2.dev subdomain). See the setup guide for details."
+        "description": "**(Required)** The public URL for your R2 bucket (custom domain or R2.dev subdomain). [Setup guide](https://github.com/Daniel-Griffiths/cloudflare-expo-ota-updates/blob/master/docs/SETUP_WORKER.md#configure-r2-public-access)"
       },
       "MAX_UPDATES_TO_KEEP": {
-        "description": "(Required) Number of updates to keep per channel/platform/runtime. Set to 0 to keep all updates."
+        "description": "**(Optional)** Number of updates to keep per channel/platform/runtime. Keeps all updates by default."
       },
       "ALLOWED_UPLOAD_IPS": {
-        "description": "(Optional) Comma-separated list of IPs allowed to upload updates. Leave empty to allow all."
+        "description": "**(Optional)** Comma-separated list of IPs allowed to upload updates. Leave empty to allow all. It's also **highly** recommended to setup worker [security rules](https://github.com/Daniel-Griffiths/cloudflare-expo-ota-updates/blob/master/docs/SETUP_WORKER.md#secure-the-worker)."
       }
     }
   },

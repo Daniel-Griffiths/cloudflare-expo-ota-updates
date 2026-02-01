@@ -47,7 +47,7 @@ const uploadFormFieldsSchema = z.object({
  * @returns A Response object.
  */
 export async function uploadHandler(
-  context: Context<{ Bindings: IEnv }>
+  context: Context<{ Bindings: IEnv }>,
 ): Promise<Response> {
   try {
     const allowedIPs = context.env.ALLOWED_UPLOAD_IPS;
@@ -82,7 +82,7 @@ export async function uploadHandler(
 
       if (!clientIP || !isAllowed) {
         console.log(
-          `❌ Blocked upload attempt from IP: ${clientIP || "unknown"}`
+          `❌ Blocked upload attempt from IP: ${clientIP || "unknown"}`,
         );
         return new Response("Access denied", { status: 401 });
       }
@@ -127,7 +127,7 @@ export async function uploadHandler(
           data: buffer,
         });
         console.log(
-          `FormData file: field="${key}" filename="${value.name}" type="${value.type}"`
+          `FormData file: field="${key}" filename="${value.name}" type="${value.type}"`,
         );
       } else {
         // It's a text field
@@ -150,7 +150,7 @@ export async function uploadHandler(
     if (!fieldValidation.success) {
       console.log(
         "❌ Invalid form fields:",
-        fieldValidation.error.issues[0]?.message
+        fieldValidation.error.issues[0]?.message,
       );
       return new Response("Bad request", { status: 400 });
     }
@@ -176,16 +176,20 @@ export async function uploadHandler(
 
     const bundleFile = files.find(
       (file) =>
-        file.fieldName === "bundle" || file.filename?.endsWith(".bundle")
+        file.fieldName === "bundle" || file.filename?.endsWith(".bundle"),
     );
     const assetFiles = files.filter(
       (file) =>
-        file.fieldName === "assets" || file.fieldName.startsWith("asset-")
+        file.fieldName === "assets" || file.fieldName.startsWith("asset-"),
     );
 
     if (!bundleFile) {
       console.log("❌ Missing bundle file");
       return new Response("Bad request", { status: 400 });
+    }
+
+    if (!context.env.BUCKET_URL) {
+      return context.json({ error: "BUCKET_URL is not configured" }, 500);
     }
 
     const storage = new R2Storage(context.env.BUCKET, context.env.BUCKET_URL);
@@ -201,7 +205,7 @@ export async function uploadHandler(
         bundleExt = bundleFile.filename.substring(dotIndex);
       } else {
         console.log(
-          "⚠️ No extension found in bundle filename, using fallback .hbc"
+          "⚠️ No extension found in bundle filename, using fallback .hbc",
         );
       }
     } else {
@@ -210,7 +214,7 @@ export async function uploadHandler(
 
     const bundleUrl = await storage.uploadFile(
       `${appId}/${channel}/${runtimeVersion}/${updateId}/bundle${bundleExt}`,
-      bundleFile.data
+      bundleFile.data,
     );
 
     const assets = await Promise.all(
@@ -220,7 +224,7 @@ export async function uploadHandler(
         const key = await computeFileHash(asset.data, "hex");
         const url = await storage.uploadFile(
           `${appId}/${channel}/${runtimeVersion}/${updateId}/${filename}`,
-          asset.data
+          asset.data,
         );
 
         // Get file extension from metadata if available
@@ -229,7 +233,7 @@ export async function uploadHandler(
         // Try metadata first
         const assetMeta = assetMetadata?.find(
           (asset: { path: string; ext?: string }) =>
-            asset.path === `assets/${filename}`
+            asset.path === `assets/${filename}`,
         );
         if (assetMeta?.ext) {
           ext = "." + assetMeta.ext;
@@ -250,7 +254,7 @@ export async function uploadHandler(
           contentType: storage.getContentType(ext),
           url,
         };
-      })
+      }),
     );
 
     const updateMetadata: IUpdateMetadata = {
@@ -277,7 +281,7 @@ export async function uploadHandler(
       const configBuffer = encoder.encode(JSON.stringify(expoConfig, null, 2));
       await storage.uploadFile(
         `${appId}/${channel}/${runtimeVersion}/${updateId}/expoConfig.json`,
-        configBuffer as unknown as ArrayBuffer
+        configBuffer as unknown as ArrayBuffer,
       );
     }
 
@@ -287,7 +291,7 @@ export async function uploadHandler(
     const maxUpdatesToKeep = Number(context.env.MAX_UPDATES_TO_KEEP) || 0;
     if (maxUpdatesToKeep <= 0) {
       console.log(
-        `✅ Update uploaded successfully: ${updateId} (${platform}, ${channel}, ${runtimeVersion})`
+        `✅ Update uploaded successfully: ${updateId} (${platform}, ${channel}, ${runtimeVersion})`,
       );
       return context.json({ success: true });
     }
@@ -298,7 +302,7 @@ export async function uploadHandler(
       channel,
       runtimeVersion,
       platform,
-      maxUpdatesToKeep
+      maxUpdatesToKeep,
     );
 
     // Delete R2 files for old updates
@@ -306,13 +310,13 @@ export async function uploadHandler(
       console.log(`Cleaning up ${deletedIds.length} old updates`);
       await Promise.all(
         deletedIds.map((id) =>
-          storage.deleteFolder(`${appId}/${channel}/${runtimeVersion}/${id}`)
-        )
+          storage.deleteFolder(`${appId}/${channel}/${runtimeVersion}/${id}`),
+        ),
       );
     }
 
     console.log(
-      `✅ Update uploaded successfully: ${updateId} (${platform}, ${channel}, ${runtimeVersion})`
+      `✅ Update uploaded successfully: ${updateId} (${platform}, ${channel}, ${runtimeVersion})`,
     );
     return context.json({ success: true });
   } catch (error) {

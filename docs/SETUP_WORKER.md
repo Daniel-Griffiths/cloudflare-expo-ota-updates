@@ -59,6 +59,8 @@ This is where your update files will be stored.
 npx wrangler r2 bucket create expo-ota-updates
 ```
 
+<a id="configure-r2-public-access"></a>
+
 **5. Configure R2 Public Access**
 
 Choose one of the following options to make your R2 bucket publicly accessible:

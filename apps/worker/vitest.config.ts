@@ -21,6 +21,7 @@ export default defineWorkersConfig(async () => {
           miniflare: {
             // Automatically uses D1 and R2 bindings from wrangler.toml
             bindings: {
+              BUCKET_URL: "https://test.r2.dev",
               ALLOWED_UPLOAD_IPS: "",
               TEST_MIGRATIONS: migrations,
             },
