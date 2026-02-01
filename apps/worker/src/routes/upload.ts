@@ -284,7 +284,7 @@ export async function uploadHandler(
     await saveUpdate(db, appId, updateMetadata);
 
     // Cleanup old updates if configured
-    const maxUpdatesToKeep = context.env.MAX_UPDATES_TO_KEEP || 0;
+    const maxUpdatesToKeep = Number(context.env.MAX_UPDATES_TO_KEEP) || 0;
     if (maxUpdatesToKeep <= 0) {
       console.log(
         `✅ Update uploaded successfully: ${updateId} (${platform}, ${channel}, ${runtimeVersion})`

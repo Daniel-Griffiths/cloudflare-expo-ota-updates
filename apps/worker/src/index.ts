@@ -6,7 +6,7 @@ export interface IEnv {
   DB: D1Database;
   BUCKET: R2Bucket;
   BUCKET_URL: string;
-  MAX_UPDATES_TO_KEEP: number;
+  MAX_UPDATES_TO_KEEP: string;
   ALLOWED_UPLOAD_IPS?: string;
 }
 

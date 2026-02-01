@@ -8,7 +8,7 @@ An open source OTA update service for Expo apps using Cloudflare workers.
 
 [![Quick Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/Daniel-Griffiths/cloudflare-expo-ota-updates/tree/master/apps/worker)
 
-> **Note:** After using the quick deploy, you will still need to configure environment variables and setup security rules. See the [Cloudflare Setup](docs/SETUP_WORKER.md) guide for details.
+> **Note:** After using the quick deploy, it's recomended that you setup the worker security rules. See the [Cloudflare Setup](docs/SETUP_WORKER.md#secure-the-worker) guide for details.
 
 ## Why Use This Project?
 

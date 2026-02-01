@@ -16,10 +16,10 @@ export default defineWorkersConfig(async () => {
       poolOptions: {
         workers: {
           wrangler: {
-            configPath: path.join(__dirname, "wrangler.example.toml"),
+            configPath: path.join(__dirname, "wrangler.toml"),
           },
           miniflare: {
-            // Automatically uses D1 and R2 bindings from wrangler.example.toml
+            // Automatically uses D1 and R2 bindings from wrangler.toml
             bindings: {
               ALLOWED_UPLOAD_IPS: "",
               TEST_MIGRATIONS: migrations,

@@ -22,11 +22,7 @@ npx wrangler login
 npx wrangler d1 create expo-ota-updates
 ```
 
-Take the `database_id` returned from this command and add it to `wrangler.toml`
-
-```bash
-cp apps/worker/wrangler.example.toml apps/worker/wrangler.toml
-```
+Take the `database_id` returned from this command and update `apps/worker/wrangler.toml`
 
 ```toml
 database_id = "1234-1234-1234-1234"
@@ -105,7 +101,20 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 > [!WARNING]  
 > R2.dev URLs are rate-limited and intended for testing only. Use a custom domain for production.
 
-**6. Check wrangler.toml**
+**6. Custom Domain (Optional)**
+
+If you want to use a custom domain for your worker (e.g., `updates.yourdomain.com`), uncomment and update the routes section in `apps/worker/wrangler.toml`:
+
+```toml
+[[routes]]
+pattern = "updates.yourdomain.com/*"
+zone_name = "yourdomain.com"
+```
+
+> [!NOTE]
+> The domain must already be on Cloudflare DNS for this to work.
+
+**7. Check wrangler.toml**
 
 Ok so before we deploy, let's make sure everything looks correct in `apps/worker/wrangler.toml`
 
@@ -120,7 +129,7 @@ Ok so before we deploy, let's make sure everything looks correct in `apps/worker
 > [!NOTE]  
 > When using ALLOWED_UPLOAD_IPS, be sure to add both your ipv4 and ipv6 addresses (if you use ipv6)
 
-**7. Deployment**
+**8. Deployment**
 
 Now let's deploy the worker to Cloudflare! If you ever change the .toml values you must redeploy the worker (or manually update them in Cloudflare).
 
@@ -132,7 +141,9 @@ pnpm run deploy
 > [!NOTE]
 > If you are having issues use `npx wrangler tail` to debug the worker logs when sending/downloading updates
 
-**8. Secure The Worker**
+<a id="secure-the-worker"></a>
+
+**9. Secure The Worker**
 
 It's very common for malicious bot's to scan domains for security exploits, this eats into your free worker usage. To prevent this it's highly recomended to setup security rules for your domain.
 

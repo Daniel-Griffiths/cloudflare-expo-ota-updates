@@ -16,6 +16,19 @@
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio"
   },
+  "cloudflare": {
+    "bindings": {
+      "BUCKET_URL": {
+        "description": "(Required) The public URL for your R2 bucket (custom domain or R2.dev subdomain). See the setup guide for details."
+      },
+      "MAX_UPDATES_TO_KEEP": {
+        "description": "(Required) Number of updates to keep per channel/platform/runtime. Set to 0 to keep all updates."
+      },
+      "ALLOWED_UPLOAD_IPS": {
+        "description": "(Optional) Comma-separated list of IPs allowed to upload updates. Leave empty to allow all."
+      }
+    }
+  },
   "dependencies": {
     "@inquirer/prompts": "^7.8.6",
     "drizzle-orm": "^0.44.6",
