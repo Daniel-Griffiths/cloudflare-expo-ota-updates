@@ -1,5 +1,21 @@
 # Setup Cloudflare Worker
 
+## Getting Started
+
+Install dependencies
+
+```bash
+pnpm install
+```
+
+Authenticate with your Cloudflare account (This will open a browser window to authorize Wrangler)
+
+```bash
+npx wrangler login
+```
+
+## Configuration
+
 **1. Create D1 Database**
 
 ```bash
