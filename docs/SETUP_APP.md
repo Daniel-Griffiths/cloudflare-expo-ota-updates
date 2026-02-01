@@ -1,6 +1,16 @@
 # Setup App
 
-**Finding Your Worker URL**
+## Create Your First App
+
+Before configuring your Expo app, you need to register it in the database. From the root of this project, run:
+
+```bash
+pnpm run cli create-app
+```
+
+This will prompt you for an app name and generate an **App ID** and **API Key**. Save these, you'll need them later.
+
+## Finding Your Worker URL
 
 After deployment, you can find your Worker URL by doing the following:
 
@@ -80,7 +90,7 @@ To configure your Expo app to use this OTA update server, add the following to y
 - `updates.enabled`: Set to `true` to enable OTA updates
 - `updates.fallbackToCacheTimeout`: Milliseconds to wait before falling back to cached update
 - `requestHeaders.expo-channel-name`: The channel name (e.g., "production", "staging")
-- `requestHeaders.expo-app-id`: Your app ID from step 4 (must match the ID in the database)
+- `requestHeaders.expo-app-id`: Your app ID from the create-app step (must match the ID in the database)
 
 **Important Notes:**
 

@@ -1,5 +1,8 @@
 # Setup Cloudflare Worker
 
+> [!TIP]
+> If you've already deployed using the [Quick Deploy](../README.md) button, you can skip ahead to the [App Setup](SETUP_APP.md) guide. You may also want to review the [security rules](#secure-the-worker) section below.
+
 ## Getting Started
 
 Install dependencies
@@ -40,18 +43,7 @@ npx wrangler d1 migrations apply expo-ota-updates --local
 npx wrangler d1 migrations apply expo-ota-updates --remote
 ```
 
-**3. Add Your First App to The Database**
-
-Use the CLI to create a new app in the database:
-
-```bash
-pnpm run cli create-app
-```
-
-> [!NOTE]  
-> Save your `YOUR_API_KEY` - you'll need it for uploading updates later.
-
-**4. Create R2 Bucket**
+**3. Create R2 Bucket**
 
 This is where your update files will be stored.
 
@@ -61,7 +53,7 @@ npx wrangler r2 bucket create expo-ota-updates
 
 <a id="configure-r2-public-access"></a>
 
-**5. Configure R2 Public Access**
+**4. Configure R2 Public Access**
 
 Choose one of the following options to make your R2 bucket publicly accessible:
 
@@ -103,7 +95,7 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 > [!WARNING]  
 > R2.dev URLs are rate-limited and intended for testing only. Use a custom domain for production.
 
-**6. Custom Domain (Optional)**
+**5. Custom Domain (Optional)**
 
 If you want to use a custom domain for your worker (e.g., `updates.yourdomain.com`), uncomment and update the routes section in `apps/worker/wrangler.toml`:
 
@@ -116,7 +108,7 @@ zone_name = "yourdomain.com"
 > [!NOTE]
 > The domain must already be on Cloudflare DNS for this to work.
 
-**7. Check wrangler.toml**
+**6. Check wrangler.toml**
 
 Ok so before we deploy, let's make sure everything looks correct in `apps/worker/wrangler.toml`
 
@@ -131,7 +123,7 @@ Ok so before we deploy, let's make sure everything looks correct in `apps/worker
 > [!NOTE]  
 > When using ALLOWED_UPLOAD_IPS, be sure to add both your ipv4 and ipv6 addresses (if you use ipv6)
 
-**8. Deployment**
+**7. Deployment**
 
 Now let's deploy the worker to Cloudflare! If you ever change the .toml values you must redeploy the worker (or manually update them in Cloudflare).
 
@@ -145,7 +137,7 @@ pnpm run deploy
 
 <a id="secure-the-worker"></a>
 
-**9. Secure The Worker**
+**8. Secure The Worker**
 
 It's very common for malicious bot's to scan domains for security exploits, this eats into your free worker usage. To prevent this it's highly recomended to setup security rules for your domain.
 
