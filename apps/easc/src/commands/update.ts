@@ -1,5 +1,4 @@
 import fs from "fs";
-import chalk from "chalk";
 import type { CommandModule } from "yargs";
 import { validateConfig, getConfig } from "../utils/schema";
 import { resolveRuntimeVersion, getPlatforms } from "../utils/runtime";
@@ -17,22 +16,11 @@ import { PlatformType } from "../enums/platform";
 import { runx } from "../utils/runx";
 
 interface IArgs {
-  channel?: string;
+  channel: string;
   skipBuild: boolean;
   dryRun: boolean;
-  environment?: "development" | "preview" | "production";
   exportDir: string;
-  prod: boolean;
-}
-
-function mapEnvironmentToChannel(
-  environment?: string,
-  isShorthandProd?: boolean
-): string | undefined {
-  if (environment === "production" || isShorthandProd) return "production";
-  if (environment === "preview") return "staging";
-  if (environment === "development") return "dev";
-  return undefined;
+  nonInteractive: boolean;
 }
 
 export const update: CommandModule = {
@@ -43,7 +31,8 @@ export const update: CommandModule = {
       .option("channel", {
         alias: "c",
         type: "string",
-        description: "Deployment channel (e.g., production, staging)",
+        choices: ["production", "staging", "dev"],
+        description: "Deployment channel",
       })
       .option("skip-build", {
         type: "boolean",
@@ -55,41 +44,23 @@ export const update: CommandModule = {
         description: "Outputs deployment info instead of uploading",
         default: false,
       })
-      .option("environment", {
-        type: "string",
-        choices: ["development", "preview", "production"] as const,
-        description: "Environment variable's environment",
-      })
       .option("export-dir", {
         type: "string",
         description: "Directory where the Expo project was exported",
         default: "dist",
       })
-      .option("prod", {
+      .option("non-interactive", {
         type: "boolean",
-        description: "Shorthand for --channel production",
+        description: "Never prompt for user input",
         default: false,
       })
       .example("$0 update --channel production", "Deploy to production")
-      .example("$0 update --prod", "Deploy to production (EAS-style)")
       .example("$0 update -c staging --skip-build", "Deploy existing build"),
   async handler(argv) {
     const args = argv as unknown as IArgs;
     const logger = new Logger();
 
-    let channel = args.channel;
-    if (!channel) {
-      channel = mapEnvironmentToChannel(args.environment, args.prod);
-    }
-
-    if (!channel) {
-      console.error(chalk.red("Error: Channel is required"));
-      console.log("Use one of the following:");
-      console.log("  easc update --channel production");
-      console.log("  easc update --prod");
-      console.log("  easc update --environment production");
-      process.exit(1);
-    }
+    const channel = args.channel;
 
     const validation = validateConfig(channel);
     if (!validation.valid) {
@@ -110,13 +81,13 @@ export const update: CommandModule = {
         args.exportDir !== "dist"
           ? `expo export --output-dir ${args.exportDir}`
           : `expo export`,
-        { cwd: process.cwd(), stdio: "inherit" }
+        { cwd: process.cwd(), stdio: "inherit" },
       );
 
       logger.success("Build completed");
     } else {
       logger.info(
-        `Skipping build (using existing export from ${args.exportDir})`
+        `Skipping build (using existing export from ${args.exportDir})`,
       );
     }
 
@@ -128,7 +99,7 @@ export const update: CommandModule = {
     const commitHash = getCommitHash();
     const shortCommit = getShortCommitHash();
 
-    logger.section("📤 Deployment Info");
+    logger.section("Deployment Info");
     logger.table([
       ["Server", config.otaServer],
       ["Runtime", runtimeVersion],
@@ -213,7 +184,7 @@ export const update: CommandModule = {
       logger.success("Dry run completed successfully!");
       logger.info("Run without --dry-run to perform actual upload");
     } else {
-      logger.success("✨ Updates published successfully!");
+      logger.success("Updates published successfully!");
     }
   },
 };

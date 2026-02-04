@@ -5,6 +5,7 @@ import type { CommandModule } from "yargs";
 import { Logger } from "../utils/logger";
 import { Platform, PlatformType } from "../enums/platform";
 import { runx } from "../utils/runx";
+import { getEasProfiles } from "../utils/eas";
 
 interface IArgs {
   platform: PlatformType | "all";
@@ -12,6 +13,7 @@ interface IArgs {
   autoSubmit: boolean;
   clearCache: boolean;
   output?: string;
+  nonInteractive: boolean;
 }
 
 function findBuildArtifact(pattern: string): string | null {
@@ -40,13 +42,12 @@ export const build: CommandModule = {
         type: "string",
         choices: [Platform.iOS, Platform.Android, "all"] as const,
         description: "Target platform",
-        default: "all",
       })
       .option("profile", {
         alias: "e",
         type: "string",
+        choices: getEasProfiles(),
         description: "EAS build profile",
-        default: "production",
       })
       .option("auto-submit", {
         alias: "s",
@@ -62,6 +63,11 @@ export const build: CommandModule = {
       .option("output", {
         type: "string",
         description: "Output path for the build artifact",
+      })
+      .option("non-interactive", {
+        type: "boolean",
+        description: "Never prompt for user input",
+        default: false,
       })
       .example("$0 build", "Build all platforms locally")
       .example("$0 build -p ios -e development", "Build iOS with dev profile")
@@ -129,7 +135,7 @@ export const build: CommandModule = {
 
           runx(
             `eas submit --platform ${platform} --path "${artifactPath}" --non-interactive`,
-            { cwd: process.cwd(), stdio: "inherit" }
+            { cwd: process.cwd(), stdio: "inherit" },
           );
 
           logger.success(`${platformName} submitted`);
