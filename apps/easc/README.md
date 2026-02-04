@@ -51,6 +51,17 @@ easc build --clear-cache                # Clean prebuild
 easc build --output ./build.ipa         # Custom output path
 ```
 
+### build:run
+
+Build locally and run on simulator/emulator. Always runs `expo prebuild --clean` before building.
+
+```bash
+easc build:run --platform ios           # Build and run on iOS Simulator
+easc build:run --platform android       # Build and run on Android Emulator
+easc build:run --platform ios --profile preview  # Use specific build profile
+easc build:run --platform ios --path ./build.tar.gz  # Run existing artifact (skip build)
+```
+
 ## Publishing
 
 To publish this package to npm:
