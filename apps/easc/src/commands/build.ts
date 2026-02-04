@@ -82,16 +82,16 @@ export const build: CommandModule = {
         logger.section(`${platformName} Build`);
 
         if (args.clearCache) {
-          logger.startSpinner(`Running prebuild for ${platformName}...`);
+          logger.info(`Running prebuild for ${platformName}...`);
           runx(`expo prebuild --platform ${platform} --clean`, {
             cwd: process.cwd(),
-            stdio: "ignore",
+            stdio: "inherit",
             env: { ...process.env, CI: "1" },
           });
-          logger.succeedSpinner("Prebuild completed");
+          logger.success("Prebuild completed");
         }
 
-        logger.startSpinner(`Building ${platformName} locally...`);
+        logger.info(`Building ${platformName} locally...`);
 
         const buildFlags = [
           `--platform ${platform}`,
@@ -109,10 +109,10 @@ export const build: CommandModule = {
           stdio: "inherit",
         });
 
-        logger.succeedSpinner(`${platformName} build completed`);
+        logger.success(`${platformName} build completed`);
 
         if (args.autoSubmit) {
-          logger.startSpinner(`Submitting ${platformName} build...`);
+          logger.info(`Submitting ${platformName} build...`);
 
           const artifactPath =
             platform === Platform.iOS
@@ -121,7 +121,7 @@ export const build: CommandModule = {
                 findBuildArtifact("build-*.apk");
 
           if (!artifactPath) {
-            logger.failSpinner(`No ${platformName} build artifact found`);
+            logger.error(`No ${platformName} build artifact found`);
             process.exit(1);
           }
 
@@ -132,7 +132,7 @@ export const build: CommandModule = {
             { cwd: process.cwd(), stdio: "inherit" }
           );
 
-          logger.succeedSpinner(`${platformName} submitted`);
+          logger.success(`${platformName} submitted`);
 
           if (fs.existsSync(artifactPath)) {
             fs.unlinkSync(artifactPath);

@@ -104,16 +104,16 @@ export const update: CommandModule = {
     }
 
     if (!args.skipBuild) {
-      logger.startSpinner("Building app bundles...");
+      logger.info("Building app bundles...");
 
       runx(
         args.exportDir !== "dist"
           ? `expo export --output-dir ${args.exportDir}`
           : `expo export`,
-        { cwd: process.cwd(), stdio: "ignore" }
+        { cwd: process.cwd(), stdio: "inherit" }
       );
 
-      logger.succeedSpinner("Build completed");
+      logger.success("Build completed");
     } else {
       logger.info(
         `Skipping build (using existing export from ${args.exportDir})`

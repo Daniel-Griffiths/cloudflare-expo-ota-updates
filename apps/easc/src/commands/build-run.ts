@@ -107,16 +107,16 @@ export const buildRun: CommandModule = {
         if (!artifactPath) {
           didBuild = true;
 
-          logger.startSpinner(`Running prebuild for ${platformName}...`);
+          logger.info(`Running prebuild for ${platformName}...`);
 
           runx(`expo prebuild --platform ${platform} --clean`, {
             cwd: process.cwd(),
-            stdio: "ignore",
+            stdio: "inherit",
             env: { ...process.env, CI: "1" },
           });
 
-          logger.succeedSpinner("Prebuild completed");
-          logger.startSpinner(`Building ${platformName} locally...`);
+          logger.success("Prebuild completed");
+          logger.info(`Building ${platformName} locally...`);
 
           const buildFlags = [
             `--platform ${platform}`,
@@ -132,7 +132,7 @@ export const buildRun: CommandModule = {
             stdio: "inherit",
           });
 
-          logger.succeedSpinner(`${platformName} build completed`);
+          logger.success(`${platformName} build completed`);
 
           artifactPath = findLatestArtifact(artifactPattern);
 
@@ -144,16 +144,14 @@ export const buildRun: CommandModule = {
           logger.info(`Build artifact: ${artifactPath}`);
         }
 
-        logger.startSpinner(
-          `Installing on ${platformName} simulator/emulator...`,
-        );
+        logger.info(`Installing on ${platformName} simulator/emulator...`);
 
         runx(`eas build:run --path "${artifactPath}" --platform ${platform}`, {
           cwd: process.cwd(),
           stdio: "inherit",
         });
 
-        logger.succeedSpinner(`${platformName} app installed and running`);
+        logger.success(`${platformName} app installed and running`);
 
         if (didBuild && artifactPath && fs.existsSync(artifactPath)) {
           fs.unlinkSync(artifactPath);
