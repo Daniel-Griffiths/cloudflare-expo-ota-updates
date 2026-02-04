@@ -1,5 +1,6 @@
 import yargs, { type Argv, type CommandModule, type Options } from "yargs";
 import { select } from "@inquirer/prompts";
+import chalk from "chalk";
 
 interface CommandInfo {
   command: string;
@@ -16,6 +17,19 @@ class InteractiveCLI {
   constructor(args: string[]) {
     this.args = args;
     this.yargsInstance = yargs(args);
+  }
+
+  private showWelcome() {
+    console.clear();
+    console.log();
+    console.log(chalk.cyan("  ___  __ _ ___  ___ "));
+    console.log(chalk.cyan(" / _ \\/ _` / __|/ __|"));
+    console.log(chalk.blue("|  __/ (_| \\__ \\ (__ "));
+    console.log(chalk.blue(" \\___|\\__,_|___/\\___|"));
+    console.log();
+    console.log(chalk.gray(" Expo App Services for Cloudflare"));
+    console.log(chalk.yellow("════════════════════════════════════"));
+    console.log();
   }
 
   private async promptForMissingArgs(
@@ -125,6 +139,8 @@ class InteractiveCLI {
       this.yargsInstance.demandCommand(1, "").parse();
       return;
     }
+
+    this.showWelcome();
 
     const command = await select({
       message: "Select a command:",
