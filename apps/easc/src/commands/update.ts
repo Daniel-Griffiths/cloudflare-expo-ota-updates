@@ -99,7 +99,7 @@ export const update: CommandModule = {
     const commitHash = getCommitHash();
     const shortCommit = getShortCommitHash();
 
-    logger.section("Deployment Info");
+    logger.section("📤 Deployment Info");
     logger.table([
       ["Server", config.otaServer],
       ["Runtime", runtimeVersion],
@@ -184,7 +184,7 @@ export const update: CommandModule = {
       logger.success("Dry run completed successfully!");
       logger.info("Run without --dry-run to perform actual upload");
     } else {
-      logger.success("Updates published successfully!");
+      logger.success("✨ Updates published successfully!");
     }
   },
 };
