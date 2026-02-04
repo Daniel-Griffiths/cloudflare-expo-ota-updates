@@ -34,7 +34,7 @@ function findBuildArtifact(pattern: string): string | null {
 
 export const build: CommandModule = {
   command: "build",
-  describe: "Build the app locally",
+  describe: "Build the app locally and submit to the stores",
   builder: (yargs) =>
     yargs
       .option("platform", {
@@ -53,7 +53,7 @@ export const build: CommandModule = {
         alias: "s",
         type: "boolean",
         description: "Submit to app stores after building",
-        default: false,
+        default: true,
       })
       .option("clear-cache", {
         type: "boolean",

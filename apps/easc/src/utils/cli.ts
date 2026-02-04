@@ -19,41 +19,6 @@ class InteractiveCLI {
     this.yargsInstance = yargs(args);
   }
 
-  private showWelcome() {
-    console.clear();
-    console.log();
-    console.log(chalk.cyan("  ___  __ _ ___  ___ "));
-    console.log(chalk.cyan(" / _ \\/ _` / __|/ __|"));
-    console.log(chalk.blue("|  __/ (_| \\__ \\ (__ "));
-    console.log(chalk.blue(" \\___|\\__,_|___/\\___|"));
-    console.log();
-    console.log(chalk.gray(" Expo App Services for Cloudflare"));
-    console.log(chalk.yellow("════════════════════════════════════"));
-    console.log();
-  }
-
-  private async promptForMissingArgs(
-    argv: any,
-    options: Record<string, Options>,
-  ) {
-    if (argv.nonInteractive || argv["non-interactive"]) return;
-
-    for (const [key, opt] of Object.entries(options)) {
-      const camelKey = key.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
-      const value = argv[key] ?? argv[camelKey];
-
-      if (value !== undefined) continue;
-      if (opt.default !== undefined) continue;
-      if (!opt.choices || !Array.isArray(opt.choices)) continue;
-
-      argv[key] = await select({
-        message: `Select ${key.replace(/-/g, " ")}:`,
-        choices: opt.choices.map((c: string) => ({ name: c, value: c })),
-      });
-      argv[camelKey] = argv[key];
-    }
-  }
-
   scriptName(name: string): this {
     this.yargsInstance.scriptName(name);
     return this;
@@ -65,9 +30,8 @@ class InteractiveCLI {
   }
 
   command(cmd: CommandModule): this {
-    const commandStr = typeof cmd.command === "string" 
-      ? cmd.command 
-      : cmd.command?.[0] ?? "";
+    const commandStr =
+      typeof cmd.command === "string" ? cmd.command : (cmd.command?.[0] ?? "");
     const commandName = commandStr.split(" ")[0] || "";
 
     let options: Record<string, Options> = {};
@@ -98,7 +62,7 @@ class InteractiveCLI {
     const wrappedCmd: CommandModule = {
       ...cmd,
       handler: async (argv: any) => {
-        await this.promptForMissingArgs(argv, options);
+        await this._promptForMissingArgs(argv, options);
         return cmd.handler(argv);
       },
     };
@@ -132,7 +96,8 @@ class InteractiveCLI {
   }
 
   async parse(): Promise<void> {
-    const needsCommandPrompt = this.args.length === 0 || 
+    const needsCommandPrompt =
+      this.args.length === 0 ||
       (this.args.length === 1 && this.args[0]?.startsWith("-"));
 
     if (!needsCommandPrompt) {
@@ -140,7 +105,7 @@ class InteractiveCLI {
       return;
     }
 
-    this.showWelcome();
+    this._showWelcome();
 
     const command = await select({
       message: "Select a command:",
@@ -172,13 +137,48 @@ class InteractiveCLI {
           return y;
         },
         handler: async (argv: any) => {
-          await this.promptForMissingArgs(argv, cmd.options);
+          await this._promptForMissingArgs(argv, cmd.options);
           return cmd.handler(argv);
         },
       });
     }
 
     this.yargsInstance.demandCommand(1, "").parse();
+  }
+
+  private _showWelcome() {
+    console.clear();
+    console.log();
+    console.log(chalk.cyan("  ___  __ _ ___  ___ "));
+    console.log(chalk.cyan(" / _ \\/ _` / __|/ __|"));
+    console.log(chalk.blue("|  __/ (_| \\__ \\ (__ "));
+    console.log(chalk.blue(" \\___|\\__,_|___/\\___|"));
+    console.log();
+    console.log(chalk.gray(" Expo App Services for Cloudflare"));
+    console.log(chalk.yellow("════════════════════════════════════"));
+    console.log();
+  }
+
+  private async _promptForMissingArgs(
+    argv: any,
+    options: Record<string, Options>,
+  ) {
+    if (argv.nonInteractive || argv["non-interactive"]) return;
+
+    for (const [key, opt] of Object.entries(options)) {
+      const camelKey = key.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+      const value = argv[key] ?? argv[camelKey];
+
+      if (value !== undefined) continue;
+      if (opt.default !== undefined) continue;
+      if (!opt.choices || !Array.isArray(opt.choices)) continue;
+
+      argv[key] = await select({
+        message: `Select ${key.replace(/-/g, " ")}:`,
+        choices: opt.choices.map((c: string) => ({ name: c, value: c })),
+      });
+      argv[camelKey] = argv[key];
+    }
   }
 }
 

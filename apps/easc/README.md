@@ -2,26 +2,25 @@
 
 **E**xpo **A**pp **S**ervices for **C**loudflare - CLI tool for deploying Expo OTA updates to Cloudflare Workers.
 
-## Getting Started
+## Usage
 
-### 1. Link for Local Testing
-
-To test the easc locally, you link the package to replace the published package with your local copy.
+Run without arguments to enter interactive mode:
 
 ```bash
-# From this directory
-pnpm link --global
-
-# Now you can use 'easc' command globally
-easc --help
-easc update --help
+easc
 ```
 
-Or can also run directly with tsx:
+Or run commands directly:
 
 ```bash
-tsx index.ts --help
-tsx index.ts update --help
+easc build --platform ios --profile development
+easc update --channel production
+```
+
+Use `--non-interactive` flag for CI environments:
+
+```bash
+easc build --platform ios --profile production --non-interactive
 ```
 
 ## Commands
@@ -62,13 +61,28 @@ easc build:run --platform ios --profile preview  # Use specific build profile
 easc build:run --platform ios --path ./build.tar.gz  # Run existing artifact (skip build)
 ```
 
-## Publishing
+## Development
 
-To publish this package to npm:
+### Local Testing
+
+To test easc locally, link the package:
 
 ```bash
-cd apps/easc
-npm publish
+# From this directory
+pnpm link --global
+
+# Now you can use 'easc' command globally
+easc --help
 ```
 
-Keep in mind that you'll have to change the name to somthing other than easc if you are not a admin on this project. You may wish to publish your own custom version for extra security.
+Or run directly with tsx:
+
+```bash
+tsx index.ts --help
+```
+
+### Publishing
+
+```bash
+pnpm version patch && pnpm publish
+```
