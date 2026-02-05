@@ -5,28 +5,27 @@ interface EasConfig {
   build?: Record<string, unknown>;
 }
 
+/**
+ * Get EAS build profiles from eas.json
+ * Returns an empty array if eas.json is not found, invalid, or has no build profiles.
+ */
 export function getEasProfiles(): string[] {
   const easJsonPath = path.join(process.cwd(), "eas.json");
 
   if (!fs.existsSync(easJsonPath)) {
-    throw new Error("eas.json not found. Run 'eas build:configure' to create one.");
+    return [];
   }
 
   let easConfig: EasConfig;
   try {
     easConfig = JSON.parse(fs.readFileSync(easJsonPath, "utf-8"));
-  } catch (error) {
-    throw new Error(`Failed to parse eas.json: ${error instanceof Error ? error.message : String(error)}`);
+  } catch {
+    return [];
   }
 
   if (!easConfig.build || typeof easConfig.build !== "object") {
-    throw new Error("No build profiles found in eas.json");
+    return [];
   }
 
-  const profiles = Object.keys(easConfig.build);
-  if (profiles.length === 0) {
-    throw new Error("No build profiles found in eas.json");
-  }
-
-  return profiles;
+  return Object.keys(easConfig.build);
 }

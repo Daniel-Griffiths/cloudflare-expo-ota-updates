@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import chalk from "chalk";
 import type { CommandModule } from "yargs";
 import { Logger } from "../utils/logger";
 import { Platform, PlatformType } from "../enums/platform";
@@ -75,6 +74,13 @@ export const build: CommandModule = {
   async handler(argv) {
     const args = argv as unknown as IArgs;
     const logger = new Logger();
+
+    if (!args.profile) {
+      logger.error(
+        "eas.json not found or has no build profiles. Run 'eas build:configure' to create one.",
+      );
+      process.exit(1);
+    }
 
     try {
       const platforms: PlatformType[] =
@@ -151,7 +157,7 @@ export const build: CommandModule = {
       logger.success("Build completed!");
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error(chalk.red(`Build failed: ${message}`));
+      logger.error(`Build failed: ${message}`);
       process.exit(1);
     }
   },

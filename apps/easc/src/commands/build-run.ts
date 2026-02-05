@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import chalk from "chalk";
 import type { CommandModule } from "yargs";
 import { Logger } from "../utils/logger";
 import { Platform, PlatformType } from "../enums/platform";
@@ -86,6 +85,13 @@ export const buildRun: CommandModule = {
     const args = argv as unknown as IArgs;
     const logger = new Logger();
 
+    if (!args.profile) {
+      logger.error(
+        "eas.json not found or has no build profiles. Run 'eas build:configure' to create one.",
+      );
+      process.exit(1);
+    }
+
     try {
       const platform = args.platform;
       const platformName = platform === Platform.iOS ? "iOS" : "Android";
@@ -163,7 +169,7 @@ export const buildRun: CommandModule = {
       logger.success("Done! App is running on simulator/emulator.");
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error(chalk.red(`Build:run failed: ${message}`));
+      logger.error(`Build:run failed: ${message}`);
       process.exit(1);
     }
   },
