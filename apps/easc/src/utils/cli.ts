@@ -1,5 +1,5 @@
 import yargs, { type Argv, type CommandModule, type Options } from "yargs";
-import { select } from "@inquirer/prompts";
+import { select, Separator } from "@inquirer/prompts";
 import chalk from "chalk";
 
 interface CommandInfo {
@@ -7,6 +7,13 @@ interface CommandInfo {
   describe: string;
   options: Record<string, Options>;
   handler: (argv: any) => void | Promise<void>;
+}
+
+class BackToMenuError extends Error {
+  constructor() {
+    super("Back to menu");
+    this.name = "BackToMenuError";
+  }
 }
 
 class InteractiveCLI {
@@ -114,7 +121,7 @@ class InteractiveCLI {
           name: `${cmd.command.padEnd(12)} ${cmd.describe}`,
           value: cmd.command,
         })),
-        { name: "Exit", value: "exit" },
+        { name: "exit", value: "exit" },
       ],
     });
 
@@ -137,8 +144,16 @@ class InteractiveCLI {
           return y;
         },
         handler: async (argv: any) => {
-          await this._promptForMissingArgs(argv, cmd.options);
-          return cmd.handler(argv);
+          try {
+            await this._promptForMissingArgs(argv, cmd.options);
+            return cmd.handler(argv);
+          } catch (error) {
+            if (error instanceof BackToMenuError) {
+              this.args = [];
+              return this.parse();
+            }
+            throw error;
+          }
         },
       });
     }
@@ -173,10 +188,20 @@ class InteractiveCLI {
       if (opt.default !== undefined) continue;
       if (!opt.choices || !Array.isArray(opt.choices)) continue;
 
-      argv[key] = await select({
+      const selected = await select({
         message: `Select ${key.replace(/-/g, " ")}:`,
-        choices: opt.choices.map((c: string) => ({ name: c, value: c })),
+        choices: [
+          ...opt.choices.map((c: string) => ({ name: c, value: c })),
+          new Separator(),
+          { name: "← back", value: "__back__" },
+        ],
       });
+
+      if (selected === "__back__") {
+        throw new BackToMenuError();
+      }
+
+      argv[key] = selected;
       argv[camelKey] = argv[key];
     }
   }
