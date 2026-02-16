@@ -1,6 +1,6 @@
 {
   "name": "easc",
-  "version": "0.0.27",
+  "version": "0.0.29",
   "description": "Expo App Services for Cloudflare - Deploy tool for Expo OTA updates to Cloudflare Workers",
   "type": "module",
   "license": "MIT",
@@ -17,8 +17,7 @@
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "typecheck": "tsgo --noEmit",
-    "prepublishOnly": "pnpm run test"
+    "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
     "@inquirer/prompts": "^7.8.6",

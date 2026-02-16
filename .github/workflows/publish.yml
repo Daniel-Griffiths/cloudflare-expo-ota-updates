@@ -1,0 +1,52 @@
+name: Publish easc
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Check if version changed
+        id: version
+        run: |
+          LOCAL_VERSION=$(node -p "require('./apps/easc/package.json').version")
+          PUBLISHED_VERSION=$(npm view easc version 2>/dev/null || echo "0.0.0")
+          echo "local=$LOCAL_VERSION" >> "$GITHUB_OUTPUT"
+          echo "published=$PUBLISHED_VERSION" >> "$GITHUB_OUTPUT"
+          if [ "$LOCAL_VERSION" = "$PUBLISHED_VERSION" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Version $LOCAL_VERSION is already published, skipping."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "New version $LOCAL_VERSION (published: $PUBLISHED_VERSION)"
+          fi
+
+      - name: Typecheck
+        if: steps.version.outputs.changed == 'true'
+        run: pnpm --filter easc typecheck
+
+      - name: Test
+        if: steps.version.outputs.changed == 'true'
+        run: pnpm --filter easc test
+
+      - name: Publish
+        if: steps.version.outputs.changed == 'true'
+        run: npm publish
+        working-directory: apps/easc
