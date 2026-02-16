@@ -7,15 +7,26 @@ import { runx } from "../utils/runx";
 import { getEasProfiles } from "../utils/eas";
 
 interface IArgs {
-  platform: PlatformType | "all";
+  path?: string;
   profile: string;
-  autoSubmit: boolean;
-  clearCache: boolean;
-  output?: string;
+  platform: PlatformType;
   nonInteractive: boolean;
 }
 
-function findBuildArtifact(pattern: string): string | null {
+/**
+ * Get the artifact pattern for a platform.
+ * These patterns match EAS Build local output:
+ * - iOS simulator builds: .tar.gz (contains .app)
+ * - Android builds: .apk
+ */
+function getArtifactPattern(platform: PlatformType): string {
+  return platform === Platform.iOS ? "build-*.tar.gz" : "build-*.apk";
+}
+
+/**
+ * Find the latest build artifact matching a pattern
+ */
+function findLatestArtifact(pattern: string): string | null {
   const cwd = process.cwd();
   const files = fs.readdirSync(cwd).filter((f) => {
     const regex = new RegExp(pattern.replace("*", ".*"));
@@ -33,44 +44,43 @@ function findBuildArtifact(pattern: string): string | null {
 
 export const build: CommandModule = {
   command: "build",
-  describe: "Build the app locally and submit to the stores",
+  describe: "Build locally and run on simulator/emulator",
   builder: (yargs) =>
     yargs
       .option("platform", {
         alias: "p",
         type: "string",
-        choices: [Platform.iOS, Platform.Android, "all"] as const,
+        choices: [Platform.iOS, Platform.Android] as const,
         description: "Target platform",
       })
       .option("profile", {
         alias: "e",
         type: "string",
-        choices: getEasProfiles(),
+        choices: getEasProfiles("development"),
         description: "EAS build profile",
       })
-      .option("auto-submit", {
-        alias: "s",
-        type: "boolean",
-        description: "Submit to app stores after building",
-        default: true,
-      })
-      .option("clear-cache", {
-        type: "boolean",
-        description: "Clear cache before building",
-        default: false,
-      })
-      .option("output", {
+      .option("path", {
         type: "string",
-        description: "Output path for the build artifact",
+        description:
+          "Path to the simulator/emulator build archive or app (skips build)",
       })
       .option("non-interactive", {
         type: "boolean",
         description: "Never prompt for user input",
         default: false,
       })
-      .example("$0 build", "Build all platforms locally")
-      .example("$0 build -p ios -e development", "Build iOS with dev profile")
-      .example("$0 build -s", "Build and submit to stores"),
+      .example(
+        "$0 build -p ios -e preview",
+        "Build with preview profile and run on iOS Simulator",
+      )
+      .example(
+        "$0 build -p android",
+        "Build with default profile and run on Android Emulator",
+      )
+      .example(
+        "$0 build -p ios --path ./build.tar.gz",
+        "Run existing build artifact",
+      ),
   async handler(argv) {
     const args = argv as unknown as IArgs;
     const logger = new Logger();
@@ -83,26 +93,36 @@ export const build: CommandModule = {
     }
 
     try {
-      const platforms: PlatformType[] =
-        args.platform === "all"
-          ? [Platform.iOS, Platform.Android]
-          : [args.platform];
+      const platform = args.platform;
+      const platformName = platform === Platform.iOS ? "iOS" : "Android";
+      const artifactPattern = getArtifactPattern(platform);
 
-      for (const platform of platforms) {
-        const platformName = platform === Platform.iOS ? "iOS" : "Android";
+      logger.section(`${platformName} Build & Run`);
 
-        logger.section(`${platformName} Build`);
+      let artifactPath: string | null = null;
+      let didBuild = false;
 
-        if (args.clearCache) {
-          logger.info(`Running prebuild for ${platformName}...`);
-          runx(`expo prebuild --platform ${platform} --clean`, {
-            cwd: process.cwd(),
-            stdio: "inherit",
-            env: { ...process.env, CI: "1" },
-          });
-          logger.success("Prebuild completed");
+      if (args.path) {
+        artifactPath = args.path;
+        if (!fs.existsSync(artifactPath)) {
+          logger.error(`Artifact not found: ${artifactPath}`);
+          process.exit(1);
         }
+        logger.info(`Using provided artifact: ${artifactPath}`);
+      }
 
+      if (!artifactPath) {
+        didBuild = true;
+
+        logger.info(`Running prebuild for ${platformName}...`);
+
+        runx(`expo prebuild --platform ${platform} --clean`, {
+          cwd: process.cwd(),
+          stdio: "inherit",
+          env: { ...process.env, CI: "1" },
+        });
+
+        logger.success("Prebuild completed");
         logger.info(`Building ${platformName} locally...`);
 
         const buildFlags = [
@@ -110,8 +130,6 @@ export const build: CommandModule = {
           `--profile ${args.profile}`,
           "--local",
           "--non-interactive",
-          args.clearCache ? "--clear-cache" : "",
-          args.output ? `--output ${args.output}` : "",
         ]
           .filter(Boolean)
           .join(" ");
@@ -123,38 +141,32 @@ export const build: CommandModule = {
 
         logger.success(`${platformName} build completed`);
 
-        if (args.autoSubmit) {
-          logger.info(`Submitting ${platformName} build...`);
+        artifactPath = findLatestArtifact(artifactPattern);
 
-          const artifactPath =
-            platform === Platform.iOS
-              ? findBuildArtifact("build-*.ipa")
-              : findBuildArtifact("build-*.aab") ||
-                findBuildArtifact("build-*.apk");
-
-          if (!artifactPath) {
-            logger.error(`No ${platformName} build artifact found`);
-            process.exit(1);
-          }
-
-          logger.info(`Found artifact: ${artifactPath}`);
-
-          runx(
-            `eas submit --platform ${platform} --path "${artifactPath}" --non-interactive`,
-            { cwd: process.cwd(), stdio: "inherit" },
-          );
-
-          logger.success(`${platformName} submitted`);
-
-          if (fs.existsSync(artifactPath)) {
-            fs.unlinkSync(artifactPath);
-            logger.info(`Cleaned up: ${artifactPath}`);
-          }
+        if (!artifactPath) {
+          logger.error(`No build artifact found after build`);
+          process.exit(1);
         }
+
+        logger.info(`Build artifact: ${artifactPath}`);
+      }
+
+      logger.info(`Installing on ${platformName} simulator/emulator...`);
+
+      runx(`eas build:run --path "${artifactPath}" --platform ${platform}`, {
+        cwd: process.cwd(),
+        stdio: "inherit",
+      });
+
+      logger.success(`${platformName} app installed and running`);
+
+      if (didBuild && artifactPath && fs.existsSync(artifactPath)) {
+        fs.unlinkSync(artifactPath);
+        logger.info(`Cleaned up: ${artifactPath}`);
       }
 
       logger.section("");
-      logger.success("Build completed!");
+      logger.success("Done! App is running on simulator/emulator.");
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.error(`Build failed: ${message}`);

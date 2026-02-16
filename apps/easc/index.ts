@@ -2,7 +2,7 @@
 import { hideBin } from "yargs/helpers";
 import { cli } from "./src/utils/cli";
 import { build } from "./src/commands/build";
-import { buildRun } from "./src/commands/build-run";
+import { submit } from "./src/commands/submit";
 import { update } from "./src/commands/update";
 
 cli(hideBin(process.argv))
@@ -10,7 +10,7 @@ cli(hideBin(process.argv))
   .usage("$0 <command> [options]")
   .command(update)
   .command(build)
-  .command(buildRun)
+  .command(submit)
   .demandCommand(1, "")
   .help()
   .alias("help", "h")
