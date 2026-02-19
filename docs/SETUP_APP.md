@@ -123,3 +123,19 @@ npx easc update --channel production
 npx easc --help
 npx easc update --help
 ```
+
+## Known issues
+
+### Assets not loading after an OTA update (expo-updates)
+
+With `expo-updates` enabled, images and other assets can fail to load **after the user receives an OTA update** (on both iOS and Android). The first release build may show assets correctly; the issue appears once an update is downloaded and applied. This comes from how the React Native `Image` component resolves asset paths when updates are enabled.
+
+**Reference:** [expo/expo#22656](https://github.com/expo/expo/issues/22656) (and [this comment](https://github.com/expo/expo/issues/22656#issuecomment-1628535353) for the workaround).
+
+**Recommended fix:** add the following at the **very beginning** of your app entry file (e.g. `index.js` or `App.js`):
+
+```js
+import 'expo-asset';
+```
+
+`expo-asset` is a dependency of `expo` and registers a custom source transformer so `Image` resolves assets from the correct location (e.g. `.expo-internal`). Without this, assets may not be found in release builds when expo-updates is installed.

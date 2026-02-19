@@ -1,7 +1,20 @@
 import fs from "fs";
 import path from "path";
+import { createRequire } from "module";
 import { IAppJson } from "./runtime";
 import { Platform, PlatformType } from "../enums/platform";
+
+const require = createRequire(import.meta.url);
+
+function loadAppConfigFile(filePath: string, label: string): IAppJson {
+  try {
+    const config = require(filePath);
+    return (config?.default ?? config) as IAppJson;
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to load ${label}: ${msg}`, { cause: error });
+  }
+}
 
 export interface IMetadata {
   fileMetadata?: {
@@ -15,21 +28,37 @@ export interface IMetadata {
 }
 
 /**
- * Read and parse app.json file
+ * Read app config from the app directory.
+ * Tries in order: app.config.js, app.config.ts, app.json.
+ * Returns the first found; throws if none exist.
  */
 export function readAppJson(appDir: string = process.cwd()): IAppJson {
-  const appJsonPath = path.join(appDir, "app.json");
+  const resolvedDir = path.resolve(appDir);
+  const appConfigJsPath = path.join(resolvedDir, "app.config.js");
+  const appConfigTsPath = path.join(resolvedDir, "app.config.ts");
+  const appJsonPath = path.join(resolvedDir, "app.json");
 
-  if (!fs.existsSync(appJsonPath)) {
-    throw new Error(`app.json not found in ${appDir}`);
+  if (fs.existsSync(appConfigJsPath)) {
+    return loadAppConfigFile(appConfigJsPath, "app.config.js");
   }
 
-  try {
-    const content = fs.readFileSync(appJsonPath, "utf-8");
-    return JSON.parse(content);
-  } catch (error) {
-    throw new Error(`Failed to parse app.json: ${error}`);
+  if (fs.existsSync(appConfigTsPath)) {
+    return loadAppConfigFile(appConfigTsPath, "app.config.ts");
   }
+
+  if (fs.existsSync(appJsonPath)) {
+    try {
+      const content = fs.readFileSync(appJsonPath, "utf-8");
+      return JSON.parse(content) as IAppJson;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to parse app.json: ${msg}`, { cause: error });
+    }
+  }
+
+  throw new Error(
+    `No app config found in ${appDir}. Create app.config.js, app.config.ts or app.json`
+  );
 }
 
 /**
@@ -48,8 +77,18 @@ export function readMetadata(exportDir: string): IMetadata {
     const content = fs.readFileSync(metadataPath, "utf-8");
     return JSON.parse(content);
   } catch (error) {
-    throw new Error(`Failed to parse metadata.json: ${error}`);
+    const msg = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to parse metadata.json: ${msg}`, { cause: error });
   }
+}
+
+const BUNDLE_EXTENSIONS = [".hbc", ".js", ".bundle"];
+const BUNDLE_PREFIXES = ["entry-", "index-"];
+
+function isBundleFilename(name: string): boolean {
+  const hasValidPrefix = BUNDLE_PREFIXES.some((p) => name.startsWith(p));
+  if (!hasValidPrefix) return false;
+  return BUNDLE_EXTENSIONS.some((ext) => name.endsWith(ext));
 }
 
 /**
@@ -67,13 +106,16 @@ export function findBundleFile(
 
   const bundleFiles = fs
     .readdirSync(bundlePath)
-    .filter((f) => f.startsWith("entry-") && f.endsWith(".hbc"));
+    .filter((f) => isBundleFilename(f));
 
   if (bundleFiles.length === 0) {
-    throw new Error(`No bundle found for ${platform}`);
+    throw new Error(
+      `No bundle found for ${platform} in ${bundlePath}. ` +
+        `Expected files like entry-*.hbc, index-*.hbc or *.js. Run 'npx expo export' first.`
+    );
   }
 
-  const [firstBundle] = bundleFiles;
+  const [firstBundle] = [...bundleFiles].sort();
   if (!firstBundle) {
     throw new Error(`No bundle found for ${platform}`);
   }
