@@ -76,6 +76,19 @@ describe("File utilities", () => {
       expect(fs.readFileSync).not.toHaveBeenCalled();
     });
 
+    it("should use app.config.js over app.config.ts when both exist", () => {
+      vi.mocked(fs.existsSync).mockImplementation(
+        (p: fs.PathLike) =>
+          typeof p === "string" &&
+          (p.endsWith("app.config.js") || p.endsWith("app.config.ts"))
+      );
+
+      const result = readAppJson("/test/dir");
+
+      expect((result as { expo: { name: string } }).expo.name).toBe("FromConfigJs");
+      expect(requireImpl).toHaveBeenCalledWith("/test/dir/app.config.js");
+    });
+
     it("should throw if no app config found", () => {
       vi.mocked(fs.existsSync).mockReturnValue(false);
 
@@ -182,6 +195,24 @@ describe("File utilities", () => {
       const result = findBundleFile("/dist", Platform.Android);
 
       expect(result).toBe("/dist/_expo/static/js/android/index-xyz789.hbc");
+    });
+
+    it("should find bundle file with .js extension", () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readdirSync).mockReturnValue(["entry-abc123.js"] as any);
+
+      const result = findBundleFile("/dist", Platform.iOS);
+
+      expect(result).toBe("/dist/_expo/static/js/ios/entry-abc123.js");
+    });
+
+    it("should find bundle file with .bundle extension", () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readdirSync).mockReturnValue(["entry-abc123.bundle"] as any);
+
+      const result = findBundleFile("/dist", Platform.Android);
+
+      expect(result).toBe("/dist/_expo/static/js/android/entry-abc123.bundle");
     });
 
     it("should throw if bundle directory doesn't exist", () => {

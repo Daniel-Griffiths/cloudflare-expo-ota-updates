@@ -111,16 +111,13 @@ export function findBundleFile(
   if (bundleFiles.length === 0) {
     throw new Error(
       `No bundle found for ${platform} in ${bundlePath}. ` +
-        `Expected files like entry-*.hbc, index-*.hbc or *.js. Run 'npx expo export' first.`
+        `Expected files like entry-*.hbc, entry-*.js, entry-*.bundle, index-*.hbc, index-*.js, index-*.bundle. Run 'npx expo export' first.`
     );
   }
 
   const [firstBundle] = [...bundleFiles].sort();
-  if (!firstBundle) {
-    throw new Error(`No bundle found for ${platform}`);
-  }
 
-  return path.join(bundlePath, firstBundle);
+  return path.join(bundlePath, firstBundle!);
 }
 
 /**
