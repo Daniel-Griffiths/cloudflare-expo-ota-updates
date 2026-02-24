@@ -75,7 +75,10 @@ describe("File utilities", () => {
       expect(fs.readFileSync).not.toHaveBeenCalled();
     });
 
-    it("should use app.config.js over app.config.ts when both exist", () => {
+    it("should use app.config.ts over app.config.js when both exist", () => {
+      requireImpl.mockReturnValueOnce({
+        expo: { name: "FromConfigTs", version: "1.0.0" },
+      });
       vi.mocked(fs.existsSync).mockImplementation(
         (p: fs.PathLike) =>
           typeof p === "string" &&
@@ -84,8 +87,8 @@ describe("File utilities", () => {
 
       const result = readAppJson("/test/dir");
 
-      expect(result.expo.name).toBe("FromConfigJs");
-      expect(requireImpl).toHaveBeenCalledWith("/test/dir/app.config.js");
+      expect(result.expo.name).toBe("FromConfigTs");
+      expect(requireImpl).toHaveBeenCalledWith("/test/dir/app.config.ts");
     });
 
     it("should throw if no app config found", () => {
