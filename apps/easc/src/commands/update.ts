@@ -120,7 +120,7 @@ export const update: CommandModule = {
       logger.section(platform.toUpperCase());
 
       try {
-        const bundlePath = findBundleFile(exportDir, platform);
+        const bundlePath = findBundleFile(exportDir, metadata, platform);
         const assetPaths = getAssetFiles(exportDir, metadata, platform);
 
         if (args.dryRun) {
