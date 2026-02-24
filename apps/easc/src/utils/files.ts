@@ -6,15 +6,13 @@ import { Platform, PlatformType } from "../enums/platform";
 
 const require = createRequire(import.meta.url);
 
-function loadAppConfigFile(filePath: string, label: string): IAppJson {
-  try {
-    const config = require(filePath);
-    return (config?.default ?? config) as IAppJson;
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to load ${label}: ${msg}`, { cause: error });
-  }
-}
+const BUNDLE_EXTENSIONS = [".hbc", ".js", ".bundle"];
+const BUNDLE_PREFIXES = ["entry-", "index-"];
+const APP_CONFIGS = [
+  { filename: "app.config.ts", loader: _loadJsConfig },
+  { filename: "app.config.js", loader: _loadJsConfig },
+  { filename: "app.json", loader: _loadJsonConfig },
+] as const;
 
 export interface IMetadata {
   fileMetadata?: {
@@ -34,31 +32,16 @@ export interface IMetadata {
  */
 export function readAppJson(appDir: string = process.cwd()): IAppJson {
   const resolvedDir = path.resolve(appDir);
-  const appConfigJsPath = path.join(resolvedDir, "app.config.js");
-  const appConfigTsPath = path.join(resolvedDir, "app.config.ts");
-  const appJsonPath = path.join(resolvedDir, "app.json");
 
-  if (fs.existsSync(appConfigJsPath)) {
-    return loadAppConfigFile(appConfigJsPath, "app.config.js");
-  }
-
-  if (fs.existsSync(appConfigTsPath)) {
-    return loadAppConfigFile(appConfigTsPath, "app.config.ts");
-  }
-
-  if (fs.existsSync(appJsonPath)) {
-    try {
-      const content = fs.readFileSync(appJsonPath, "utf-8");
-      return JSON.parse(content) as IAppJson;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to parse app.json: ${msg}`, { cause: error });
+  for (const { filename, loader } of APP_CONFIGS) {
+    const filePath = path.join(resolvedDir, filename);
+    if (fs.existsSync(filePath)) {
+      return _parseAppConfig(filePath, filename, loader);
     }
   }
 
-  throw new Error(
-    `No app config found in ${appDir}. Create app.config.js, app.config.ts or app.json`
-  );
+  const names = APP_CONFIGS.map((config) => config.filename).join(", ");
+  throw new Error(`No app config found in ${appDir}. Create ${names}`);
 }
 
 /**
@@ -69,7 +52,7 @@ export function readMetadata(exportDir: string): IMetadata {
 
   if (!fs.existsSync(metadataPath)) {
     throw new Error(
-      `metadata.json not found in ${exportDir}. Did you run 'expo export'?`
+      `metadata.json not found in ${exportDir}. Did you run 'expo export'?`,
     );
   }
 
@@ -82,21 +65,12 @@ export function readMetadata(exportDir: string): IMetadata {
   }
 }
 
-const BUNDLE_EXTENSIONS = [".hbc", ".js", ".bundle"];
-const BUNDLE_PREFIXES = ["entry-", "index-"];
-
-function isBundleFilename(name: string): boolean {
-  const hasValidPrefix = BUNDLE_PREFIXES.some((p) => name.startsWith(p));
-  if (!hasValidPrefix) return false;
-  return BUNDLE_EXTENSIONS.some((ext) => name.endsWith(ext));
-}
-
 /**
  * Find the bundle file for a platform
  */
 export function findBundleFile(
   exportDir: string,
-  platform: PlatformType
+  platform: PlatformType,
 ): string {
   const bundlePath = path.join(exportDir, `_expo/static/js/${platform}`);
 
@@ -104,20 +78,20 @@ export function findBundleFile(
     throw new Error(`Bundle directory not found: ${bundlePath}`);
   }
 
-  const bundleFiles = fs
+  const firstBundle = fs
     .readdirSync(bundlePath)
-    .filter((f) => isBundleFilename(f));
+    .filter((f) => _isBundleFilename(f))
+    .sort()
+    .at(0);
 
-  if (bundleFiles.length === 0) {
+  if (!firstBundle) {
     throw new Error(
       `No bundle found for ${platform} in ${bundlePath}. ` +
-        `Expected files like entry-*.hbc, entry-*.js, entry-*.bundle, index-*.hbc, index-*.js, index-*.bundle. Run 'npx expo export' first.`
+        `Expected files like entry-*.hbc, entry-*.js, entry-*.bundle, index-*.hbc, index-*.js, index-*.bundle. Run 'npx expo export' first.`,
     );
   }
 
-  const [firstBundle] = [...bundleFiles].sort();
-
-  return path.join(bundlePath, firstBundle!);
+  return path.join(bundlePath, firstBundle);
 }
 
 /**
@@ -126,7 +100,7 @@ export function findBundleFile(
 export function getAssetFiles(
   exportDir: string,
   metadata: IMetadata,
-  platform: PlatformType
+  platform: PlatformType,
 ): string[] {
   const assetsPath = path.join(exportDir, "assets");
 
@@ -145,7 +119,7 @@ export function getAssetFiles(
   }
 
   const platformAssetFiles = new Set(
-    platformAssets.map((asset) => path.basename(asset.path))
+    platformAssets.map((asset) => path.basename(asset.path)),
   );
 
   const assetFiles = fs.readdirSync(assetsPath);
@@ -167,7 +141,7 @@ export function getAssetFiles(
  */
 export function checkExportDirectory(
   exportDir: string,
-  appDir: string = process.cwd()
+  appDir: string = process.cwd(),
 ): string {
   // If exportDir is relative, resolve it from appDir
   const resolvedExportDir = path.isAbsolute(exportDir)
@@ -177,7 +151,7 @@ export function checkExportDirectory(
   if (!fs.existsSync(resolvedExportDir)) {
     throw new Error(
       `Export directory not found: ${resolvedExportDir}\n` +
-        `Run 'npx expo export' or use --export-dir to specify a different directory.`
+        `Run 'npx expo export' or use --export-dir to specify a different directory.`,
     );
   }
 
@@ -191,7 +165,7 @@ export function checkExportDirectory(
     if (!fs.existsSync(expectedPath)) {
       throw new Error(
         `Invalid export directory structure in: ${resolvedExportDir}\n` +
-          `Run 'npx expo export' to generate a valid export.`
+          `Run 'npx expo export' to generate a valid export.`,
       );
     }
   }
@@ -200,9 +174,62 @@ export function checkExportDirectory(
 }
 
 /**
- * Legacy wrapper for backwards compatibility
- * @deprecated Use checkExportDirectory instead
+ * Type guard that checks whether a value conforms to the IAppJson shape
  */
-export function checkDistDirectory(appDir: string = process.cwd()): string {
-  return checkExportDirectory("dist", appDir);
+function _isAppJson(value: unknown): value is IAppJson {
+  if (typeof value !== "object" || value === null || !("expo" in value)) {
+    return false;
+  }
+  const record = value as Record<string, unknown>;
+  return typeof record["expo"] === "object" && record["expo"] !== null;
+}
+
+/**
+ * Load a JS/TS config file via require, resolving default exports
+ */
+function _loadJsConfig(filePath: string): unknown {
+  const config = require(filePath);
+  return config?.default ?? config;
+}
+
+/**
+ * Load and parse a JSON config file from disk
+ */
+function _loadJsonConfig(filePath: string): unknown {
+  const content = fs.readFileSync(filePath, "utf-8");
+  return JSON.parse(content);
+}
+
+/**
+ * Load a config file using the given loader and validate it as IAppJson
+ */
+function _parseAppConfig(
+  filePath: string,
+  label: string,
+  loader: (filePath: string) => unknown,
+): IAppJson {
+  try {
+    const result = loader(filePath);
+    if (!_isAppJson(result)) {
+      throw new Error(`${label} must contain an object with an "expo" key`);
+    }
+    return result;
+  } catch (error) {
+    if (error instanceof Error && error.message.endsWith('"expo" key')) {
+      throw error;
+    }
+    const msg = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to load ${label}: ${msg}`, { cause: error });
+  }
+}
+
+/**
+ * Check if a filename matches a valid bundle pattern (prefix + extension)
+ */
+function _isBundleFilename(name: string): boolean {
+  const hasValidPrefix = BUNDLE_PREFIXES.some((prefix) =>
+    name.startsWith(prefix),
+  );
+  if (!hasValidPrefix) return false;
+  return BUNDLE_EXTENSIONS.some((extension) => name.endsWith(extension));
 }

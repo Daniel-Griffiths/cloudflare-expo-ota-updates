@@ -6,6 +6,7 @@ import { PlatformType } from "../enums/platform";
 
 export interface IAppJson {
   expo: {
+    name?: string;
     runtimeVersion?: string | { policy: string };
     version?: string;
     platforms?: string[];

@@ -7,7 +7,6 @@ import {
   readMetadata,
   findBundleFile,
   getAssetFiles,
-  checkDistDirectory,
 } from "./files";
 
 const { requireImpl } = vi.hoisted(() => ({
@@ -24,7 +23,7 @@ describe("File utilities", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(path.join).mockImplementation((...args) => args.join("/"));
-    vi.mocked(path.resolve).mockImplementation((...args) => (args[0] as string) || "");
+    vi.mocked(path.resolve).mockImplementation((...args) => args[0] ?? "");
     requireImpl.mockImplementation(() => ({
       expo: { name: "FromConfigJs", version: "1.0.0" },
     }));
@@ -57,7 +56,7 @@ describe("File utilities", () => {
 
       const result = readAppJson("/test/dir");
 
-      expect((result as { expo: { name: string } }).expo.name).toBe("FromConfigJs");
+      expect(result.expo.name).toBe("FromConfigJs");
       expect(result.expo.version).toBe("1.0.0");
       expect(fs.readFileSync).not.toHaveBeenCalled();
     });
@@ -72,7 +71,7 @@ describe("File utilities", () => {
 
       const result = readAppJson("/test/dir");
 
-      expect((result as { expo: { name: string } }).expo.name).toBe("FromConfigTs");
+      expect(result.expo.name).toBe("FromConfigTs");
       expect(fs.readFileSync).not.toHaveBeenCalled();
     });
 
@@ -85,7 +84,7 @@ describe("File utilities", () => {
 
       const result = readAppJson("/test/dir");
 
-      expect((result as { expo: { name: string } }).expo.name).toBe("FromConfigJs");
+      expect(result.expo.name).toBe("FromConfigJs");
       expect(requireImpl).toHaveBeenCalledWith("/test/dir/app.config.js");
     });
 
@@ -108,10 +107,12 @@ describe("File utilities", () => {
         expect.fail("should have thrown");
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
-        expect((error as Error).message).toMatch(/Failed to load app.config.js/);
-        expect((error as Error).cause).toBeDefined();
-        expect((error as Error).cause).toBeInstanceOf(Error);
-        expect(((error as Error).cause as Error).message).toBe("SyntaxError");
+        if (!(error instanceof Error)) throw error;
+        expect(error.message).toMatch(/Failed to load app.config.js/);
+        expect(error.cause).toBeDefined();
+        expect(error.cause).toBeInstanceOf(Error);
+        if (!(error.cause instanceof Error)) throw error;
+        expect(error.cause.message).toBe("SyntaxError");
       }
     });
 
@@ -126,8 +127,9 @@ describe("File utilities", () => {
         expect.fail("should have thrown");
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
-        expect((error as Error).message).toMatch(/Failed to parse app.json/);
-        expect((error as Error).cause).toBeDefined();
+        if (!(error instanceof Error)) throw error;
+        expect(error.message).toMatch(/Failed to load app.json/);
+        expect(error.cause).toBeDefined();
       }
     });
   });
@@ -166,8 +168,9 @@ describe("File utilities", () => {
         expect.fail("should have thrown");
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
-        expect((error as Error).message).toMatch(/Failed to parse metadata.json/);
-        expect((error as Error).cause).toBeDefined();
+        if (!(error instanceof Error)) throw error;
+        expect(error.message).toMatch(/Failed to parse metadata.json/);
+        expect(error.cause).toBeDefined();
       }
     });
   });
@@ -255,23 +258,4 @@ describe("File utilities", () => {
     });
   });
 
-  describe("checkDistDirectory", () => {
-    it("should return dist dir when valid", () => {
-      vi.mocked(fs.existsSync).mockReturnValue(true);
-
-      const result = checkDistDirectory("/test");
-
-      expect(result).toBe("/test/dist");
-    });
-
-    it("should throw if dist directory doesn't exist", () => {
-      vi.mocked(fs.existsSync).mockImplementation((path) => {
-        return path !== "/test/dist";
-      });
-
-      expect(() => checkDistDirectory("/test")).toThrow(
-        "Export directory not found"
-      );
-    });
-  });
 });
