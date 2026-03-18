@@ -19,7 +19,7 @@ export class R2Storage {
    * @param fileBuffer - File contents as ArrayBuffer
    * @returns Public URL of the uploaded file
    */
-  async uploadFile(filePath: string, fileBuffer: ArrayBuffer): Promise<string> {
+  async uploadFile(filePath: string, fileBuffer: ArrayBuffer | ArrayBufferView): Promise<string> {
     await this.bucket.put(filePath, fileBuffer, {
       httpMetadata: {
         contentType: this.getContentType(filePath),

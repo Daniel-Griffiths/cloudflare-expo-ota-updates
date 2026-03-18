@@ -70,14 +70,7 @@ async function sendMultipartResponse(
     ...(signature ? [`expo-signature: ${signature}`] : []),
   ];
 
-  const body = [
-    `--${boundary}`,
-    ...partHeaders,
-    "",
-    jsonBody,
-    `--${boundary}--`,
-    "",
-  ].join("\r\n");
+  const body = [`--${boundary}`, ...partHeaders, "", jsonBody, `--${boundary}--`, ""].join("\r\n");
 
   return new Response(body, {
     headers: {
@@ -129,9 +122,7 @@ function resolveExpoConfig(expoConfigJson?: string): Record<string, unknown> {
 /**
  * Handles the manifest request.
  */
-export async function manifestHandler(
-  context: Context<{ Bindings: IEnv }>,
-): Promise<Response> {
+export async function manifestHandler(context: Context<{ Bindings: IEnv }>): Promise<Response> {
   try {
     const headerValidation = manifestHeadersSchema.safeParse({
       "expo-app-id": context.req.header("expo-app-id"),
@@ -157,13 +148,7 @@ export async function manifestHandler(
 
     const db = context.env.DB;
 
-    const latestUpdate = await getLatestUpdate(
-      db,
-      appId,
-      channel,
-      runtimeVersion,
-      platform,
-    );
+    const latestUpdate = await getLatestUpdate(db, appId, channel, runtimeVersion, platform);
 
     if (!latestUpdate) {
       return await sendNoUpdateAvailable(context, protocolVersion);

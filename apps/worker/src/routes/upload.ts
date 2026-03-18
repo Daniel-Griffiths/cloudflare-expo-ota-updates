@@ -256,7 +256,7 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
       const configBuffer = encoder.encode(JSON.stringify(expoConfig, null, 2));
       await storage.uploadFile(
         `${appId}/${channel}/${runtimeVersion}/${updateId}/expoConfig.json`,
-        configBuffer as unknown as ArrayBuffer,
+        configBuffer,
       );
     }
 
