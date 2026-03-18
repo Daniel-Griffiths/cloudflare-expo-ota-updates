@@ -63,7 +63,6 @@ function sendMultipartResponse(
     `--${boundary}`,
     `Content-Disposition: form-data; name="${fieldName}"`,
     `Content-Type: application/json`,
-    `content-type: application/json; charset=utf-8`,
     "",
     JSON.stringify(content),
     `--${boundary}--`,
@@ -74,6 +73,8 @@ function sendMultipartResponse(
     headers: {
       "expo-protocol-version": protocolVersion.toString(),
       "expo-sfv-version": "0",
+      "expo-manifest-filters": "",
+      "expo-server-defined-headers": "",
       "cache-control": "private, max-age=0",
       "content-type": `multipart/mixed; boundary=${boundary}`,
     },
