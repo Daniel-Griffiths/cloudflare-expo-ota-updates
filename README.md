@@ -24,6 +24,6 @@ Follow the setup guides below for configuring the worker and your app.
 ## Features
 
 - Manage and deploy updates for multiple apps
-- Secure deployments using api keys and ip restrictions
+- Secure deployments using api keys, ip restrictions, and optional code signing
 - Super fast CDN integration using Cloudflare R2
 - Easily migrate existing apps using `easc` (a drop in replacement for `eas`)

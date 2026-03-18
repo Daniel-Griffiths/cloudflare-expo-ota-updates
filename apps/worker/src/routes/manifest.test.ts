@@ -207,6 +207,103 @@ describe("Manifest Route", () => {
     expect(text).toContain("noUpdateAvailable");
   });
 
+  it("should not include expo-signature when no private key is configured", async () => {
+    const updateId = "test-update-no-sig";
+    const createdAt = new Date().toISOString();
+
+    await env.DB.prepare(
+      `
+      INSERT INTO updates (
+        id, app_id, channel, runtime_version, platform, created_at,
+        launch_asset_key, launch_asset_hash, launch_asset_file_extension,
+        launch_asset_content_type, launch_asset_url, assets_json
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+    )
+      .bind(
+        updateId,
+        "test-app",
+        "production",
+        "1.0.0",
+        "ios",
+        createdAt,
+        "bundle-key",
+        "bundle-hash",
+        ".bundle",
+        "application/javascript",
+        "https://example.com/bundle.js",
+        "[]",
+      )
+      .run();
+
+    const request = new Request("http://localhost/manifest", {
+      headers: {
+        "expo-app-id": "test-app",
+        "expo-runtime-version": "1.0.0",
+        "expo-platform": "ios",
+        "expo-protocol-version": "1",
+        "expo-channel-name": "production",
+        "expo-expect-signature": 'sig, keyid="main", alg="rsa-v1_5-sha256"',
+      },
+    });
+
+    const ctx = createExecutionContext();
+    const response = await app.fetch(request, env, ctx);
+    await waitOnExecutionContext(ctx);
+
+    expect(response.status).toBe(200);
+    const text = await response.text();
+    expect(text).not.toContain("expo-signature");
+  });
+
+  it("should not include expo-signature when expo-expect-signature header is absent", async () => {
+    const updateId = "test-update-no-expect";
+    const createdAt = new Date().toISOString();
+
+    await env.DB.prepare(
+      `
+      INSERT INTO updates (
+        id, app_id, channel, runtime_version, platform, created_at,
+        launch_asset_key, launch_asset_hash, launch_asset_file_extension,
+        launch_asset_content_type, launch_asset_url, assets_json
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+    )
+      .bind(
+        updateId,
+        "test-app",
+        "production",
+        "1.0.0",
+        "ios",
+        createdAt,
+        "bundle-key",
+        "bundle-hash",
+        ".bundle",
+        "application/javascript",
+        "https://example.com/bundle.js",
+        "[]",
+      )
+      .run();
+
+    const request = new Request("http://localhost/manifest", {
+      headers: {
+        "expo-app-id": "test-app",
+        "expo-runtime-version": "1.0.0",
+        "expo-platform": "ios",
+        "expo-protocol-version": "1",
+        "expo-channel-name": "production",
+      },
+    });
+
+    const ctx = createExecutionContext();
+    const response = await app.fetch(request, env, ctx);
+    await waitOnExecutionContext(ctx);
+
+    expect(response.status).toBe(200);
+    const text = await response.text();
+    expect(text).not.toContain("expo-signature");
+  });
+
   it("should return 404 when expo-channel-name is not provided", async () => {
     const request = new Request("http://localhost/manifest", {
       headers: {

@@ -122,6 +122,7 @@ Ok so before we deploy, let's make sure everything looks correct in `apps/worker
 | `bucket_name`         | ❌       | Replace `expo-ota-updates` if you used a different bucket name                                  |
 | `MAX_UPDATES_TO_KEEP` | ❌       | Number of updates to keep per channel/platform/runtime (set to 0 to keep all)                   |
 | `ALLOWED_UPLOAD_IPS`  | ❌       | Comma-separated list of IP addresses allowed to upload builds (highly recommended for security) |
+| `CODE_SIGNING_PRIVATE_KEY` | ❌  | PEM-encoded private key for code signing                                                        |
 
 > [!NOTE]  
 > When using ALLOWED_UPLOAD_IPS, be sure to add both your ipv4 and ipv6 addresses (if you use ipv6)
@@ -138,9 +139,41 @@ pnpm run deploy
 > [!NOTE]
 > If you are having issues use `npx wrangler tail` to debug the worker logs when sending/downloading updates
 
+<details>
+<summary><strong>8. Code Signing (Optional)</strong></summary>
+
+Code signing adds an extra layer of security by cryptographically signing OTA manifests. When enabled, your Expo app will verify that updates came from your server before applying them.
+
+Generate a key pair using the Expo CLI:
+
+```bash
+npx expo-updates codesigning:generate \
+  --key-output-directory keys \
+  --certificate-output-directory certs \
+  --certificate-validity-duration-years 10 \
+  --certificate-common-name "Your App Name"
+```
+
+This creates:
+- `keys/private-key.pem` - Keep this secret, used by the worker to sign manifests
+- `certs/certificate.pem` - Embedded in your app binary for verification
+
+Upload the private key as a Cloudflare secret:
+
+```bash
+cat keys/private-key.pem | npx wrangler secret put CODE_SIGNING_PRIVATE_KEY
+```
+
+> [!NOTE]
+> The key must be in PKCS#8 format (`BEGIN PRIVATE KEY`), which is what `expo-updates codesigning:generate` produces. PKCS#1 format (`BEGIN RSA PRIVATE KEY`) is not supported.
+
+Then configure your Expo app to verify signatures — see the [App Setup](SETUP_APP.md#code-signing) guide.
+
+</details>
+
 <a id="secure-the-worker"></a>
 
-**8. Secure The Worker**
+**9. Secure The Worker**
 
 It's very common for malicious bot's to scan domains for security exploits, this eats into your free worker usage. To prevent this it's highly recomended to setup security rules for your domain.
 

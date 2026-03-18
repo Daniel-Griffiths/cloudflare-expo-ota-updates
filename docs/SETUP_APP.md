@@ -124,6 +124,44 @@ npx easc --help
 npx easc update --help
 ```
 
+<a id="code-signing"></a>
+
+<details>
+<summary><strong>Code Signing (Optional)</strong></summary>
+
+If you've configured code signing on the worker (see [Worker Setup](SETUP_WORKER.md)), you also need to configure your Expo app to verify signatures.
+
+First, configure the certificate in your project:
+
+```bash
+npx expo-updates codesigning:configure \
+  --certificate-input-directory certs \
+  --key-input-directory keys
+```
+
+This adds the following to your `app.json`:
+
+```json
+{
+  "expo": {
+    "updates": {
+      "codeSigningCertificate": "./certs/certificate.pem",
+      "codeSigningMetadata": {
+        "keyid": "main",
+        "alg": "rsa-v1_5-sha256"
+      }
+    }
+  }
+}
+```
+
+Once configured, your app will send the `expo-expect-signature` header on manifest requests. The worker will sign the manifest with your private key, and the app will verify the signature against the embedded certificate before applying any update.
+
+> [!IMPORTANT]
+> After enabling code signing, you must create a new build of your app. The certificate is embedded at build time.
+
+</details>
+
 ## Known issues
 
 ### Assets not loading after an OTA update (expo-updates)

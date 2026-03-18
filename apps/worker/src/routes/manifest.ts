@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { z } from "zod";
 import { getLatestUpdate } from "../utils/db";
-import { R2Storage } from "../utils/storage";
+import { getSignature } from "../utils/codesigning";
 import { IEnv } from "../index";
 import { Platform } from "../enums/platform";
 
@@ -45,26 +45,36 @@ const manifestHeadersSchema = z.object({
 });
 
 /**
- * Sends a multipart response.
- *
- * @param content The content to send.
- * @param fieldName The name of the field to send the content in.
- * @param protocolVersion The Expo protocol version.
- * @returns A Response object.
+ * Serializes content, optionally signs it, and sends it as a multipart response.
+ * Signing and serialization happen in the same place to guarantee the signed
+ * bytes are identical to the response body.
  */
-function sendMultipartResponse(
+async function sendMultipartResponse(
+  context: Context<{ Bindings: IEnv }>,
   content: IUpdateManifest | INoUpdateAvailableDirective,
   fieldName: "manifest" | "directive",
   protocolVersion: number,
-): Response {
+): Promise<Response> {
   const boundary = "ExpoUpdateBoundary";
+  const jsonBody = JSON.stringify(content);
+
+  const expectSignature = context.req.header("expo-expect-signature");
+  const signature =
+    expectSignature && context.env.CODE_SIGNING_PRIVATE_KEY
+      ? await getSignature(context.env.CODE_SIGNING_PRIVATE_KEY, jsonBody)
+      : null;
+
+  const partHeaders = [
+    `Content-Disposition: form-data; name="${fieldName}"`,
+    `Content-Type: application/json`,
+    ...(signature ? [`expo-signature: ${signature}`] : []),
+  ];
 
   const body = [
     `--${boundary}`,
-    `Content-Disposition: form-data; name="${fieldName}"`,
-    `Content-Type: application/json`,
+    ...partHeaders,
     "",
-    JSON.stringify(content),
+    jsonBody,
     `--${boundary}--`,
     "",
   ].join("\r\n");
@@ -83,35 +93,45 @@ function sendMultipartResponse(
 
 /**
  * Sends a "no update available" response.
- *
- * @param context The request context.
- * @param protocolVersion The Expo protocol version.
- * @returns A Response object.
  */
-function sendNoUpdateAvailable(
-  _context: Context<{ Bindings: IEnv }>,
+async function sendNoUpdateAvailable(
+  context: Context<{ Bindings: IEnv }>,
   protocolVersion: number,
-): Response {
+): Promise<Response> {
   if (protocolVersion < 1) {
     return new Response(null, { status: 404 });
   }
 
   return sendMultipartResponse(
-    {
-      type: "noUpdateAvailable",
-    },
+    context,
+    { type: "noUpdateAvailable" },
     "directive",
     protocolVersion,
   );
 }
 
 /**
- * Handles the manifest request.
- *
- * @param context The request context.
- * @returns A Response object.
+ * Resolves the expoClient config from the database.
  */
-export async function manifestHandler(context: Context<{ Bindings: IEnv }>): Promise<Response> {
+function resolveExpoConfig(expoConfigJson?: string): Record<string, unknown> {
+  if (!expoConfigJson) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(expoConfigJson);
+  } catch (error) {
+    console.error("Failed to parse expoConfigJson from database:", error);
+    return {};
+  }
+}
+
+/**
+ * Handles the manifest request.
+ */
+export async function manifestHandler(
+  context: Context<{ Bindings: IEnv }>,
+): Promise<Response> {
   try {
     const headerValidation = manifestHeadersSchema.safeParse({
       "expo-app-id": context.req.header("expo-app-id"),
@@ -136,47 +156,24 @@ export async function manifestHandler(context: Context<{ Bindings: IEnv }>): Pro
     } = headerValidation.data;
 
     const db = context.env.DB;
-    const storage = new R2Storage(context.env.BUCKET, context.env.BUCKET_URL);
 
-    const latestUpdate = await getLatestUpdate(db, appId, channel, runtimeVersion, platform);
+    const latestUpdate = await getLatestUpdate(
+      db,
+      appId,
+      channel,
+      runtimeVersion,
+      platform,
+    );
 
     if (!latestUpdate) {
-      return sendNoUpdateAvailable(context, protocolVersion);
+      return await sendNoUpdateAvailable(context, protocolVersion);
     }
 
     if (currentUpdateId && currentUpdateId === latestUpdate.id) {
-      return sendNoUpdateAvailable(context, protocolVersion);
+      return await sendNoUpdateAvailable(context, protocolVersion);
     }
 
-    // Try to get expoConfig from database first (new updates)
-    // Fall back to R2 storage for older updates or if DB parse fails
-    // TODO: remove this in a few months
-    let expoClient = {};
-    let dbParseFailed = false;
-
-    if (latestUpdate.expoConfigJson) {
-      // New path: Get from database (fast!)
-      try {
-        expoClient = JSON.parse(latestUpdate.expoConfigJson);
-      } catch (error) {
-        console.error("Failed to parse expoConfigJson from database:", error);
-        dbParseFailed = true;
-      }
-    }
-
-    // Fallback to R2 storage if DB doesn't have it or parsing failed
-    if (!latestUpdate.expoConfigJson || dbParseFailed) {
-      try {
-        const expoConfigPath = `${appId}/${channel}/${runtimeVersion}/${latestUpdate.id}/expoConfig.json`;
-        const expoConfigBuffer = await storage.downloadFile(expoConfigPath);
-        if (expoConfigBuffer) {
-          const decoder = new TextDecoder();
-          expoClient = JSON.parse(decoder.decode(expoConfigBuffer));
-        }
-      } catch {
-        // Continue without config
-      }
-    }
+    const expoClient = resolveExpoConfig(latestUpdate.expoConfigJson);
 
     context.executionCtx.waitUntil(
       db
@@ -194,13 +191,10 @@ export async function manifestHandler(context: Context<{ Bindings: IEnv }>): Pro
       launchAsset: latestUpdate.launchAsset,
       assets: latestUpdate.assets,
       metadata: { channel },
-      extra: {
-        expoClient,
-        channel,
-      },
+      extra: { expoClient, channel },
     };
 
-    return sendMultipartResponse(manifest, "manifest", protocolVersion);
+    return sendMultipartResponse(context, manifest, "manifest", protocolVersion);
   } catch (error) {
     console.error("Error serving manifest:", error);
     return new Response(null, { status: 500 });
