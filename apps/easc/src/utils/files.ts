@@ -6,8 +6,11 @@ import { Platform, PlatformType } from "../enums/platform";
 
 const require = createRequire(import.meta.url);
 
-const BUNDLE_EXTENSIONS = [".hbc", ".js", ".bundle"];
-const BUNDLE_PREFIXES = ["entry-", "index-"];
+interface IPlatformMetadata {
+  bundle: string;
+  assets: Array<{ path: string; ext: string }>;
+}
+
 const APP_CONFIGS = [
   { filename: "app.config.ts", loader: _loadJsConfig },
   { filename: "app.config.js", loader: _loadJsConfig },
@@ -15,13 +18,11 @@ const APP_CONFIGS = [
 ] as const;
 
 export interface IMetadata {
+  version: number;
+  bundler: string;
   fileMetadata?: {
-    [Platform.iOS]?: {
-      assets: Array<{ path: string }>;
-    };
-    [Platform.Android]?: {
-      assets: Array<{ path: string }>;
-    };
+    [Platform.iOS]?: IPlatformMetadata;
+    [Platform.Android]?: IPlatformMetadata;
   };
 }
 
@@ -66,32 +67,30 @@ export function readMetadata(exportDir: string): IMetadata {
 }
 
 /**
- * Find the bundle file for a platform
+ * Find the bundle file for a platform using metadata.json
  */
 export function findBundleFile(
   exportDir: string,
+  metadata: IMetadata,
   platform: PlatformType,
 ): string {
-  const bundlePath = path.join(exportDir, `_expo/static/js/${platform}`);
+  const platformMetadata = metadata.fileMetadata?.[platform];
 
-  if (!fs.existsSync(bundlePath)) {
-    throw new Error(`Bundle directory not found: ${bundlePath}`);
-  }
-
-  const firstBundle = fs
-    .readdirSync(bundlePath)
-    .filter((f) => _isBundleFilename(f))
-    .sort()
-    .at(0);
-
-  if (!firstBundle) {
+  if (!platformMetadata?.bundle) {
     throw new Error(
-      `No bundle found for ${platform} in ${bundlePath}. ` +
-        `Expected files like entry-*.hbc, entry-*.js, entry-*.bundle, index-*.hbc, index-*.js, index-*.bundle. Run 'npx expo export' first.`,
+      `No bundle path found for ${platform} in metadata.json. Run 'npx expo export' first.`,
     );
   }
 
-  return path.join(bundlePath, firstBundle);
+  const bundlePath = path.join(exportDir, platformMetadata.bundle);
+
+  if (!fs.existsSync(bundlePath)) {
+    throw new Error(
+      `Bundle file not found: ${bundlePath}. Run 'npx expo export' first.`,
+    );
+  }
+
+  return bundlePath;
 }
 
 /**
@@ -221,15 +220,4 @@ function _parseAppConfig(
     const msg = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to load ${label}: ${msg}`, { cause: error });
   }
-}
-
-/**
- * Check if a filename matches a valid bundle pattern (prefix + extension)
- */
-function _isBundleFilename(name: string): boolean {
-  const hasValidPrefix = BUNDLE_PREFIXES.some((prefix) =>
-    name.startsWith(prefix),
-  );
-  if (!hasValidPrefix) return false;
-  return BUNDLE_EXTENSIONS.some((extension) => name.endsWith(extension));
 }

@@ -179,85 +179,86 @@ describe("File utilities", () => {
   });
 
   describe("findBundleFile", () => {
-    it("should find bundle file for platform (entry-*)", () => {
+    it("should return correct path from metadata bundle field", () => {
       vi.mocked(fs.existsSync).mockReturnValue(true);
-      vi.mocked(fs.readdirSync).mockReturnValue([
-        "entry-abc123.hbc",
-        "other-file.js",
-      ] as any);
 
-      const result = findBundleFile("/dist", Platform.iOS);
+      const metadata = {
+        version: 0,
+        bundler: "metro",
+        fileMetadata: {
+          [Platform.iOS]: {
+            bundle: "_expo/static/js/ios/entry-abc123.hbc",
+            assets: [],
+          },
+        },
+      };
+
+      const result = findBundleFile("/dist", metadata, Platform.iOS);
 
       expect(result).toBe("/dist/_expo/static/js/ios/entry-abc123.hbc");
     });
 
-    it("should find bundle file for platform (index-*)", () => {
+    it("should work for android platform", () => {
       vi.mocked(fs.existsSync).mockReturnValue(true);
-      vi.mocked(fs.readdirSync).mockReturnValue([
-        "index-xyz789.hbc",
-        "other-file.js",
-      ] as any);
 
-      const result = findBundleFile("/dist", Platform.Android);
+      const metadata = {
+        version: 0,
+        bundler: "metro",
+        fileMetadata: {
+          [Platform.Android]: {
+            bundle: "_expo/static/js/android/index-xyz789.js",
+            assets: [],
+          },
+        },
+      };
 
-      expect(result).toBe("/dist/_expo/static/js/android/index-xyz789.hbc");
+      const result = findBundleFile("/dist", metadata, Platform.Android);
+
+      expect(result).toBe("/dist/_expo/static/js/android/index-xyz789.js");
     });
 
-    it("should find bundle file with .js extension", () => {
-      vi.mocked(fs.existsSync).mockReturnValue(true);
-      vi.mocked(fs.readdirSync).mockReturnValue(["entry-abc123.js"] as any);
+    it("should throw if platform not in metadata", () => {
+      const metadata = {
+        version: 0,
+        bundler: "metro",
+        fileMetadata: {
+          [Platform.iOS]: {
+            bundle: "_expo/static/js/ios/entry-abc123.hbc",
+            assets: [],
+          },
+        },
+      };
 
-      const result = findBundleFile("/dist", Platform.iOS);
-
-      expect(result).toBe("/dist/_expo/static/js/ios/entry-abc123.js");
+      expect(() => findBundleFile("/dist", metadata, Platform.Android)).toThrow(
+        "No bundle path found for android in metadata.json"
+      );
     });
 
-    it("should find bundle file with .bundle extension", () => {
-      vi.mocked(fs.existsSync).mockReturnValue(true);
-      vi.mocked(fs.readdirSync).mockReturnValue(["entry-abc123.bundle"] as any);
+    it("should throw if fileMetadata is missing", () => {
+      const metadata = { version: 0, bundler: "metro" };
 
-      const result = findBundleFile("/dist", Platform.Android);
-
-      expect(result).toBe("/dist/_expo/static/js/android/entry-abc123.bundle");
+      expect(() => findBundleFile("/dist", metadata, Platform.iOS)).toThrow(
+        "No bundle path found for ios in metadata.json"
+      );
     });
 
-    it("should throw if bundle directory doesn't exist", () => {
+    it("should throw if bundle file doesn't exist on disk", () => {
       vi.mocked(fs.existsSync).mockReturnValue(false);
 
-      expect(() => findBundleFile("/dist", Platform.Android)).toThrow(
-        "Bundle directory not found"
+      const metadata = {
+        version: 0,
+        bundler: "metro",
+        fileMetadata: {
+          [Platform.iOS]: {
+            bundle: "_expo/static/js/ios/entry-abc123.hbc",
+            assets: [],
+          },
+        },
+      };
+
+      expect(() => findBundleFile("/dist", metadata, Platform.iOS)).toThrow(
+        "Bundle file not found"
       );
-    });
-
-    it("should throw if no bundle files found", () => {
-      vi.mocked(fs.existsSync).mockReturnValue(true);
-      vi.mocked(fs.readdirSync).mockReturnValue([]);
-
-      expect(() => findBundleFile("/dist", Platform.iOS)).toThrow(
-        "No bundle found for ios"
-      );
-    });
-
-    it("should return first bundle alphabetically when multiple exist", () => {
-      vi.mocked(fs.existsSync).mockReturnValue(true);
-      vi.mocked(fs.readdirSync).mockReturnValue([
-        "index-a.hbc",
-        "entry-b.hbc",
-      ] as any);
-
-      const result = findBundleFile("/dist", Platform.iOS);
-
-      expect(result).toBe("/dist/_expo/static/js/ios/entry-b.hbc");
-    });
-
-    it("should not mutate the array returned by readdirSync", () => {
-      const files = ["index-x.hbc", "entry-y.hbc"];
-      vi.mocked(fs.existsSync).mockReturnValue(true);
-      vi.mocked(fs.readdirSync).mockReturnValue(files as any);
-
-      findBundleFile("/dist", Platform.Android);
-
-      expect(files).toEqual(["index-x.hbc", "entry-y.hbc"]);
     });
   });
 
