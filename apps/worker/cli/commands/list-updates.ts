@@ -8,9 +8,7 @@ export async function listUpdates() {
   const spinner = ora("Loading apps...").start();
 
   try {
-    const apps = await queryDatabase<IAppRow>(
-      "SELECT id, name FROM apps ORDER BY name"
-    );
+    const apps = await queryDatabase<IAppRow>("SELECT id, name FROM apps ORDER BY name");
 
     if (apps.length === 0) {
       spinner.stop();
@@ -61,9 +59,7 @@ export async function listUpdates() {
 
     if (updates.length === 0) {
       loadSpinner.stop();
-      console.log(
-        chalk.yellow("\n⚠️  No updates found with the specified filters.\n")
-      );
+      console.log(chalk.yellow("\n⚠️  No updates found with the specified filters.\n"));
       return;
     }
 
@@ -90,9 +86,7 @@ export async function listUpdates() {
     });
 
     for (const update of updates) {
-      const commitShort = update.commit_hash
-        ? update.commit_hash.substring(0, 7)
-        : "-";
+      const commitShort = update.commit_hash ? update.commit_hash.substring(0, 7) : "-";
       table.push([
         `${chalk.bold(update.platform.toUpperCase())}`,
         update.channel,
@@ -116,10 +110,13 @@ export async function listUpdates() {
 
     console.log(table.toString() + "\n");
 
-    const groupedByChannel = updates.reduce((acc, u) => {
-      acc[u.channel] = (acc[u.channel] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const groupedByChannel = updates.reduce(
+      (acc, u) => {
+        acc[u.channel] = (acc[u.channel] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     const summaryTable = new Table({
       head: [chalk.cyan("Summary")],
@@ -133,7 +130,7 @@ export async function listUpdates() {
       [chalk.gray(`Total: ${chalk.white(updates.length)} updates`)],
       ...Object.entries(groupedByChannel).map(([channel, count]) => [
         chalk.gray(`${channel}: ${chalk.white(count)} updates`),
-      ])
+      ]),
     );
 
     console.log(summaryTable.toString() + "\n");

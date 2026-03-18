@@ -27,14 +27,11 @@ export function resolveRuntimeVersion(appJson: IAppJson): string {
     return runtimeVersionConfig;
   }
 
-  if (
-    typeof runtimeVersionConfig === "object" &&
-    runtimeVersionConfig?.policy === "appVersion"
-  ) {
+  if (typeof runtimeVersionConfig === "object" && runtimeVersionConfig?.policy === "appVersion") {
     const version = appJson.expo.version;
     if (!version) {
       throw new Error(
-        'runtimeVersion policy is "appVersion" but no version field found in app.json'
+        'runtimeVersion policy is "appVersion" but no version field found in app.json',
       );
     }
     return version;
@@ -43,7 +40,7 @@ export function resolveRuntimeVersion(appJson: IAppJson): string {
   throw new Error(
     "Invalid runtimeVersion configuration in app.json. Must be either:\n" +
       '  - A string: "runtimeVersion": "1.0.0"\n' +
-      '  - Policy object: "runtimeVersion": { "policy": "appVersion" }'
+      '  - Policy object: "runtimeVersion": { "policy": "appVersion" }',
   );
 }
 
@@ -52,7 +49,5 @@ export function resolveRuntimeVersion(appJson: IAppJson): string {
  */
 export function getPlatforms(appJson: IAppJson): PlatformType[] {
   const platforms = appJson.expo.platforms || ["ios", "android"];
-  return platforms.filter(
-    (p) => p === "ios" || p === "android"
-  ) as PlatformType[];
+  return platforms.filter((p) => p === "ios" || p === "android") as PlatformType[];
 }

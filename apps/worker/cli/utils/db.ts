@@ -27,7 +27,7 @@ export async function queryDatabase<T>(sql: string): Promise<T[]> {
   try {
     const command = `npx wrangler d1 execute expo-ota-updates --remote --command="${sql.replace(
       /"/g,
-      '\\"'
+      '\\"',
     )}"`;
     const output = execSync(command, { encoding: "utf-8" });
 

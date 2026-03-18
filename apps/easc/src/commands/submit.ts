@@ -84,9 +84,7 @@ export const submit: CommandModule = {
 
     try {
       const platforms: PlatformType[] =
-        args.platform === "all"
-          ? [Platform.iOS, Platform.Android]
-          : [args.platform];
+        args.platform === "all" ? [Platform.iOS, Platform.Android] : [args.platform];
 
       for (const platform of platforms) {
         const platformName = platform === Platform.iOS ? "iOS" : "Android";
@@ -129,8 +127,7 @@ export const submit: CommandModule = {
           const artifactPath =
             platform === Platform.iOS
               ? findBuildArtifact("build-*.ipa")
-              : findBuildArtifact("build-*.aab") ||
-                findBuildArtifact("build-*.apk");
+              : findBuildArtifact("build-*.aab") || findBuildArtifact("build-*.apk");
 
           if (!artifactPath) {
             logger.error(`No ${platformName} build artifact found`);
@@ -139,10 +136,10 @@ export const submit: CommandModule = {
 
           logger.info(`Found artifact: ${artifactPath}`);
 
-          runx(
-            `eas submit --platform ${platform} --path "${artifactPath}" --non-interactive`,
-            { cwd: process.cwd(), stdio: "inherit" },
-          );
+          runx(`eas submit --platform ${platform} --path "${artifactPath}" --non-interactive`, {
+            cwd: process.cwd(),
+            stdio: "inherit",
+          });
 
           logger.success(`${platformName} submitted`);
 

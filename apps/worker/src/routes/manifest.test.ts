@@ -1,8 +1,4 @@
-import {
-  env,
-  createExecutionContext,
-  waitOnExecutionContext,
-} from "cloudflare:test";
+import { env, createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
 import { describe, it, expect, beforeEach } from "vitest";
 import app from "../index";
 
@@ -13,9 +9,7 @@ describe("Manifest Route", () => {
     await env.DB.prepare("DELETE FROM apps").run();
 
     // Seed test app
-    await env.DB.prepare(
-      "INSERT INTO apps (id, name, api_key) VALUES (?, ?, ?)"
-    )
+    await env.DB.prepare("INSERT INTO apps (id, name, api_key) VALUES (?, ?, ?)")
       .bind("test-app", "Test App", "test-key")
       .run();
   });
@@ -124,7 +118,7 @@ describe("Manifest Route", () => {
         launch_asset_key, launch_asset_hash, launch_asset_file_extension,
         launch_asset_content_type, launch_asset_url, assets_json
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `
+    `,
     )
       .bind(
         updateId,
@@ -138,7 +132,7 @@ describe("Manifest Route", () => {
         ".bundle",
         "application/javascript",
         "https://example.com/bundle.js",
-        "[]"
+        "[]",
       )
       .run();
 
@@ -175,7 +169,7 @@ describe("Manifest Route", () => {
         launch_asset_key, launch_asset_hash, launch_asset_file_extension,
         launch_asset_content_type, launch_asset_url, assets_json
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `
+    `,
     )
       .bind(
         updateId,
@@ -189,7 +183,7 @@ describe("Manifest Route", () => {
         ".bundle",
         "application/javascript",
         "https://example.com/bundle.js",
-        "[]"
+        "[]",
       )
       .run();
 

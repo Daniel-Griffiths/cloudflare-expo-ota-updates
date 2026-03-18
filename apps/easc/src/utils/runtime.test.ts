@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "vite-plus/test";
 import { resolveRuntimeVersion, getPlatforms, type IAppJson } from "./runtime";
 
 describe("resolveRuntimeVersion", () => {
@@ -28,7 +28,7 @@ describe("resolveRuntimeVersion", () => {
       },
     };
     expect(() => resolveRuntimeVersion(appJson)).toThrow(
-      'runtimeVersion policy is "appVersion" but no version field found in app.json'
+      'runtimeVersion policy is "appVersion" but no version field found in app.json',
     );
   });
 
@@ -36,9 +36,7 @@ describe("resolveRuntimeVersion", () => {
     const appJson: IAppJson = {
       expo: {},
     };
-    expect(() => resolveRuntimeVersion(appJson)).toThrow(
-      "Invalid runtimeVersion configuration"
-    );
+    expect(() => resolveRuntimeVersion(appJson)).toThrow("Invalid runtimeVersion configuration");
   });
 
   it("should throw error for unsupported policy", () => {
@@ -47,9 +45,7 @@ describe("resolveRuntimeVersion", () => {
         runtimeVersion: { policy: "unsupported" } as any,
       },
     };
-    expect(() => resolveRuntimeVersion(appJson)).toThrow(
-      "Invalid runtimeVersion configuration"
-    );
+    expect(() => resolveRuntimeVersion(appJson)).toThrow("Invalid runtimeVersion configuration");
   });
 });
 

@@ -4,7 +4,7 @@
     "module": "ES2022",
     "lib": ["ES2022"],
     "moduleResolution": "bundler",
-    "types": ["@cloudflare/workers-types", "@types/node"],
+    "types": ["@cloudflare/workers-types", "@types/node", "@cloudflare/vitest-pool-workers/types"],
     "resolveJsonModule": true,
     "allowJs": true,
     "checkJs": false,
@@ -28,5 +28,5 @@
     }
   },
   "include": ["src/**/*", "cli/**/*"],
-  "exclude": ["node_modules", "**/*.test.ts", "**/test-setup.ts"]
+  "exclude": ["node_modules"]
 }

@@ -38,9 +38,9 @@ jobs:
             echo "New version $LOCAL_VERSION (published: $PUBLISHED_VERSION)"
           fi
 
-      - name: Typecheck
+      - name: Code check
         if: steps.version.outputs.changed == 'true'
-        run: pnpm --filter easc typecheck
+        run: pnpm codecheck
 
       - name: Test
         if: steps.version.outputs.changed == 'true'

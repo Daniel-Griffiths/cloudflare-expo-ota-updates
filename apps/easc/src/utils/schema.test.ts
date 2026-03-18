@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vite-plus/test";
 import {
   validateEnvironment,
   validateChannel,
@@ -70,13 +70,7 @@ describe("Schema utilities", () => {
 
   describe("validateChannel", () => {
     it("should pass for valid channel names", () => {
-      const validChannels = [
-        "production",
-        "staging",
-        "dev",
-        "test-123",
-        "feature_branch",
-      ];
+      const validChannels = ["production", "staging", "dev", "test-123", "feature_branch"];
 
       for (const channel of validChannels) {
         const result = validateChannel(channel);

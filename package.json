@@ -1,24 +1,21 @@
 {
   "name": "@cloudflare-expo-ota/root",
   "version": "1.0.0",
-  "description": "Cloudflare Workers OTA Update Server for Expo Apps",
-  "type": "module",
-  "license": "MIT",
   "private": true,
-  "packageManager": "pnpm@9.0.0",
+  "description": "Cloudflare Workers OTA Update Server for Expo Apps",
+  "license": "MIT",
+  "type": "module",
   "scripts": {
     "dev": "pnpm --filter worker dev",
     "deploy": "pnpm --filter worker deploy",
-    "test": "pnpm --filter worker test",
-    "test:watch": "pnpm --filter worker test:watch",
-    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "codecheck": "vp check --fix",
     "cli": "pnpm --filter worker cli",
     "db:generate": "pnpm --filter worker db:generate",
-    "db:studio": "pnpm --filter worker db:studio",
-    "test:easc": "pnpm --filter easc test",
-    "test:all": "pnpm -r test"
+    "db:studio": "pnpm --filter worker db:studio"
   },
   "devDependencies": {
-    "@typescript/native-preview": "^7.0.0-dev.20250601"
-  }
+    "vite-plus": "catalog:"
+  },
+  "packageManager": "pnpm@9.15.9+sha512.68046141893c66fad01c079231128e9afb89ef87e2691d69e4d40eee228988295fd4682181bae55b58418c3a253bde65a505ec7c5f9403ece5cc3cd37dcf2531"
 }

@@ -52,9 +52,7 @@ export function readMetadata(exportDir: string): IMetadata {
   const metadataPath = path.join(exportDir, "metadata.json");
 
   if (!fs.existsSync(metadataPath)) {
-    throw new Error(
-      `metadata.json not found in ${exportDir}. Did you run 'expo export'?`,
-    );
+    throw new Error(`metadata.json not found in ${exportDir}. Did you run 'expo export'?`);
   }
 
   try {
@@ -85,9 +83,7 @@ export function findBundleFile(
   const bundlePath = path.join(exportDir, platformMetadata.bundle);
 
   if (!fs.existsSync(bundlePath)) {
-    throw new Error(
-      `Bundle file not found: ${bundlePath}. Run 'npx expo export' first.`,
-    );
+    throw new Error(`Bundle file not found: ${bundlePath}. Run 'npx expo export' first.`);
   }
 
   return bundlePath;
@@ -117,9 +113,7 @@ export function getAssetFiles(
     return [];
   }
 
-  const platformAssetFiles = new Set(
-    platformAssets.map((asset) => path.basename(asset.path)),
-  );
+  const platformAssetFiles = new Set(platformAssets.map((asset) => path.basename(asset.path)));
 
   const assetFiles = fs.readdirSync(assetsPath);
   const validAssets: string[] = [];
@@ -138,14 +132,9 @@ export function getAssetFiles(
  * Check if the export directory exists and has been built
  * Supports custom export directories (EAS-compatible)
  */
-export function checkExportDirectory(
-  exportDir: string,
-  appDir: string = process.cwd(),
-): string {
+export function checkExportDirectory(exportDir: string, appDir: string = process.cwd()): string {
   // If exportDir is relative, resolve it from appDir
-  const resolvedExportDir = path.isAbsolute(exportDir)
-    ? exportDir
-    : path.join(appDir, exportDir);
+  const resolvedExportDir = path.isAbsolute(exportDir) ? exportDir : path.join(appDir, exportDir);
 
   if (!fs.existsSync(resolvedExportDir)) {
     throw new Error(

@@ -5,7 +5,7 @@ import { build } from "./src/commands/build";
 import { submit } from "./src/commands/submit";
 import { update } from "./src/commands/update";
 
-cli(hideBin(process.argv))
+void cli(hideBin(process.argv))
   .scriptName("easc")
   .usage("$0 <command> [options]")
   .command(update)

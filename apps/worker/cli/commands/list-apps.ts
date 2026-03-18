@@ -17,7 +17,7 @@ export async function listApps() {
 
   try {
     const apps = await queryDatabase<IAppRow>(
-      "SELECT id, name, api_key, created_at FROM apps ORDER BY created_at DESC"
+      "SELECT id, name, api_key, created_at FROM apps ORDER BY created_at DESC",
     );
 
     if (apps.length === 0) {

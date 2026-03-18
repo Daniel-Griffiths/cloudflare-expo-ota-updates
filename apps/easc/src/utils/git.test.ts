@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vite-plus/test";
 import { execSync } from "child_process";
 import { getCommitHash, getShortCommitHash, isGitClean, getCurrentBranch } from "./git";
 

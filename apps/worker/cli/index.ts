@@ -34,25 +34,15 @@ async function runInteractive() {
 
 async function main() {
   const argv = await yargs(hideBin(process.argv))
-    .command(
-      "create-app",
-      "Create a new app with auto-generated API key",
-      {},
-      async () => {
-        await createApp();
-      }
-    )
+    .command("create-app", "Create a new app with auto-generated API key", {}, async () => {
+      await createApp();
+    })
     .command("list-apps", "List all apps with statistics", {}, async () => {
       await listApps();
     })
-    .command(
-      "list-updates",
-      "List updates for a specific app",
-      {},
-      async () => {
-        await listUpdates();
-      }
-    )
+    .command("list-updates", "List updates for a specific app", {}, async () => {
+      await listUpdates();
+    })
     .help()
     .alias("h", "help")
     .version(false)

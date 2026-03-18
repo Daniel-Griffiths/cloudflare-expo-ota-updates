@@ -63,7 +63,6 @@ export async function uploadBundle(options: IUploadOptions): Promise<void> {
     form.append(`asset-${index}`, assetBlob, assetFileName);
   });
 
-  // Upload
   const url = new URL("/upload", config.otaServer);
 
   const response = await fetch(url.toString(), {
@@ -78,7 +77,7 @@ export async function uploadBundle(options: IUploadOptions): Promise<void> {
     let errorText = "";
     try {
       errorText = await response.text();
-    } catch (e) {
+    } catch {
       errorText = "Unable to read error response";
     }
     throw new Error(`Upload failed: ${response.status} ${errorText}`);
@@ -96,14 +95,7 @@ export function createDryRunSummary(options: {
   platform: PlatformType;
   runtimeVersion: string;
 }): string {
-  const {
-    channel,
-    platform,
-    bundlePath,
-    assetPaths,
-    commitHash,
-    runtimeVersion,
-  } = options;
+  const { channel, platform, bundlePath, assetPaths, commitHash, runtimeVersion } = options;
 
   const bundleSize = fs.statSync(bundlePath).size;
   const totalAssetSize = assetPaths.reduce((sum, path) => {
@@ -122,7 +114,7 @@ export function createDryRunSummary(options: {
 
   lines.push(
     `Bundle: ${formatBytes(bundleSize)}`,
-    `Assets: ${assetPaths.length} files (${formatBytes(totalAssetSize)})`
+    `Assets: ${assetPaths.length} files (${formatBytes(totalAssetSize)})`,
   );
 
   return lines.join("\n");

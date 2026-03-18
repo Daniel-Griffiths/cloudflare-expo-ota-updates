@@ -38,9 +38,9 @@ export const updates = sqliteTable(
       table.channel,
       table.runtimeVersion,
       table.platform,
-      table.createdAt
+      table.createdAt,
     ),
-  ]
+  ],
 );
 
 export type IApp = typeof apps.$inferSelect;

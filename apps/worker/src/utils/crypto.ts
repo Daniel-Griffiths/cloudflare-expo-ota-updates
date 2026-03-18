@@ -7,7 +7,7 @@
  */
 export async function computeFileHash(
   buffer: ArrayBuffer,
-  encoding: "base64" | "hex"
+  encoding: "base64" | "hex",
 ): Promise<string> {
   const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
 
@@ -22,7 +22,7 @@ export async function computeFileHash(
         .join("");
     }
     default: {
-      throw new Error(`Unsupported encoding: ${encoding}`);
+      throw new Error(`Unsupported encoding: ${String(encoding)}`);
     }
   }
 }

@@ -78,17 +78,13 @@ export const update: CommandModule = {
       logger.info("Building app bundles...");
 
       runx(
-        args.exportDir !== "dist"
-          ? `expo export --output-dir ${args.exportDir}`
-          : `expo export`,
+        args.exportDir !== "dist" ? `expo export --output-dir ${args.exportDir}` : `expo export`,
         { cwd: process.cwd(), stdio: "inherit" },
       );
 
       logger.success("Build completed");
     } else {
-      logger.info(
-        `Skipping build (using existing export from ${args.exportDir})`,
-      );
+      logger.info(`Skipping build (using existing export from ${args.exportDir})`);
     }
 
     const exportDir = checkExportDirectory(args.exportDir);

@@ -41,16 +41,9 @@ export interface IUpdateMetadata {
  * @param apiKey - API key to search for
  * @returns App record if found, null otherwise
  */
-export async function getAppByApiKey(
-  d1: D1Database,
-  apiKey: string
-): Promise<IApp | null> {
+export async function getAppByApiKey(d1: D1Database, apiKey: string): Promise<IApp | null> {
   const db = drizzle(d1);
-  const result = await db
-    .select()
-    .from(apps)
-    .where(eq(apps.apiKey, apiKey))
-    .limit(1);
+  const result = await db.select().from(apps).where(eq(apps.apiKey, apiKey)).limit(1);
 
   return result[0] || null;
 }
@@ -65,7 +58,7 @@ export async function getAppByApiKey(
 export async function saveUpdate(
   d1: D1Database,
   appId: string,
-  metadata: IUpdateMetadata
+  metadata: IUpdateMetadata,
 ): Promise<void> {
   const db = drizzle(d1);
   await db.insert(updates).values({
@@ -101,7 +94,7 @@ export async function getLatestUpdate(
   appId: string,
   channel: string,
   runtimeVersion: string,
-  platform: string
+  platform: string,
 ): Promise<IUpdateMetadata | null> {
   const db = drizzle(d1);
   const result = await db
@@ -112,8 +105,8 @@ export async function getLatestUpdate(
         eq(updates.appId, appId),
         eq(updates.channel, channel),
         eq(updates.runtimeVersion, runtimeVersion),
-        eq(updates.platform, platform)
-      )
+        eq(updates.platform, platform),
+      ),
     )
     .orderBy(desc(updates.createdAt))
     .limit(1);
@@ -164,7 +157,7 @@ export async function cleanupOldUpdates(
   channel: string,
   runtimeVersion: string,
   platform: string,
-  keepCount: number
+  keepCount: number,
 ): Promise<string[]> {
   const db = drizzle(d1);
 
@@ -176,8 +169,8 @@ export async function cleanupOldUpdates(
         eq(updates.appId, appId),
         eq(updates.channel, channel),
         eq(updates.runtimeVersion, runtimeVersion),
-        eq(updates.platform, platform)
-      )
+        eq(updates.platform, platform),
+      ),
     )
     .orderBy(desc(updates.createdAt));
 

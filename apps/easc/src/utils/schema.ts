@@ -11,7 +11,7 @@ const channelSchema = z
   .min(1, "Channel name is required")
   .regex(
     /^[a-zA-Z0-9-_]+$/,
-    "Channel names can only contain letters, numbers, hyphens, and underscores"
+    "Channel names can only contain letters, numbers, hyphens, and underscores",
   );
 
 const configSchema = z.object({
@@ -38,9 +38,7 @@ function formatZodError(error: z.ZodError, context?: string): string[] {
     if (context === "environment") {
       if (path === "OTA_SERVER") {
         return (
-          `${chalk.red(
-            "OTA_SERVER"
-          )} environment variable is required or invalid\n` +
+          `${chalk.red("OTA_SERVER")} environment variable is required or invalid\n` +
           `   Set it in your .env file or export it:\n` +
           `   export OTA_SERVER="https://your-ota-server.com"`
         );
@@ -89,9 +87,7 @@ export function validateEnvironment(): IValidationResult {
 /**
  * Validate a channel name using zod
  */
-export function validateChannel(
-  channel: string | undefined
-): IValidationResult {
+export function validateChannel(channel: string | undefined): IValidationResult {
   if (!channel) {
     return {
       valid: false,

@@ -2,8 +2,20 @@
   "name": "easc",
   "version": "0.0.29",
   "description": "Expo App Services for Cloudflare - Deploy tool for Expo OTA updates to Cloudflare Workers",
-  "type": "module",
+  "keywords": [
+    "cloudflare",
+    "deploy",
+    "expo",
+    "ota",
+    "updates",
+    "workers"
+  ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Daniel-Griffiths/cloudflare-expo-ota-updates.git",
+    "directory": "apps/easc"
+  },
   "bin": {
     "easc": "./bin/easc.js"
   },
@@ -12,45 +24,32 @@
     "index.ts",
     "src"
   ],
-  "scripts": {
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "typecheck": "tsgo --noEmit"
-  },
-  "dependencies": {
-    "@inquirer/prompts": "^7.8.6",
-    "chalk": "5.6.0",
-    "ora": "^9.0.0",
-    "tsx": "^4.20.6",
-    "yargs": "^18.0.0",
-    "zod": "^4.1.12"
-  },
-  "devDependencies": {
-    "@types/node": "^24.8.0",
-    "@types/yargs": "^17.0.33",
-    "@typescript/native-preview": "^7.0.0-dev.20250601",
-    "@vitest/ui": "^3.0.0",
-    "vitest": "^3.2.4"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Daniel-Griffiths/cloudflare-expo-ota-updates.git",
-    "directory": "apps/easc"
-  },
-  "keywords": [
-    "expo",
-    "ota",
-    "cloudflare",
-    "workers",
-    "deploy",
-    "updates"
-  ],
+  "type": "module",
   "publishConfig": {
     "access": "public"
+  },
+  "scripts": {
+    "test": "vp test",
+    "test:watch": "vp test --watch",
+    "test:ui": "vp test --ui",
+    "test:coverage": "vp test --coverage"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^8.3.2",
+    "chalk": "5.6.2",
+    "ora": "^9.3.0",
+    "tsx": "^4.21.0",
+    "yargs": "^18.0.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@types/yargs": "^17.0.35",
+    "@vitest/ui": "^4.1.0",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  },
+  "engines": {
+    "node": ">=20.12.0"
   }
 }

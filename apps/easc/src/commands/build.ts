@@ -61,26 +61,16 @@ export const build: CommandModule = {
       })
       .option("path", {
         type: "string",
-        description:
-          "Path to the simulator/emulator build archive or app (skips build)",
+        description: "Path to the simulator/emulator build archive or app (skips build)",
       })
       .option("non-interactive", {
         type: "boolean",
         description: "Never prompt for user input",
         default: false,
       })
-      .example(
-        "$0 build -p ios -e preview",
-        "Build with preview profile and run on iOS Simulator",
-      )
-      .example(
-        "$0 build -p android",
-        "Build with default profile and run on Android Emulator",
-      )
-      .example(
-        "$0 build -p ios --path ./build.tar.gz",
-        "Run existing build artifact",
-      ),
+      .example("$0 build -p ios -e preview", "Build with preview profile and run on iOS Simulator")
+      .example("$0 build -p android", "Build with default profile and run on Android Emulator")
+      .example("$0 build -p ios --path ./build.tar.gz", "Run existing build artifact"),
   async handler(argv) {
     const args = argv as unknown as IArgs;
     const logger = new Logger();

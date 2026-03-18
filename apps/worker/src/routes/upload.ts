@@ -1,12 +1,7 @@
 import { Context } from "hono";
 import { z } from "zod";
 import { computeFileHash } from "../utils/crypto";
-import {
-  getAppByApiKey,
-  saveUpdate,
-  cleanupOldUpdates,
-  IUpdateMetadata,
-} from "../utils/db";
+import { getAppByApiKey, saveUpdate, cleanupOldUpdates, IUpdateMetadata } from "../utils/db";
 import { R2Storage } from "../utils/storage";
 import { IEnv } from "../index";
 import { Platform } from "../enums/platform";
@@ -46,9 +41,7 @@ const uploadFormFieldsSchema = z.object({
  * @param context The request context.
  * @returns A Response object.
  */
-export async function uploadHandler(
-  context: Context<{ Bindings: IEnv }>,
-): Promise<Response> {
+export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promise<Response> {
   try {
     const allowedIPs = context.env.ALLOWED_UPLOAD_IPS;
     const hasIPWhitelist = allowedIPs && allowedIPs.trim() !== "";
@@ -81,9 +74,7 @@ export async function uploadHandler(
       console.log("  Is allowed:", isAllowed);
 
       if (!clientIP || !isAllowed) {
-        console.log(
-          `❌ Blocked upload attempt from IP: ${clientIP || "unknown"}`,
-        );
+        console.log(`❌ Blocked upload attempt from IP: ${clientIP || "unknown"}`);
         return new Response("Access denied", { status: 401 });
       }
       console.log("✅ IP check passed");
@@ -126,9 +117,7 @@ export async function uploadHandler(
           contentType: value.type || "application/octet-stream",
           data: buffer,
         });
-        console.log(
-          `FormData file: field="${key}" filename="${value.name}" type="${value.type}"`,
-        );
+        console.log(`FormData file: field="${key}" filename="${value.name}" type="${value.type}"`);
       } else {
         // It's a text field
         if (!fields[key]) {
@@ -148,21 +137,12 @@ export async function uploadHandler(
     });
 
     if (!fieldValidation.success) {
-      console.log(
-        "❌ Invalid form fields:",
-        fieldValidation.error.issues[0]?.message,
-      );
+      console.log("❌ Invalid form fields:", fieldValidation.error.issues[0]?.message);
       return new Response("Bad request", { status: 400 });
     }
 
-    const {
-      channel,
-      runtimeVersion,
-      platform,
-      commitHash,
-      expoConfig,
-      metadata,
-    } = fieldValidation.data;
+    const { channel, runtimeVersion, platform, commitHash, expoConfig, metadata } =
+      fieldValidation.data;
     const appId = app.id;
 
     // Extract asset metadata from parsed metadata
@@ -175,12 +155,10 @@ export async function uploadHandler(
     const createdAt = new Date().toISOString();
 
     const bundleFile = files.find(
-      (file) =>
-        file.fieldName === "bundle" || file.filename?.endsWith(".bundle"),
+      (file) => file.fieldName === "bundle" || file.filename?.endsWith(".bundle"),
     );
     const assetFiles = files.filter(
-      (file) =>
-        file.fieldName === "assets" || file.fieldName.startsWith("asset-"),
+      (file) => file.fieldName === "assets" || file.fieldName.startsWith("asset-"),
     );
 
     if (!bundleFile) {
@@ -204,9 +182,7 @@ export async function uploadHandler(
       if (dotIndex !== -1) {
         bundleExt = bundleFile.filename.substring(dotIndex);
       } else {
-        console.log(
-          "⚠️ No extension found in bundle filename, using fallback .hbc",
-        );
+        console.log("⚠️ No extension found in bundle filename, using fallback .hbc");
       }
     } else {
       console.log("⚠️ No bundle filename provided, using fallback .hbc");
@@ -232,8 +208,7 @@ export async function uploadHandler(
 
         // Try metadata first
         const assetMeta = assetMetadata?.find(
-          (asset: { path: string; ext?: string }) =>
-            asset.path === `assets/${filename}`,
+          (asset: { path: string; ext?: string }) => asset.path === `assets/${filename}`,
         );
         if (assetMeta?.ext) {
           ext = "." + assetMeta.ext;
@@ -309,9 +284,7 @@ export async function uploadHandler(
     if (deletedIds.length > 0) {
       console.log(`Cleaning up ${deletedIds.length} old updates`);
       await Promise.all(
-        deletedIds.map((id) =>
-          storage.deleteFolder(`${appId}/${channel}/${runtimeVersion}/${id}`),
-        ),
+        deletedIds.map((id) => storage.deleteFolder(`${appId}/${channel}/${runtimeVersion}/${id}`)),
       );
     }
 

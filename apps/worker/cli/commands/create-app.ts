@@ -50,21 +50,17 @@ export async function createApp() {
     console.log(`${chalk.gray("Environment:")}  ${chalk.white(environment)}`);
 
     console.log(
-      chalk.yellow(
-        "\n⚠️  Important: Save your API key - you'll need it to upload updates!\n"
-      )
+      chalk.yellow("\n⚠️  Important: Save your API key - you'll need it to upload updates!\n"),
     );
   } catch (error) {
     spinner.fail(chalk.red("Failed to create app"));
     if (error instanceof Error) {
       if (error.message.includes("UNIQUE constraint failed")) {
-        console.error(
-          chalk.red(`\n❌ An app with ID "${appId}" already exists.`)
-        );
+        console.error(chalk.red(`\n❌ An app with ID "${appId}" already exists.`));
         console.error(
           chalk.yellow(
-            `💡 The ID is generated from your app name. Please choose a different app name.\n`
-          )
+            `💡 The ID is generated from your app name. Please choose a different app name.\n`,
+          ),
         );
       } else {
         console.error(chalk.red(`\n❌ ${error.message}\n`));

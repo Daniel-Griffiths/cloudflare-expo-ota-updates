@@ -25,9 +25,7 @@ export function getCommitHash(cwd: string = process.cwd()): string | undefined {
  * @param cwd - Working directory (defaults to process.cwd())
  * @returns The short commit hash or undefined if not in a git repo
  */
-export function getShortCommitHash(
-  cwd: string = process.cwd()
-): string | undefined {
+export function getShortCommitHash(cwd: string = process.cwd()): string | undefined {
   const hash = getCommitHash(cwd);
   return hash ? hash.substring(0, 7) : undefined;
 }
@@ -57,9 +55,7 @@ export function isGitClean(cwd: string = process.cwd()): boolean {
  * @param cwd - Working directory (defaults to process.cwd())
  * @returns The branch name or undefined if not in a git repo
  */
-export function getCurrentBranch(
-  cwd: string = process.cwd()
-): string | undefined {
+export function getCurrentBranch(cwd: string = process.cwd()): string | undefined {
   try {
     const branch = execSync("git rev-parse --abbrev-ref HEAD", {
       cwd,

@@ -37,8 +37,7 @@ class InteractiveCLI {
   }
 
   command(cmd: CommandModule): this {
-    const commandStr =
-      typeof cmd.command === "string" ? cmd.command : (cmd.command?.[0] ?? "");
+    const commandStr = typeof cmd.command === "string" ? cmd.command : (cmd.command?.[0] ?? "");
     const commandName = commandStr.split(" ")[0] || "";
 
     let options: Record<string, Options> = {};
@@ -104,11 +103,10 @@ class InteractiveCLI {
 
   async parse(): Promise<void> {
     const needsCommandPrompt =
-      this.args.length === 0 ||
-      (this.args.length === 1 && this.args[0]?.startsWith("-"));
+      this.args.length === 0 || (this.args.length === 1 && this.args[0]?.startsWith("-"));
 
     if (!needsCommandPrompt) {
-      this.yargsInstance.demandCommand(1, "").parse();
+      void this.yargsInstance.demandCommand(1, "").parse();
       return;
     }
 
@@ -158,7 +156,7 @@ class InteractiveCLI {
       });
     }
 
-    this.yargsInstance.demandCommand(1, "").parse();
+    void this.yargsInstance.demandCommand(1, "").parse();
   }
 
   private _showWelcome() {
@@ -174,10 +172,7 @@ class InteractiveCLI {
     console.log();
   }
 
-  private async _promptForMissingArgs(
-    argv: any,
-    options: Record<string, Options>,
-  ) {
+  private async _promptForMissingArgs(argv: any, options: Record<string, Options>) {
     if (argv.nonInteractive || argv["non-interactive"]) return;
 
     for (const [key, opt] of Object.entries(options)) {

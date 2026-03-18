@@ -1,13 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vite-plus/test";
 import fs from "fs";
 import path from "path";
 import { Platform } from "../enums/platform";
-import {
-  readAppJson,
-  readMetadata,
-  findBundleFile,
-  getAssetFiles,
-} from "./files";
+import { readAppJson, readMetadata, findBundleFile } from "./files";
 
 const { requireImpl } = vi.hoisted(() => ({
   requireImpl: vi.fn().mockImplementation(() => ({
@@ -39,7 +34,7 @@ describe("File utilities", () => {
       };
 
       vi.mocked(fs.existsSync).mockImplementation(
-        (p: fs.PathLike) => typeof p === "string" && p.endsWith("app.json")
+        (p: fs.PathLike) => typeof p === "string" && p.endsWith("app.json"),
       );
       vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(mockAppJson));
 
@@ -51,7 +46,7 @@ describe("File utilities", () => {
 
     it("should use app.config.js when it exists and not read app.json", () => {
       vi.mocked(fs.existsSync).mockImplementation(
-        (p: fs.PathLike) => typeof p === "string" && p.endsWith("app.config.js")
+        (p: fs.PathLike) => typeof p === "string" && p.endsWith("app.config.js"),
       );
 
       const result = readAppJson("/test/dir");
@@ -66,7 +61,7 @@ describe("File utilities", () => {
         expo: { name: "FromConfigTs", version: "1.0.0" },
       });
       vi.mocked(fs.existsSync).mockImplementation(
-        (p: fs.PathLike) => typeof p === "string" && p.endsWith("app.config.ts")
+        (p: fs.PathLike) => typeof p === "string" && p.endsWith("app.config.ts"),
       );
 
       const result = readAppJson("/test/dir");
@@ -81,8 +76,7 @@ describe("File utilities", () => {
       });
       vi.mocked(fs.existsSync).mockImplementation(
         (p: fs.PathLike) =>
-          typeof p === "string" &&
-          (p.endsWith("app.config.js") || p.endsWith("app.config.ts"))
+          typeof p === "string" && (p.endsWith("app.config.js") || p.endsWith("app.config.ts")),
       );
 
       const result = readAppJson("/test/dir");
@@ -102,7 +96,7 @@ describe("File utilities", () => {
         throw new Error("SyntaxError");
       });
       vi.mocked(fs.existsSync).mockImplementation(
-        (p: fs.PathLike) => typeof p === "string" && p.endsWith("app.config.js")
+        (p: fs.PathLike) => typeof p === "string" && p.endsWith("app.config.js"),
       );
 
       try {
@@ -121,7 +115,7 @@ describe("File utilities", () => {
 
     it("should throw with cause when app.json is invalid JSON", () => {
       vi.mocked(fs.existsSync).mockImplementation(
-        (p: fs.PathLike) => typeof p === "string" && p.endsWith("app.json")
+        (p: fs.PathLike) => typeof p === "string" && p.endsWith("app.json"),
       );
       vi.mocked(fs.readFileSync).mockReturnValue("invalid json");
 
@@ -158,7 +152,7 @@ describe("File utilities", () => {
       vi.mocked(fs.existsSync).mockReturnValue(false);
 
       expect(() => readMetadata("/test/dist")).toThrow(
-        "metadata.json not found in /test/dist. Did you run 'expo export'?"
+        "metadata.json not found in /test/dist. Did you run 'expo export'?",
       );
     });
 
@@ -230,7 +224,7 @@ describe("File utilities", () => {
       };
 
       expect(() => findBundleFile("/dist", metadata, Platform.Android)).toThrow(
-        "No bundle path found for android in metadata.json"
+        "No bundle path found for android in metadata.json",
       );
     });
 
@@ -238,7 +232,7 @@ describe("File utilities", () => {
       const metadata = { version: 0, bundler: "metro" };
 
       expect(() => findBundleFile("/dist", metadata, Platform.iOS)).toThrow(
-        "No bundle path found for ios in metadata.json"
+        "No bundle path found for ios in metadata.json",
       );
     });
 
@@ -257,9 +251,8 @@ describe("File utilities", () => {
       };
 
       expect(() => findBundleFile("/dist", metadata, Platform.iOS)).toThrow(
-        "Bundle file not found"
+        "Bundle file not found",
       );
     });
   });
-
 });

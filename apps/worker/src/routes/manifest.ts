@@ -55,7 +55,7 @@ const manifestHeadersSchema = z.object({
 function sendMultipartResponse(
   content: IUpdateManifest | INoUpdateAvailableDirective,
   fieldName: "manifest" | "directive",
-  protocolVersion: number
+  protocolVersion: number,
 ): Response {
   const boundary = "ExpoUpdateBoundary";
 
@@ -89,7 +89,7 @@ function sendMultipartResponse(
  */
 function sendNoUpdateAvailable(
   _context: Context<{ Bindings: IEnv }>,
-  protocolVersion: number
+  protocolVersion: number,
 ): Response {
   if (protocolVersion < 1) {
     return new Response(null, { status: 404 });
@@ -100,7 +100,7 @@ function sendNoUpdateAvailable(
       type: "noUpdateAvailable",
     },
     "directive",
-    protocolVersion
+    protocolVersion,
   );
 }
 
@@ -110,9 +110,7 @@ function sendNoUpdateAvailable(
  * @param context The request context.
  * @returns A Response object.
  */
-export async function manifestHandler(
-  context: Context<{ Bindings: IEnv }>
-): Promise<Response> {
+export async function manifestHandler(context: Context<{ Bindings: IEnv }>): Promise<Response> {
   try {
     const headerValidation = manifestHeadersSchema.safeParse({
       "expo-app-id": context.req.header("expo-app-id"),
@@ -139,13 +137,7 @@ export async function manifestHandler(
     const db = context.env.DB;
     const storage = new R2Storage(context.env.BUCKET, context.env.BUCKET_URL);
 
-    const latestUpdate = await getLatestUpdate(
-      db,
-      appId,
-      channel,
-      runtimeVersion,
-      platform
-    );
+    const latestUpdate = await getLatestUpdate(db, appId, channel, runtimeVersion, platform);
 
     if (!latestUpdate) {
       return sendNoUpdateAvailable(context, protocolVersion);
@@ -180,7 +172,7 @@ export async function manifestHandler(
           const decoder = new TextDecoder();
           expoClient = JSON.parse(decoder.decode(expoConfigBuffer));
         }
-      } catch (error) {
+      } catch {
         // Continue without config
       }
     }
@@ -188,10 +180,10 @@ export async function manifestHandler(
     context.executionCtx.waitUntil(
       db
         .prepare(
-          "UPDATE updates SET download_count = download_count + 1, last_downloaded_at = ? WHERE id = ?"
+          "UPDATE updates SET download_count = download_count + 1, last_downloaded_at = ? WHERE id = ?",
         )
         .bind(new Date().toISOString(), latestUpdate.id)
-        .run()
+        .run(),
     );
 
     const manifest: IUpdateManifest = {

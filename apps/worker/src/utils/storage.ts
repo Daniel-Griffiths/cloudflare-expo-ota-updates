@@ -7,7 +7,10 @@ export class R2Storage {
    * @param bucket - Cloudflare R2 bucket instance
    * @param publicUrl - Public URL for accessing stored files
    */
-  constructor(private bucket: R2Bucket, private publicUrl: string) {}
+  constructor(
+    private bucket: R2Bucket,
+    private publicUrl: string,
+  ) {}
 
   /**
    * Uploads a file to R2 bucket with automatic content type detection
@@ -62,9 +65,7 @@ export class R2Storage {
     const prefix = folderPath.endsWith("/") ? folderPath : `${folderPath}/`;
     const listed = await this.bucket.list({ prefix });
 
-    const deletePromises = listed.objects.map((obj) =>
-      this.bucket.delete(obj.key)
-    );
+    const deletePromises = listed.objects.map((obj) => this.bucket.delete(obj.key));
 
     await Promise.all(deletePromises);
 

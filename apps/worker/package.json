@@ -3,18 +3,38 @@
   "version": "1.0.0",
   "private": true,
   "description": "OTA update server on Cloudflare Workers",
-  "type": "module",
   "license": "MIT",
+  "type": "module",
   "main": "src/index.ts",
   "scripts": {
     "dev": "npx wrangler dev",
     "deploy": "npx wrangler deploy",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "typecheck": "tsgo --noEmit",
     "cli": "tsx cli/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^8.3.2",
+    "drizzle-orm": "^0.45.1",
+    "hono": "^4.12.8",
+    "mrmime": "^2.0.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.13.2",
+    "@cloudflare/workers-types": "^4.20260317.1",
+    "@types/node": "^25.5.0",
+    "@types/yargs": "^17.0.35",
+    "@vitest/ui": "^4.1.0",
+    "chalk": "5.6.2",
+    "cli-table3": "^0.6.5",
+    "drizzle-kit": "^0.31.10",
+    "ora": "^9.3.0",
+    "tsx": "^4.21.0",
+    "vitest": "^4.1.0",
+    "yargs": "^18.0.0"
   },
   "cloudflare": {
     "bindings": {
@@ -28,28 +48,5 @@
         "description": "**(Optional)** Comma-separated list of IPs allowed to upload updates. Leave empty to allow all. It's also **highly** recommended to setup worker [security rules](https://github.com/Daniel-Griffiths/cloudflare-expo-ota-updates/blob/master/docs/SETUP_WORKER.md#secure-the-worker)."
       }
     }
-  },
-  "dependencies": {
-    "@inquirer/prompts": "^7.8.6",
-    "drizzle-orm": "^0.44.6",
-    "hono": "^4.0.0",
-    "mrmime": "^2.0.1",
-    "zod": "^4.1.12"
-  },
-  "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.9.10",
-    "@cloudflare/workers-types": "^4.20241127.0",
-    "@types/node": "^24.8.0",
-    "@types/yargs": "^17.0.33",
-    "@vitest/ui": "^3.0.0",
-    "chalk": "5.6.0",
-    "cli-table3": "^0.6.5",
-    "drizzle-kit": "^0.31.5",
-    "ora": "^9.0.0",
-    "tsx": "^4.20.6",
-    "@typescript/native-preview": "^7.0.0-dev.20250601",
-    "vite": "^7.0.0",
-    "vitest": "^3.2.4",
-    "yargs": "^18.0.0"
   }
 }
