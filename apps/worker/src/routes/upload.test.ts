@@ -207,6 +207,131 @@ describe("Upload Route", () => {
     expect(assets.length).toBeGreaterThan(0);
   });
 
+  it("should store fingerprint when provided", async () => {
+    const bundleContent = 'console.log("test bundle");';
+    const bundleBlob = new Blob([bundleContent], { type: "application/javascript" });
+
+    const formData = new FormData();
+    formData.append("channel", "production");
+    formData.append("runtimeVersion", "1.0.0");
+    formData.append("platform", "ios");
+    formData.append("fingerprint", "abc123hash");
+    formData.append("bundle", bundleBlob, "bundle.js");
+
+    const request = new Request("http://localhost/upload", {
+      method: "POST",
+      headers: {
+        "x-ota-api-key": "test-api-key-123",
+      },
+      body: formData,
+    });
+
+    const ctx = createExecutionContext();
+    const response = await app.fetch(request, env, ctx);
+    await waitOnExecutionContext(ctx);
+
+    expect(response.status).toBe(200);
+
+    const update = await env.DB.prepare(
+      "SELECT * FROM updates WHERE app_id = ? AND runtime_version = ? AND platform = ?",
+    )
+      .bind("test-app", "1.0.0", "ios")
+      .first();
+
+    expect(update).toBeTruthy();
+    expect(update!["fingerprint"]).toBe("abc123hash");
+  });
+
+  it("should reject upload when fingerprint mismatches existing update", async () => {
+    const bundleContent = 'console.log("test bundle");';
+    const bundleBlob = new Blob([bundleContent], { type: "application/javascript" });
+
+    // First upload with fingerprint
+    const formData1 = new FormData();
+    formData1.append("channel", "production");
+    formData1.append("runtimeVersion", "1.0.0");
+    formData1.append("platform", "ios");
+    formData1.append("fingerprint", "original-fingerprint");
+    formData1.append("bundle", bundleBlob, "bundle.js");
+
+    const req1 = new Request("http://localhost/upload", {
+      method: "POST",
+      headers: { "x-ota-api-key": "test-api-key-123" },
+      body: formData1,
+    });
+
+    const ctx1 = createExecutionContext();
+    const res1 = await app.fetch(req1, env, ctx1);
+    await waitOnExecutionContext(ctx1);
+    expect(res1.status).toBe(200);
+
+    // Second upload with different fingerprint — should be rejected
+    const formData2 = new FormData();
+    formData2.append("channel", "production");
+    formData2.append("runtimeVersion", "1.0.0");
+    formData2.append("platform", "ios");
+    formData2.append("fingerprint", "different-fingerprint");
+    formData2.append("bundle", bundleBlob, "bundle.js");
+
+    const req2 = new Request("http://localhost/upload", {
+      method: "POST",
+      headers: { "x-ota-api-key": "test-api-key-123" },
+      body: formData2,
+    });
+
+    const ctx2 = createExecutionContext();
+    const res2 = await app.fetch(req2, env, ctx2);
+    await waitOnExecutionContext(ctx2);
+
+    expect(res2.status).toBe(409);
+    const json = (await res2.json()) as { error: string };
+    expect(json.error).toBe("Fingerprint mismatch");
+  });
+
+  it("should allow mismatched fingerprint when ignoreFingerprintCheck is set", async () => {
+    const bundleContent = 'console.log("test bundle");';
+    const bundleBlob = new Blob([bundleContent], { type: "application/javascript" });
+
+    // First upload
+    const formData1 = new FormData();
+    formData1.append("channel", "production");
+    formData1.append("runtimeVersion", "1.0.0");
+    formData1.append("platform", "ios");
+    formData1.append("fingerprint", "original-fingerprint");
+    formData1.append("bundle", bundleBlob, "bundle.js");
+
+    const req1 = new Request("http://localhost/upload", {
+      method: "POST",
+      headers: { "x-ota-api-key": "test-api-key-123" },
+      body: formData1,
+    });
+
+    const ctx1 = createExecutionContext();
+    await app.fetch(req1, env, ctx1);
+    await waitOnExecutionContext(ctx1);
+
+    // Second upload with different fingerprint but ignore flag set
+    const formData2 = new FormData();
+    formData2.append("channel", "production");
+    formData2.append("runtimeVersion", "1.0.0");
+    formData2.append("platform", "ios");
+    formData2.append("fingerprint", "different-fingerprint");
+    formData2.append("ignoreFingerprintCheck", "true");
+    formData2.append("bundle", bundleBlob, "bundle.js");
+
+    const req2 = new Request("http://localhost/upload", {
+      method: "POST",
+      headers: { "x-ota-api-key": "test-api-key-123" },
+      body: formData2,
+    });
+
+    const ctx2 = createExecutionContext();
+    const res2 = await app.fetch(req2, env, ctx2);
+    await waitOnExecutionContext(ctx2);
+
+    expect(res2.status).toBe(200);
+  });
+
   it("should reject upload when channel is not specified", async () => {
     const bundleContent = 'console.log("test bundle");';
     const bundleBlob = new Blob([bundleContent], { type: "application/javascript" });

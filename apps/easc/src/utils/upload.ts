@@ -14,6 +14,8 @@ export interface IUploadOptions {
   platform: PlatformType;
   runtimeVersion: string;
   expoConfig: IAppJson["expo"];
+  fingerprint?: string | undefined;
+  ignoreFingerprintCheck?: boolean | undefined;
 }
 
 /**
@@ -30,6 +32,8 @@ export async function uploadBundle(options: IUploadOptions): Promise<void> {
     assetPaths,
     expoConfig,
     runtimeVersion,
+    fingerprint,
+    ignoreFingerprintCheck,
   } = options;
 
   const form = new FormData();
@@ -41,6 +45,14 @@ export async function uploadBundle(options: IUploadOptions): Promise<void> {
 
   if (commitHash) {
     form.append("commitHash", commitHash);
+  }
+
+  if (fingerprint) {
+    form.append("fingerprint", fingerprint);
+  }
+
+  if (ignoreFingerprintCheck) {
+    form.append("ignoreFingerprintCheck", "true");
   }
 
   // Add bundle
@@ -74,6 +86,14 @@ export async function uploadBundle(options: IUploadOptions): Promise<void> {
   });
 
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error(
+        "Fingerprint mismatch: the native fingerprint of this update does not match the latest deployed update. " +
+          "This usually means native dependencies have changed and a new native build is required. " +
+          "Use --dangerously-ignore-fingerprint-check to bypass this check.",
+      );
+    }
+
     let errorText = "";
     try {
       errorText = await response.text();

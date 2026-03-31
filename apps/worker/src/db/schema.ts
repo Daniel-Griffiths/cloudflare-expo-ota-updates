@@ -31,6 +31,7 @@ export const updates = sqliteTable(
     downloadCount: integer("download_count").notNull().default(0),
     commitHash: text("commit_hash"),
     expoConfigJson: text("expo_config_json"),
+    fingerprint: text("fingerprint"),
   },
   (table) => [
     index("idx_updates_lookup").on(

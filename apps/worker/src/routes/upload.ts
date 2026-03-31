@@ -1,7 +1,13 @@
 import { Context } from "hono";
 import { z } from "zod";
 import { computeFileHash } from "../utils/crypto";
-import { getAppByApiKey, saveUpdate, cleanupOldUpdates, IUpdateMetadata } from "../utils/db";
+import {
+  getAppByApiKey,
+  getLatestUpdate,
+  saveUpdate,
+  cleanupOldUpdates,
+  IUpdateMetadata,
+} from "../utils/db";
 import { R2Storage } from "../utils/storage";
 import { IEnv } from "../index";
 import { Platform } from "../enums/platform";
@@ -11,6 +17,11 @@ const uploadFormFieldsSchema = z.object({
   runtimeVersion: z.string().min(1, "runtimeVersion is required"),
   platform: z.enum([Platform.IOS, Platform.ANDROID]),
   commitHash: z.string().optional(),
+  fingerprint: z.string().optional(),
+  ignoreFingerprintCheck: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((val) => val === "true"),
   expoConfig: z
     .string()
     .optional()
@@ -44,9 +55,9 @@ const uploadFormFieldsSchema = z.object({
 export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promise<Response> {
   try {
     const allowedIPs = context.env.ALLOWED_UPLOAD_IPS;
-    const hasIPWhitelist = allowedIPs && allowedIPs.trim() !== "";
+    const isIPWhitelistEnabled = allowedIPs && allowedIPs.trim() !== "";
 
-    if (hasIPWhitelist) {
+    if (isIPWhitelistEnabled) {
       const clientIP = context.req.header("cf-connecting-ip");
       const allowedList = allowedIPs
         .split(",")
@@ -55,7 +66,7 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
 
       // Check if client IP matches any allowed IP
       // For IPv6, check prefix (first 4 segments) for now... since suffix changes frequently
-      const isAllowed = allowedList.some((allowedIP) => {
+      const isIPAllowed = allowedList.some((allowedIP) => {
         if (clientIP === allowedIP) return true;
 
         // IPv6 prefix matching (e.g., 2a02:c7c:86f8:c000:: matches 2a02:c7c:86f8:c000:*)
@@ -71,9 +82,9 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
       console.log("IP Whitelist Check:");
       console.log("  Client IP:", clientIP);
       console.log("  Allowed IPs:", allowedList);
-      console.log("  Is allowed:", isAllowed);
+      console.log("  Is allowed:", isIPAllowed);
 
-      if (!clientIP || !isAllowed) {
+      if (!clientIP || !isIPAllowed) {
         console.log(`❌ Blocked upload attempt from IP: ${clientIP || "unknown"}`);
         return new Response("Access denied", { status: 401 });
       }
@@ -132,6 +143,8 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
       runtimeVersion: fields["runtimeVersion"]?.[0],
       platform: fields["platform"]?.[0],
       commitHash: fields["commitHash"]?.[0],
+      fingerprint: fields["fingerprint"]?.[0],
+      ignoreFingerprintCheck: fields["ignoreFingerprintCheck"]?.[0],
       expoConfig: fields["expoConfig"]?.[0],
       metadata: fields["metadata"]?.[0],
     });
@@ -141,9 +154,38 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
       return new Response("Bad request", { status: 400 });
     }
 
-    const { channel, runtimeVersion, platform, commitHash, expoConfig, metadata } =
-      fieldValidation.data;
+    const {
+      channel,
+      runtimeVersion,
+      platform,
+      commitHash,
+      fingerprint,
+      ignoreFingerprintCheck,
+      expoConfig,
+      metadata,
+    } = fieldValidation.data;
     const appId = app.id;
+
+    // Validate fingerprint against latest existing update
+    if (fingerprint) {
+      const latestUpdate = await getLatestUpdate(db, appId, channel, runtimeVersion, platform);
+      const isFingerprintMismatched =
+        latestUpdate?.fingerprint && latestUpdate.fingerprint !== fingerprint;
+      const isFingerprintCheckIgnored = ignoreFingerprintCheck;
+
+      if (isFingerprintMismatched && !isFingerprintCheckIgnored) {
+        console.log(
+          `❌ Fingerprint mismatch: expected ${latestUpdate.fingerprint}, got ${fingerprint}`,
+        );
+        return context.json({ error: "Fingerprint mismatch" }, 409);
+      }
+
+      if (isFingerprintMismatched) {
+        console.log(
+          `⚠️ Fingerprint mismatch ignored: expected ${latestUpdate.fingerprint}, got ${fingerprint}`,
+        );
+      }
+    }
 
     // Extract asset metadata from parsed metadata
     let assetMetadata = null;
@@ -248,6 +290,7 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
       assets,
       commitHash,
       expoConfigJson: expoConfig ? JSON.stringify(expoConfig) : undefined,
+      fingerprint,
     };
 
     // Also save to R2 for backward compatibility with existing updates

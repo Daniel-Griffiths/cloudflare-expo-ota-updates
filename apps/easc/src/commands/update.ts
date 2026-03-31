@@ -11,6 +11,7 @@ import {
   checkExportDirectory,
 } from "../utils/files";
 import { uploadBundle, createDryRunSummary } from "../utils/upload";
+import { createFingerprintAsync } from "@expo/fingerprint";
 import { Logger } from "../utils/logger";
 import { PlatformType } from "../enums/platform";
 import { runx } from "../utils/runx";
@@ -21,6 +22,7 @@ interface IArgs {
   dryRun: boolean;
   exportDir: string;
   nonInteractive: boolean;
+  dangerouslyIgnoreFingerprintCheck: boolean;
 }
 
 export const update: CommandModule = {
@@ -54,6 +56,12 @@ export const update: CommandModule = {
         description: "Never prompt for user input",
         default: false,
       })
+      .option("dangerously-ignore-fingerprint-check", {
+        type: "boolean",
+        description:
+          "Skip fingerprint validation when native dependencies have changed",
+        default: false,
+      })
       .example("$0 update --channel production", "Deploy to production")
       .example("$0 update -c staging --skip-build", "Deploy existing build"),
   async handler(argv) {
@@ -78,13 +86,17 @@ export const update: CommandModule = {
       logger.info("Building app bundles...");
 
       runx(
-        args.exportDir !== "dist" ? `expo export --output-dir ${args.exportDir}` : `expo export`,
+        args.exportDir !== "dist"
+          ? `expo export --output-dir ${args.exportDir}`
+          : `expo export`,
         { cwd: process.cwd(), stdio: "inherit" },
       );
 
       logger.success("Build completed");
     } else {
-      logger.info(`Skipping build (using existing export from ${args.exportDir})`);
+      logger.info(
+        `Skipping build (using existing export from ${args.exportDir})`,
+      );
     }
 
     const exportDir = checkExportDirectory(args.exportDir);
@@ -95,11 +107,16 @@ export const update: CommandModule = {
     const commitHash = getCommitHash();
     const shortCommit = getShortCommitHash();
 
+    logger.info("Generating native fingerprint...");
+    const { hash: fingerprint } = await createFingerprintAsync(process.cwd());
+    logger.success(`Fingerprint: ${fingerprint}`);
+
     logger.section("📤 Deployment Info");
     logger.table([
       ["Server", config.otaServer],
       ["Runtime", runtimeVersion],
       ["Commit", shortCommit || ""],
+      ["Fingerprint", fingerprint || ""],
       ["Export Dir", args.exportDir],
       ["Channel", channel],
     ]);
@@ -151,6 +168,8 @@ export const update: CommandModule = {
             expoConfig: appJson.expo,
             metadata,
             config,
+            fingerprint,
+            ignoreFingerprintCheck: args.dangerouslyIgnoreFingerprintCheck,
           });
 
           logger.succeedSpinner(`${platform} uploaded`);
