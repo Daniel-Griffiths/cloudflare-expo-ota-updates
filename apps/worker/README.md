@@ -10,14 +10,14 @@ For local development, Wrangler automatically creates a local SQLite database. I
 
 ```bash
 # From monorepo root
-pnpm db:generate
+bun run db:generate
 npx wrangler d1 migrations apply expo-ota-updates --local
 ```
 
 ### 2. Start dev Server
 
 ```bash
-pnpm --filter worker dev
+bun run --filter worker dev
 ```
 
 The worker will be available at `http://localhost:8787`

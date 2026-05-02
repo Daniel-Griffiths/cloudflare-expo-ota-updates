@@ -47,8 +47,8 @@
     "@types/node": "^25.5.0",
     "@types/yargs": "^17.0.35",
     "@vitest/ui": "^4.1.0",
-    "vite-plus": "catalog:",
-    "vitest": "catalog:"
+    "vite-plus": "latest",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
   },
   "engines": {
     "node": ">=20.12.0"

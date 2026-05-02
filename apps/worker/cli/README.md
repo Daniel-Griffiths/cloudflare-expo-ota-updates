@@ -7,13 +7,13 @@ The project includes a powerful CLI for managing your OTA updates, with both int
 **Interactive Mode**
 
 ```bash
-pnpm run cli
+bun run cli
 ```
 
 **Direct Commands**
 
 ```bash
-pnpm run cli <command>
+bun run cli <command>
 ```
 
 ## Available Commands

@@ -7,8 +7,8 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "npx wrangler dev",
-    "deploy": "npx wrangler deploy",
+    "dev": "bunx wrangler dev",
+    "deploy": "bunx wrangler deploy",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "cli": "tsx cli/index.ts",
@@ -16,24 +16,24 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "@inquirer/prompts": "^8.3.2",
-    "drizzle-orm": "^0.45.1",
-    "hono": "^4.12.8",
+    "@inquirer/prompts": "^8.4.2",
+    "drizzle-orm": "1.0.0-rc.1",
+    "hono": "^4.12.16",
     "mrmime": "^2.0.1",
-    "zod": "^4.3.6"
+    "zod": "^4.4.2"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.13.2",
-    "@cloudflare/workers-types": "^4.20260317.1",
-    "@types/node": "^25.5.0",
+    "@cloudflare/vitest-pool-workers": "^0.15.2",
+    "@cloudflare/workers-types": "^4.20260502.1",
+    "@types/node": "^25.6.0",
     "@types/yargs": "^17.0.35",
-    "@vitest/ui": "^4.1.0",
+    "@vitest/ui": "^4.1.5",
     "chalk": "5.6.2",
     "cli-table3": "^0.6.5",
     "drizzle-kit": "^0.31.10",
-    "ora": "^9.3.0",
+    "ora": "^9.4.0",
     "tsx": "^4.21.0",
-    "vitest": "^4.1.0",
+    "vitest": "^4.1.5",
     "yargs": "^18.0.0"
   },
   "cloudflare": {

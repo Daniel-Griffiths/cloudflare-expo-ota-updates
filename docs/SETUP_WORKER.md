@@ -8,7 +8,7 @@
 Install dependencies
 
 ```bash
-pnpm install
+bun install
 ```
 
 Authenticate with your Cloudflare account (This will open a browser window to authorize Wrangler)
@@ -133,7 +133,7 @@ Now let's deploy the worker to Cloudflare! If you ever change the .jsonc values 
 
 ```bash
 # Deploy to Cloudflare Workers
-pnpm run deploy
+bun run deploy
 ```
 
 > [!NOTE]

@@ -69,7 +69,7 @@ To test easc locally, link the package:
 
 ```bash
 # From this directory
-pnpm link --global
+bun link
 
 # Now you can use 'easc' command globally
 easc --help
@@ -84,5 +84,5 @@ tsx index.ts --help
 ### Publishing
 
 ```bash
-pnpm version patch && pnpm publish
+bun version patch && bun publish
 ```

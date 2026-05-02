@@ -13,15 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
 
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-          cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+      - run: bun install --frozen-lockfile
 
       - name: Check if version changed
         id: version
@@ -40,11 +39,11 @@ jobs:
 
       - name: Code check
         if: steps.version.outputs.changed == 'true'
-        run: pnpm codecheck
+        run: bun run codecheck
 
       - name: Test
         if: steps.version.outputs.changed == 'true'
-        run: pnpm --filter easc test
+        run: bun run --filter 'easc' test
 
       - name: Publish
         if: steps.version.outputs.changed == 'true'

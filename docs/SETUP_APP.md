@@ -5,7 +5,7 @@
 Before configuring your Expo app, you need to register it in the database. From the root of this project, run:
 
 ```bash
-pnpm run cli create-app
+bun run cli create-app
 ```
 
 This will prompt you for an app name and generate an **App ID** and **API Key**. Save these, you'll need them later.
@@ -33,7 +33,7 @@ When developing locally, you can use Cloudflare Tunnel to expose your local serv
 **1. Start your local development server:**
 
 ```bash
-pnpm run dev
+bun run dev
 ```
 
 This starts the worker on `http://localhost:8787`
