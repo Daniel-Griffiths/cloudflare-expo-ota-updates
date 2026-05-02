@@ -4,8 +4,11 @@
   "private": true,
   "description": "Cloudflare Workers OTA Update Server for Expo Apps",
   "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "type": "module",
-  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "bun run --filter '@cloudflare-expo-ota/worker' dev",
     "deploy": "bun run --filter '@cloudflare-expo-ota/worker' deploy",

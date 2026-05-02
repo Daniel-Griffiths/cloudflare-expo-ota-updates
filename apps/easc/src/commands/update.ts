@@ -58,8 +58,7 @@ export const update: CommandModule = {
       })
       .option("dangerously-ignore-fingerprint-check", {
         type: "boolean",
-        description:
-          "Skip fingerprint validation when native dependencies have changed",
+        description: "Skip fingerprint validation when native dependencies have changed",
         default: false,
       })
       .example("$0 update --channel production", "Deploy to production")
@@ -87,16 +86,14 @@ export const update: CommandModule = {
 
       runx(
         args.exportDir !== "dist"
-          ? `expo export --output-dir ${args.exportDir}`
-          : `expo export`,
+          ? `expo export --dump-sourcemap --output-dir ${args.exportDir}`
+          : `expo export --dump-sourcemap`,
         { cwd: process.cwd(), stdio: "inherit" },
       );
 
       logger.success("Build completed");
     } else {
-      logger.info(
-        `Skipping build (using existing export from ${args.exportDir})`,
-      );
+      logger.info(`Skipping build (using existing export from ${args.exportDir})`);
     }
 
     const exportDir = checkExportDirectory(args.exportDir);

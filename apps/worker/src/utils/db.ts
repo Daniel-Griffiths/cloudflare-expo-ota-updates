@@ -43,7 +43,7 @@ export interface IUpdateMetadata {
  * @returns App record if found, null otherwise
  */
 export async function getAppByApiKey(d1: D1Database, apiKey: string): Promise<IApp | null> {
-  const db = drizzle(d1, { jit: true });
+  const db = drizzle(d1);
   const result = await db.select().from(apps).where(eq(apps.apiKey, apiKey)).limit(1);
 
   return result[0] || null;
@@ -61,7 +61,7 @@ export async function saveUpdate(
   appId: string,
   metadata: IUpdateMetadata,
 ): Promise<void> {
-  const db = drizzle(d1, { jit: true });
+  const db = drizzle(d1);
   await db.insert(updates).values({
     id: metadata.id,
     appId,
@@ -98,7 +98,7 @@ export async function getLatestUpdate(
   runtimeVersion: string,
   platform: string,
 ): Promise<IUpdateMetadata | null> {
-  const db = drizzle(d1, { jit: true });
+  const db = drizzle(d1);
   const result = await db
     .select()
     .from(updates)
@@ -162,7 +162,7 @@ export async function cleanupOldUpdates(
   platform: string,
   keepCount: number,
 ): Promise<string[]> {
-  const db = drizzle(d1, { jit: true });
+  const db = drizzle(d1);
 
   const rows = await db
     .select({ id: updates.id })
