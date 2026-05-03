@@ -6,7 +6,7 @@ interface UpdateCacheKey {
 }
 
 export class UpdateCache {
-  private static readonly TTL_SECONDS = 60;
+  private static readonly TTL_SECONDS = 300; // 5 minutes
 
   static async get<T>({
     appId,
