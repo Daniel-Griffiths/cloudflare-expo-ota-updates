@@ -1,7 +1,8 @@
 import { Context } from "hono";
 import { z } from "zod";
-import { getLatestUpdate } from "../utils/db";
+import { getLatestUpdate, type IUpdateMetadata } from "../utils/db";
 import { getSignature } from "../utils/codesigning";
+import { UpdateCache } from "../utils/cache";
 import { IEnv } from "../index";
 import { Platform } from "../enums/platform";
 
@@ -148,7 +149,14 @@ export async function manifestHandler(context: Context<{ Bindings: IEnv }>): Pro
 
     const db = context.env.DB;
 
-    const latestUpdate = await getLatestUpdate(db, appId, channel, runtimeVersion, platform);
+    const cached = await UpdateCache.get<IUpdateMetadata>({ appId, channel, runtimeVersion, platform });
+    const latestUpdate = cached ?? await getLatestUpdate(db, appId, channel, runtimeVersion, platform);
+
+    if (!cached && latestUpdate) {
+      context.executionCtx.waitUntil(
+        UpdateCache.set({ appId, channel, runtimeVersion, platform, data: latestUpdate }),
+      );
+    }
 
     if (!latestUpdate) {
       return await sendNoUpdateAvailable(context, protocolVersion);

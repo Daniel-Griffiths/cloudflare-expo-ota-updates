@@ -8,6 +8,7 @@ import {
   cleanupOldUpdates,
   IUpdateMetadata,
 } from "../utils/db";
+import { UpdateCache } from "../utils/cache";
 import { R2Storage } from "../utils/storage";
 import { IEnv } from "../index";
 import { Platform } from "../enums/platform";
@@ -304,6 +305,7 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
     }
 
     await saveUpdate(db, appId, updateMetadata);
+    await UpdateCache.invalidate({ appId, channel, runtimeVersion, platform });
 
     // Cleanup old updates if configured
     const maxUpdatesToKeep = Number(context.env.MAX_UPDATES_TO_KEEP) || 0;
