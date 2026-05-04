@@ -1,7 +1,8 @@
 import { Context } from "hono";
-import { z } from "zod";
-import { getLatestUpdate } from "../utils/db";
+import * as v from "valibot";
+import { getLatestUpdate, type IUpdateMetadata } from "../utils/db";
 import { getSignature } from "../utils/codesigning";
+import { UpdateCache } from "../utils/cache";
 import { IEnv } from "../index";
 import { Platform } from "../enums/platform";
 
@@ -31,17 +32,16 @@ export interface INoUpdateAvailableDirective {
   type: "noUpdateAvailable";
 }
 
-const manifestHeadersSchema = z.object({
-  "expo-app-id": z.string().min(1, "expo-app-id is required"),
-  "expo-runtime-version": z.string().min(1, "expo-runtime-version is required"),
-  "expo-platform": z.enum([Platform.IOS, Platform.ANDROID]),
-  "expo-channel-name": z.string().min(1, "expo-channel-name is required"),
-  "expo-current-update-id": z.string().optional(),
-  "expo-protocol-version": z
-    .string()
-    .optional()
-    .default("0")
-    .transform((v) => parseInt(v, 10)),
+const manifestHeadersSchema = v.object({
+  "expo-app-id": v.pipe(v.string(), v.minLength(1)),
+  "expo-runtime-version": v.pipe(v.string(), v.minLength(1)),
+  "expo-platform": v.picklist([Platform.IOS, Platform.ANDROID]),
+  "expo-channel-name": v.pipe(v.string(), v.minLength(1)),
+  "expo-current-update-id": v.optional(v.string()),
+  "expo-protocol-version": v.pipe(
+    v.optional(v.string(), "0"),
+    v.transform((val) => parseInt(val, 10)),
+  ),
 });
 
 /**
@@ -124,7 +124,7 @@ function resolveExpoConfig(expoConfigJson?: string): Record<string, unknown> {
  */
 export async function manifestHandler(context: Context<{ Bindings: IEnv }>): Promise<Response> {
   try {
-    const headerValidation = manifestHeadersSchema.safeParse({
+    const headerValidation = v.safeParse(manifestHeadersSchema, {
       "expo-app-id": context.req.header("expo-app-id"),
       "expo-runtime-version": context.req.header("expo-runtime-version"),
       "expo-platform": context.req.header("expo-platform"),
@@ -144,11 +144,19 @@ export async function manifestHandler(context: Context<{ Bindings: IEnv }>): Pro
       "expo-channel-name": channel,
       "expo-current-update-id": currentUpdateId,
       "expo-protocol-version": protocolVersion,
-    } = headerValidation.data;
+    } = headerValidation.output;
 
     const db = context.env.DB;
+    const kv = context.env.CACHE;
 
-    const latestUpdate = await getLatestUpdate(db, appId, channel, runtimeVersion, platform);
+    const cached = await UpdateCache.get<IUpdateMetadata>(kv, { appId, channel, runtimeVersion, platform });
+    const latestUpdate = cached ?? await getLatestUpdate(db, appId, channel, runtimeVersion, platform);
+
+    if (!cached && latestUpdate) {
+      context.executionCtx.waitUntil(
+        UpdateCache.set(kv, { appId, channel, runtimeVersion, platform, data: latestUpdate }),
+      );
+    }
 
     if (!latestUpdate) {
       return await sendNoUpdateAvailable(context, protocolVersion);

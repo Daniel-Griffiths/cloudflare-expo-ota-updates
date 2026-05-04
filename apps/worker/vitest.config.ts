@@ -20,6 +20,7 @@ export default defineConfig(async () => {
             ALLOWED_UPLOAD_IPS: "",
             TEST_MIGRATIONS: migrations,
           },
+          kvNamespaces: ["CACHE"],
         },
       }),
     ],
