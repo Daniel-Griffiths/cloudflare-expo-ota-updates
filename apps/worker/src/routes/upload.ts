@@ -305,7 +305,7 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
     }
 
     await saveUpdate(db, appId, updateMetadata);
-    await UpdateCache.invalidate({ appId, channel, runtimeVersion, platform });
+    await UpdateCache.invalidate(context.env.CACHE, { appId, channel, runtimeVersion, platform });
 
     // Cleanup old updates if configured
     const maxUpdatesToKeep = Number(context.env.MAX_UPDATES_TO_KEEP) || 0;

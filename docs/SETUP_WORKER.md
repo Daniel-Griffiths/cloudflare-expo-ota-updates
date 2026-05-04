@@ -95,7 +95,29 @@ Choose one of the following options to make your R2 bucket publicly accessible:
 > [!WARNING]  
 > R2.dev URLs are rate-limited and intended for testing only. Use a custom domain for production.
 
-**5. Custom Domain (Optional)**
+**5. Create KV Cache (Optional)**
+
+This caches manifest responses at the edge, reducing D1 reads and improving response times for your users.
+
+```bash
+npx wrangler kv namespace create CACHE
+```
+
+Take the `id` returned from this command and add a `kv_namespaces` section to `apps/worker/wrangler.jsonc`:
+
+```jsonc
+"kv_namespaces": [
+  {
+    "binding": "CACHE",
+    "id": "your-kv-namespace-id"
+  }
+]
+```
+
+> [!NOTE]
+> This step is optional. The worker functions without it, but with KV caching enabled, most manifest requests will be served in under 20ms instead of ~150ms.
+
+**6. Custom Domain (Optional)**
 
 If you want to use a custom domain for your worker (e.g., `updates.yourdomain.com`), add a routes section in `apps/worker/wrangler.jsonc`:
 
@@ -111,7 +133,7 @@ If you want to use a custom domain for your worker (e.g., `updates.yourdomain.co
 > [!NOTE]
 > The domain must already be on Cloudflare DNS for this to work.
 
-**6. Check wrangler.jsonc**
+**7. Check wrangler.jsonc**
 
 Ok so before we deploy, let's make sure everything looks correct in `apps/worker/wrangler.jsonc`
 
@@ -127,7 +149,7 @@ Ok so before we deploy, let's make sure everything looks correct in `apps/worker
 > [!NOTE]  
 > When using ALLOWED_UPLOAD_IPS, be sure to add both your ipv4 and ipv6 addresses (if you use ipv6)
 
-**7. Deployment**
+**8. Deployment**
 
 Now let's deploy the worker to Cloudflare! If you ever change the .jsonc values you must redeploy the worker (or manually update them in Cloudflare).
 
@@ -140,7 +162,7 @@ bun run deploy
 > If you are having issues use `npx wrangler tail` to debug the worker logs when sending/downloading updates
 
 <details>
-<summary><strong>8. Code Signing (Optional)</strong></summary>
+<summary><strong>9. Code Signing (Optional)</strong></summary>
 
 Code signing adds an extra layer of security by cryptographically signing OTA manifests. When enabled, your Expo app will verify that updates came from your server before applying them.
 
@@ -173,7 +195,7 @@ Then configure your Expo app to verify signatures — see the [App Setup](SETUP_
 
 <a id="secure-the-worker"></a>
 
-**9. Secure The Worker**
+**10. Secure The Worker**
 
 It's very common for malicious bot's to scan domains for security exploits, this eats into your free worker usage. To prevent this it's highly recomended to setup security rules for your domain.
 

@@ -1,4 +1,5 @@
-import { env, createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
+import { createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
+import { env } from "cloudflare:workers";
 import { describe, it, expect, beforeEach } from "vitest";
 import app from "../index";
 import { UpdateCache } from "../utils/cache";
@@ -10,7 +11,7 @@ describe("Manifest Route", () => {
     await env.DB.prepare("DELETE FROM apps").run();
 
     // Clear cache
-    await UpdateCache.invalidate({
+    await UpdateCache.invalidate(env.CACHE, {
       appId: "test-app",
       channel: "production",
       runtimeVersion: "1.0.0",
@@ -409,7 +410,7 @@ describe("Manifest Route", () => {
     expect(await res1.text()).toContain("update-v1");
 
     // Invalidate cache and insert a new update
-    await UpdateCache.invalidate({
+    await UpdateCache.invalidate(env.CACHE, {
       appId: "test-app",
       channel: "production",
       runtimeVersion: "1.0.0",

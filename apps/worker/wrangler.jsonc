@@ -9,6 +9,13 @@
       "database_id": "YOUR_DATABASE_ID",
     },
   ],
+  // KV cache for manifest responses (optional, improves performance)
+  // "kv_namespaces": [
+  //   {
+  //     "binding": "CACHE",
+  //     "id": "YOUR_KV_NAMESPACE_ID"
+  //   }
+  // ],
   "r2_buckets": [
     {
       "binding": "BUCKET",

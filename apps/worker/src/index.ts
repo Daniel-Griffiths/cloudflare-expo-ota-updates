@@ -5,6 +5,7 @@ import { uploadHandler } from "./routes/upload";
 export interface IEnv {
   DB: D1Database;
   BUCKET: R2Bucket;
+  CACHE?: KVNamespace;
   BUCKET_URL: string;
   MAX_UPDATES_TO_KEEP: string;
   ALLOWED_UPLOAD_IPS?: string;

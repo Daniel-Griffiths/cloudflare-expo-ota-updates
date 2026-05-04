@@ -6,43 +6,22 @@ interface UpdateCacheKey {
 }
 
 export class UpdateCache {
-  private static readonly TTL_SECONDS = 300; // 5 minutes
+  private static readonly TTL_SECONDS = 86400; // 24 hours — invalidated globally on upload
 
-  static async get<T>({
-    appId,
-    channel,
-    runtimeVersion,
-    platform,
-  }: UpdateCacheKey): Promise<T | null> {
-    const res = await caches.default.match(
-      this._key({ appId, channel, runtimeVersion, platform }),
-    );
-    if (!res) return null;
-    return res.json() as Promise<T>;
+  static async get<T>(kv: KVNamespace | undefined, params: UpdateCacheKey): Promise<T | null> {
+    return kv?.get<T>(this._key(params), "json") ?? null;
   }
 
-  static async set(params: UpdateCacheKey & { data: unknown }): Promise<void> {
+  static async set(kv: KVNamespace | undefined, params: UpdateCacheKey & { data: unknown }): Promise<void> {
     const { data, ...key } = params;
-    await caches.default.put(
-      this._key(key),
-      new Response(JSON.stringify(data), {
-        headers: { "Cache-Control": `max-age=${this.TTL_SECONDS}` },
-      }),
-    );
+    await kv?.put(this._key(key), JSON.stringify(data), { expirationTtl: this.TTL_SECONDS });
   }
 
-  static async invalidate(params: UpdateCacheKey): Promise<void> {
-    await caches.default.delete(this._key(params));
+  static async invalidate(kv: KVNamespace | undefined, params: UpdateCacheKey): Promise<void> {
+    await kv?.delete(this._key(params));
   }
 
-  private static _key({
-    appId,
-    channel,
-    runtimeVersion,
-    platform,
-  }: UpdateCacheKey): Request {
-    return new Request(
-      `https://cache.internal/manifest/${appId}/${channel}/${runtimeVersion}/${platform}`,
-    );
+  private static _key({ appId, channel, runtimeVersion, platform }: UpdateCacheKey): string {
+    return `manifest:${appId}:${channel}:${runtimeVersion}:${platform}`;
   }
 }

@@ -148,13 +148,14 @@ export async function manifestHandler(context: Context<{ Bindings: IEnv }>): Pro
     } = headerValidation.data;
 
     const db = context.env.DB;
+    const kv = context.env.CACHE;
 
-    const cached = await UpdateCache.get<IUpdateMetadata>({ appId, channel, runtimeVersion, platform });
+    const cached = await UpdateCache.get<IUpdateMetadata>(kv, { appId, channel, runtimeVersion, platform });
     const latestUpdate = cached ?? await getLatestUpdate(db, appId, channel, runtimeVersion, platform);
 
     if (!cached && latestUpdate) {
       context.executionCtx.waitUntil(
-        UpdateCache.set({ appId, channel, runtimeVersion, platform, data: latestUpdate }),
+        UpdateCache.set(kv, { appId, channel, runtimeVersion, platform, data: latestUpdate }),
       );
     }
 
