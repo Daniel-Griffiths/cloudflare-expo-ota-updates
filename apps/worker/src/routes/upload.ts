@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { z } from "zod";
+import * as v from "valibot";
 import { computeFileHash } from "../utils/crypto";
 import {
   getAppByApiKey,
@@ -8,42 +8,35 @@ import {
   cleanupOldUpdates,
   IUpdateMetadata,
 } from "../utils/db";
+import { UpdateCache } from "../utils/cache";
 import { R2Storage } from "../utils/storage";
 import { IEnv } from "../index";
 import { Platform } from "../enums/platform";
 
-const uploadFormFieldsSchema = z.object({
-  channel: z.string().min(1, "channel is required"),
-  runtimeVersion: z.string().min(1, "runtimeVersion is required"),
-  platform: z.enum([Platform.IOS, Platform.ANDROID]),
-  commitHash: z.string().optional(),
-  fingerprint: z.string().optional(),
-  ignoreFingerprintCheck: z
-    .enum(["true", "false"])
-    .optional()
-    .transform((val) => val === "true"),
-  expoConfig: z
-    .string()
-    .optional()
-    .transform((val) => {
+const uploadFormFieldsSchema = v.object({
+  channel: v.pipe(v.string(), v.minLength(1)),
+  runtimeVersion: v.pipe(v.string(), v.minLength(1)),
+  platform: v.picklist([Platform.IOS, Platform.ANDROID]),
+  commitHash: v.optional(v.string()),
+  fingerprint: v.optional(v.string()),
+  ignoreFingerprintCheck: v.pipe(
+    v.optional(v.picklist(["true", "false"])),
+    v.transform((val) => val === "true"),
+  ),
+  expoConfig: v.pipe(
+    v.optional(v.string()),
+    v.transform((val) => {
       if (!val) return null;
-      try {
-        return JSON.parse(val);
-      } catch {
-        return null;
-      }
+      try { return JSON.parse(val); } catch { return null; }
     }),
-  metadata: z
-    .string()
-    .optional()
-    .transform((val) => {
+  ),
+  metadata: v.pipe(
+    v.optional(v.string()),
+    v.transform((val) => {
       if (!val) return null;
-      try {
-        return JSON.parse(val);
-      } catch {
-        return null;
-      }
+      try { return JSON.parse(val); } catch { return null; }
     }),
+  ),
 });
 
 /**
@@ -138,7 +131,7 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
       }
     }
 
-    const fieldValidation = uploadFormFieldsSchema.safeParse({
+    const fieldValidation = v.safeParse(uploadFormFieldsSchema, {
       channel: fields["channel"]?.[0],
       runtimeVersion: fields["runtimeVersion"]?.[0],
       platform: fields["platform"]?.[0],
@@ -150,7 +143,7 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
     });
 
     if (!fieldValidation.success) {
-      console.log("❌ Invalid form fields:", fieldValidation.error.issues[0]?.message);
+      console.log("❌ Invalid form fields:", fieldValidation.issues[0]?.message);
       return new Response("Bad request", { status: 400 });
     }
 
@@ -163,7 +156,7 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
       ignoreFingerprintCheck,
       expoConfig,
       metadata,
-    } = fieldValidation.data;
+    } = fieldValidation.output;
     const appId = app.id;
 
     // Validate fingerprint against latest existing update
@@ -304,6 +297,7 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
     }
 
     await saveUpdate(db, appId, updateMetadata);
+    await UpdateCache.invalidate(context.env.CACHE, { appId, channel, runtimeVersion, platform });
 
     // Cleanup old updates if configured
     const maxUpdatesToKeep = Number(context.env.MAX_UPDATES_TO_KEEP) || 0;
