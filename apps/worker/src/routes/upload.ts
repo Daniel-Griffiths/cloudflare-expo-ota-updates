@@ -282,19 +282,35 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
       },
       assets,
       commitHash,
-      expoConfigJson: expoConfig ? JSON.stringify(expoConfig) : undefined,
+      expoConfigJson: expoConfig
+        ? JSON.stringify({
+            name: expoConfig.name,
+            slug: expoConfig.slug,
+            version: expoConfig.version,
+            scheme: expoConfig.scheme,
+            orientation: expoConfig.orientation,
+            platforms: expoConfig.platforms,
+            userInterfaceStyle: expoConfig.userInterfaceStyle,
+            runtimeVersion: expoConfig.runtimeVersion,
+            updates: expoConfig.updates,
+            extra: expoConfig.extra,
+            ...(expoConfig.ios && {
+              ios: {
+                bundleIdentifier: expoConfig.ios.bundleIdentifier,
+                supportsTablet: expoConfig.ios.supportsTablet,
+                appStoreUrl: expoConfig.ios.appStoreUrl,
+              },
+            }),
+            ...(expoConfig.android && {
+              android: {
+                package: expoConfig.android.package,
+                playStoreUrl: expoConfig.android.playStoreUrl,
+              },
+            }),
+          })
+        : undefined,
       fingerprint,
     };
-
-    // Also save to R2 for backward compatibility with existing updates
-    if (expoConfig) {
-      const encoder = new TextEncoder();
-      const configBuffer = encoder.encode(JSON.stringify(expoConfig, null, 2));
-      await storage.uploadFile(
-        `${appId}/${channel}/${runtimeVersion}/${updateId}/expoConfig.json`,
-        configBuffer,
-      );
-    }
 
     await saveUpdate(db, appId, updateMetadata);
     await UpdateCache.invalidate(context.env.CACHE, { appId, channel, runtimeVersion, platform });
