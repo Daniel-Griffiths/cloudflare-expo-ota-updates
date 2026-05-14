@@ -1,10 +1,25 @@
 import chalk from "chalk";
-import ora, { Ora } from "ora";
+
+const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+
+interface SpinnerEntry {
+  label: string;
+  status: "pending" | "done" | "failed";
+}
 
 export class Logger {
-  private spinner: Ora | null = null;
+  private lines: SpinnerEntry[] | null = null;
+  private timer: ReturnType<typeof setInterval> | null = null;
+  private frame = 0;
 
   constructor() {}
+
+  /**
+   * Log a plain message
+   */
+  log(message: string): void {
+    console.log(message);
+  }
 
   /**
    * Log an informational message
@@ -35,48 +50,63 @@ export class Logger {
   }
 
   /**
-   * Start a spinner with a message
+   * Start one or more spinner lines
    */
-  startSpinner(message: string): void {
-    this.spinner = ora(message).start();
+  startSpinner(labels: string | string[]): void {
+    const items = Array.isArray(labels) ? labels : [labels];
+    this.lines = items.map((label) => ({ label, status: "pending" as const }));
+    this.frame = 0;
+
+    for (const entry of this.lines) {
+      process.stderr.write(`  ${SPINNER_FRAMES[0]} ${entry.label}\n`);
+    }
+
+    this.timer = setInterval(() => {
+      this.frame = (this.frame + 1) % SPINNER_FRAMES.length;
+      this.render();
+    }, 80);
   }
 
   /**
-   * Update spinner text
+   * Mark a spinner line as done or failed
    */
-  updateSpinner(message: string): void {
-    if (this.spinner) {
-      this.spinner.text = message;
+  updateSpinner(label: string, status: "done" | "failed"): void {
+    if (!this.lines) return;
+    const entry = this.lines.find((e) => e.label === label);
+    if (entry) {
+      entry.status = status;
+      this.render();
     }
   }
 
   /**
-   * Stop spinner with success
-   */
-  succeedSpinner(message?: string): void {
-    if (this.spinner) {
-      this.spinner.succeed(message);
-      this.spinner = null;
-    }
-  }
-
-  /**
-   * Stop spinner with failure
-   */
-  failSpinner(message?: string): void {
-    if (this.spinner) {
-      this.spinner.fail(message);
-      this.spinner = null;
-    }
-  }
-
-  /**
-   * Stop spinner without status
+   * Stop all spinner lines
    */
   stopSpinner(): void {
-    if (this.spinner) {
-      this.spinner.stop();
-      this.spinner = null;
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
+    if (this.lines) {
+      this.render();
+      this.lines = null;
+    }
+  }
+
+  private render(): void {
+    if (!this.lines) return;
+
+    process.stderr.write(`\x1B[${this.lines.length}A`);
+
+    for (const entry of this.lines) {
+      process.stderr.write("\x1B[2K\r");
+      if (entry.status === "done") {
+        process.stderr.write(`  ${chalk.green("✓")} ${entry.label}\n`);
+      } else if (entry.status === "failed") {
+        process.stderr.write(`  ${chalk.red("✗")} ${entry.label}\n`);
+      } else {
+        process.stderr.write(`  ${chalk.cyan(SPINNER_FRAMES[this.frame])} ${entry.label}\n`);
+      }
     }
   }
 

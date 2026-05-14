@@ -1,4 +1,3 @@
-import fs from "fs";
 import type { CommandModule } from "yargs";
 import { validateConfig, getConfig } from "../utils/schema";
 import { resolveRuntimeVersion, getPlatforms } from "../utils/runtime";
@@ -13,7 +12,6 @@ import {
 import { uploadBundle, createDryRunSummary } from "../utils/upload";
 import { createFingerprintAsync } from "@expo/fingerprint";
 import { Logger } from "../utils/logger";
-import { PlatformType } from "../enums/platform";
 import { runx } from "../utils/runx";
 
 interface IArgs {
@@ -58,7 +56,8 @@ export const update: CommandModule = {
       })
       .option("dangerously-ignore-fingerprint-check", {
         type: "boolean",
-        description: "Skip fingerprint validation when native dependencies have changed",
+        description:
+          "Skip fingerprint validation when native dependencies have changed",
         default: false,
       })
       .example("$0 update --channel production", "Deploy to production")
@@ -93,7 +92,9 @@ export const update: CommandModule = {
 
       logger.success("Build completed");
     } else {
-      logger.info(`Skipping build (using existing export from ${args.exportDir})`);
+      logger.info(
+        `Skipping build (using existing export from ${args.exportDir})`,
+      );
     }
 
     const exportDir = checkExportDirectory(args.exportDir);
@@ -118,76 +119,62 @@ export const update: CommandModule = {
       ["Channel", channel],
     ]);
 
-    const results: {
-      platform: PlatformType;
-      status: "dry_run" | "uploaded" | "failed";
-      bundle_size: number;
-      asset_count: number;
-      error?: string;
-    }[] = [];
+    const platformUploads = platforms.map((platform) => ({
+      platform,
+      bundlePath: findBundleFile(exportDir, metadata, platform),
+      assetPaths: getAssetFiles(exportDir, metadata, platform),
+    }));
 
-    for (const platform of platforms) {
-      logger.section(platform.toUpperCase());
-
-      try {
-        const bundlePath = findBundleFile(exportDir, metadata, platform);
-        const assetPaths = getAssetFiles(exportDir, metadata, platform);
-
-        if (args.dryRun) {
-          const summary = createDryRunSummary({
+    if (args.dryRun) {
+      for (const { platform, bundlePath, assetPaths } of platformUploads) {
+        logger.section(platform.toUpperCase());
+        logger.box(
+          createDryRunSummary({
             platform,
             bundlePath,
             assetPaths,
             channel,
             runtimeVersion,
             commitHash,
-          });
+          }),
+        );
+        logger.success(`${platform} (dry run)`);
+      }
+    } else {
+      logger.startSpinner(
+        platformUploads.map(({ platform }) => `Uploading ${platform}...`),
+      );
 
-          logger.box(summary);
-          logger.success(`${platform} (dry run)`);
+      const results = await Promise.allSettled(
+        platformUploads.map(async ({ platform, bundlePath, assetPaths }) => {
+          const label = `Uploading ${platform}...`;
+          try {
+            await uploadBundle({
+              platform,
+              channel,
+              runtimeVersion,
+              commitHash,
+              bundlePath,
+              assetPaths,
+              expoConfig: appJson.expo,
+              metadata,
+              config,
+              fingerprint,
+              ignoreFingerprintCheck: args.dangerouslyIgnoreFingerprintCheck,
+            });
+            logger.updateSpinner(label, "done");
+          } catch (error) {
+            logger.updateSpinner(label, "failed");
+            throw error;
+          }
+        }),
+      );
 
-          results.push({
-            platform,
-            status: "dry_run",
-            bundle_size: fs.statSync(bundlePath).size,
-            asset_count: assetPaths.length,
-          });
-        } else {
-          logger.startSpinner(`Uploading ${platform}...`);
+      logger.stopSpinner();
 
-          await uploadBundle({
-            platform,
-            channel,
-            runtimeVersion,
-            commitHash,
-            bundlePath,
-            assetPaths,
-            expoConfig: appJson.expo,
-            metadata,
-            config,
-            fingerprint,
-            ignoreFingerprintCheck: args.dangerouslyIgnoreFingerprintCheck,
-          });
-
-          logger.succeedSpinner(`${platform} uploaded`);
-
-          results.push({
-            platform,
-            status: "uploaded",
-            bundle_size: fs.statSync(bundlePath).size,
-            asset_count: assetPaths.length,
-          });
-        }
-      } catch (error) {
-        logger.failSpinner(`${platform} failed`);
-        results.push({
-          platform,
-          status: "failed",
-          bundle_size: 0,
-          asset_count: 0,
-          error: error instanceof Error ? error.message : String(error),
-        });
-        throw error;
+      const failed = results.filter((r) => r.status === "rejected");
+      if (failed.length > 0) {
+        throw (failed[0] as PromiseRejectedResult).reason;
       }
     }
 
@@ -196,7 +183,7 @@ export const update: CommandModule = {
       logger.success("Dry run completed successfully!");
       logger.info("Run without --dry-run to perform actual upload");
     } else {
-      logger.success("✨ Updates published successfully!");
+      logger.log("✨ Updates published successfully!");
     }
   },
 };
