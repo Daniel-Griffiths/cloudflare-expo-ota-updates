@@ -27,14 +27,22 @@ const uploadFormFieldsSchema = v.object({
     v.optional(v.string()),
     v.transform((val) => {
       if (!val) return null;
-      try { return JSON.parse(val); } catch { return null; }
+      try {
+        return JSON.parse(val);
+      } catch {
+        return null;
+      }
     }),
   ),
   metadata: v.pipe(
     v.optional(v.string()),
     v.transform((val) => {
       if (!val) return null;
-      try { return JSON.parse(val); } catch { return null; }
+      try {
+        return JSON.parse(val);
+      } catch {
+        return null;
+      }
     }),
   ),
 });
@@ -45,7 +53,9 @@ const uploadFormFieldsSchema = v.object({
  * @param context The request context.
  * @returns A Response object.
  */
-export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promise<Response> {
+export async function uploadHandler(
+  context: Context<{ Bindings: IEnv }>,
+): Promise<Response> {
   try {
     const allowedIPs = context.env.ALLOWED_UPLOAD_IPS;
     const isIPWhitelistEnabled = allowedIPs && allowedIPs.trim() !== "";
@@ -78,7 +88,9 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
       console.log("  Is allowed:", isIPAllowed);
 
       if (!clientIP || !isIPAllowed) {
-        console.log(`❌ Blocked upload attempt from IP: ${clientIP || "unknown"}`);
+        console.log(
+          `❌ Blocked upload attempt from IP: ${clientIP || "unknown"}`,
+        );
         return new Response("Access denied", { status: 401 });
       }
       console.log("✅ IP check passed");
@@ -121,7 +133,9 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
           contentType: value.type || "application/octet-stream",
           data: buffer,
         });
-        console.log(`FormData file: field="${key}" filename="${value.name}" type="${value.type}"`);
+        console.log(
+          `FormData file: field="${key}" filename="${value.name}" type="${value.type}"`,
+        );
       } else {
         // It's a text field
         if (!fields[key]) {
@@ -143,7 +157,10 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
     });
 
     if (!fieldValidation.success) {
-      console.log("❌ Invalid form fields:", fieldValidation.issues[0]?.message);
+      console.log(
+        "❌ Invalid form fields:",
+        fieldValidation.issues[0]?.message,
+      );
       return new Response("Bad request", { status: 400 });
     }
 
@@ -161,7 +178,13 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
 
     // Validate fingerprint against latest existing update
     if (fingerprint) {
-      const latestUpdate = await getLatestUpdate(db, appId, channel, runtimeVersion, platform);
+      const latestUpdate = await getLatestUpdate(
+        db,
+        appId,
+        channel,
+        runtimeVersion,
+        platform,
+      );
       const isFingerprintMismatched =
         latestUpdate?.fingerprint && latestUpdate.fingerprint !== fingerprint;
       const isFingerprintCheckIgnored = ignoreFingerprintCheck;
@@ -190,10 +213,12 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
     const createdAt = new Date().toISOString();
 
     const bundleFile = files.find(
-      (file) => file.fieldName === "bundle" || file.filename?.endsWith(".bundle"),
+      (file) =>
+        file.fieldName === "bundle" || file.filename?.endsWith(".bundle"),
     );
     const assetFiles = files.filter(
-      (file) => file.fieldName === "assets" || file.fieldName.startsWith("asset-"),
+      (file) =>
+        file.fieldName === "assets" || file.fieldName.startsWith("asset-"),
     );
 
     if (!bundleFile) {
@@ -207,8 +232,10 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
 
     const storage = new R2Storage(context.env.BUCKET, context.env.BUCKET_URL);
 
-    const bundleHash = await computeFileHash(bundleFile.data, "base64");
-    const bundleKey = await computeFileHash(bundleFile.data, "hex");
+    const [bundleHash, bundleKey] = await Promise.all([
+      computeFileHash(bundleFile.data, "base64"),
+      computeFileHash(bundleFile.data, "hex"),
+    ]);
 
     // Get bundle file extension from filename, fallback to .hbc for Hermes bytecode
     let bundleExt = ".hbc";
@@ -217,7 +244,9 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
       if (dotIndex !== -1) {
         bundleExt = bundleFile.filename.substring(dotIndex);
       } else {
-        console.log("⚠️ No extension found in bundle filename, using fallback .hbc");
+        console.log(
+          "⚠️ No extension found in bundle filename, using fallback .hbc",
+        );
       }
     } else {
       console.log("⚠️ No bundle filename provided, using fallback .hbc");
@@ -231,19 +260,22 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
     const assets = await Promise.all(
       assetFiles.map(async (asset, index) => {
         const filename = asset.filename || `asset-${index}`;
-        const hash = await computeFileHash(asset.data, "base64");
-        const key = await computeFileHash(asset.data, "hex");
-        const url = await storage.uploadFile(
-          `${appId}/${channel}/${runtimeVersion}/${updateId}/${filename}`,
-          asset.data,
-        );
+        const [hash, key, url] = await Promise.all([
+          computeFileHash(asset.data, "base64"),
+          computeFileHash(asset.data, "hex"),
+          storage.uploadFile(
+            `${appId}/${channel}/${runtimeVersion}/${updateId}/${filename}`,
+            asset.data,
+          ),
+        ]);
 
         // Get file extension from metadata if available
         let ext = "";
 
         // Try metadata first
         const assetMeta = assetMetadata?.find(
-          (asset: { path: string; ext?: string }) => asset.path === `assets/${filename}`,
+          (asset: { path: string; ext?: string }) =>
+            asset.path === `assets/${filename}`,
         );
         if (assetMeta?.ext) {
           ext = "." + assetMeta.ext;
@@ -312,32 +344,40 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
       fingerprint,
     };
 
-    await saveUpdate(db, appId, updateMetadata);
-    await UpdateCache.invalidate(context.env.CACHE, { appId, channel, runtimeVersion, platform });
+    await Promise.all([
+      saveUpdate(db, appId, updateMetadata),
+      UpdateCache.invalidate(context.env.CACHE, {
+        appId,
+        channel,
+        runtimeVersion,
+        platform,
+      }),
+    ]);
 
     // Cleanup old updates if configured
     const maxUpdatesToKeep = Number(context.env.MAX_UPDATES_TO_KEEP) || 0;
-    if (maxUpdatesToKeep <= 0) {
-      console.log(
-        `✅ Update uploaded successfully: ${updateId} (${platform}, ${channel}, ${runtimeVersion})`,
-      );
-      return context.json({ success: true });
-    }
-
-    const deletedIds = await cleanupOldUpdates(
-      db,
-      appId,
-      channel,
-      runtimeVersion,
-      platform,
-      maxUpdatesToKeep,
-    );
-
-    // Delete R2 files for old updates
-    if (deletedIds.length > 0) {
-      console.log(`Cleaning up ${deletedIds.length} old updates`);
-      await Promise.all(
-        deletedIds.map((id) => storage.deleteFolder(`${appId}/${channel}/${runtimeVersion}/${id}`)),
+    if (maxUpdatesToKeep > 0) {
+      context.executionCtx.waitUntil(
+        cleanupOldUpdates(
+          db,
+          appId,
+          channel,
+          runtimeVersion,
+          platform,
+          maxUpdatesToKeep,
+        )
+          .then(async (deletedIds) => {
+            if (deletedIds.length === 0) return;
+            console.log(`Cleaning up ${deletedIds.length} old updates`);
+            await Promise.all(
+              deletedIds.map((id) =>
+                storage.deleteFolder(
+                  `${appId}/${channel}/${runtimeVersion}/${id}`,
+                ),
+              ),
+            );
+          })
+          .catch((err) => console.error("Cleanup failed:", err)),
       );
     }
 
