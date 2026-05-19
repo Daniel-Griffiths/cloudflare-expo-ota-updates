@@ -172,9 +172,11 @@ export const update: CommandModule = {
 
       logger.stopSpinner();
 
-      const failed = results.filter((r) => r.status === "rejected");
-      if (failed.length > 0) {
-        throw (failed[0] as PromiseRejectedResult).reason;
+      const firstFailure = results.find(
+        (r): r is PromiseRejectedResult => r.status === "rejected",
+      );
+      if (firstFailure) {
+        throw firstFailure.reason;
       }
     }
 

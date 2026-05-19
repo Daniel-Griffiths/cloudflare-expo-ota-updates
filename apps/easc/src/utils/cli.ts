@@ -60,7 +60,7 @@ class InteractiveCLI {
 
     this.commands.push({
       command: commandName,
-      describe: (cmd.describe as string) ?? "",
+      describe: cmd.describe || "",
       options,
       handler: cmd.handler as (argv: any) => void | Promise<void>,
     });

@@ -1,4 +1,4 @@
-const cache = { key: null as CryptoKey | null, pem: null as string | null };
+const cache: { key: CryptoKey | null; pem: string | null } = { key: null, pem: null };
 
 /**
  * Parses a PEM-encoded PKCS#8 private key into a CryptoKey for RSA-SHA256 signing.

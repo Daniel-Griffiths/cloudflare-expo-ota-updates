@@ -168,8 +168,7 @@ function _isAppJson(value: unknown): value is IAppJson {
   if (typeof value !== "object" || value === null || !("expo" in value)) {
     return false;
   }
-  const record = value as Record<string, unknown>;
-  return typeof record["expo"] === "object" && record["expo"] !== null;
+  return typeof value.expo === "object" && value.expo !== null;
 }
 
 /**

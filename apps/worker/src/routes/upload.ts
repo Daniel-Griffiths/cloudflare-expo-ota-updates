@@ -123,9 +123,8 @@ export async function uploadHandler(
     }> = [];
 
     for (const [key, value] of formData.entries()) {
-      // @ts-ignore - oh no
+      // @ts-ignore - undici types override Cloudflare's FormData, resolving value to string instead of string | File
       if (value instanceof File) {
-        // It's a file
         const buffer = await value.arrayBuffer();
         files.push({
           fieldName: key,
@@ -137,7 +136,6 @@ export async function uploadHandler(
           `FormData file: field="${key}" filename="${value.name}" type="${value.type}"`,
         );
       } else {
-        // It's a text field
         if (!fields[key]) {
           fields[key] = [];
         }
