@@ -346,9 +346,18 @@ describe("Manifest Route", () => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
       .bind(
-        updateId, "test-app", "production", "1.0.0", "ios", createdAt,
-        "bundle-key", "bundle-hash", ".bundle",
-        "application/javascript", "https://example.com/bundle.js", "[]",
+        updateId,
+        "test-app",
+        "production",
+        "1.0.0",
+        "ios",
+        createdAt,
+        "bundle-key",
+        "bundle-hash",
+        ".bundle",
+        "application/javascript",
+        "https://example.com/bundle.js",
+        "[]",
       )
       .run();
 
@@ -398,9 +407,18 @@ describe("Manifest Route", () => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
       .bind(
-        "update-v1", "test-app", "production", "1.0.0", "ios", new Date().toISOString(),
-        "bundle-v1", "hash-v1", ".bundle",
-        "application/javascript", "https://example.com/v1.js", "[]",
+        "update-v1",
+        "test-app",
+        "production",
+        "1.0.0",
+        "ios",
+        new Date().toISOString(),
+        "bundle-v1",
+        "hash-v1",
+        ".bundle",
+        "application/javascript",
+        "https://example.com/v1.js",
+        "[]",
       )
       .run();
 
@@ -426,9 +444,18 @@ describe("Manifest Route", () => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
       .bind(
-        "update-v2", "test-app", "production", "1.0.0", "ios", new Date().toISOString(),
-        "bundle-v2", "hash-v2", ".bundle",
-        "application/javascript", "https://example.com/v2.js", "[]",
+        "update-v2",
+        "test-app",
+        "production",
+        "1.0.0",
+        "ios",
+        new Date().toISOString(),
+        "bundle-v2",
+        "hash-v2",
+        ".bundle",
+        "application/javascript",
+        "https://example.com/v2.js",
+        "[]",
       )
       .run();
 

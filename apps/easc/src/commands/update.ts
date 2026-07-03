@@ -56,8 +56,7 @@ export const update: CommandModule = {
       })
       .option("dangerously-ignore-fingerprint-check", {
         type: "boolean",
-        description:
-          "Skip fingerprint validation when native dependencies have changed",
+        description: "Skip fingerprint validation when native dependencies have changed",
         default: false,
       })
       .example("$0 update --channel production", "Deploy to production")
@@ -92,9 +91,7 @@ export const update: CommandModule = {
 
       logger.success("Build completed");
     } else {
-      logger.info(
-        `Skipping build (using existing export from ${args.exportDir})`,
-      );
+      logger.info(`Skipping build (using existing export from ${args.exportDir})`);
     }
 
     const exportDir = checkExportDirectory(args.exportDir);
@@ -141,9 +138,7 @@ export const update: CommandModule = {
         logger.success(`${platform} (dry run)`);
       }
     } else {
-      logger.startSpinner(
-        platformUploads.map(({ platform }) => `Uploading ${platform}...`),
-      );
+      logger.startSpinner(platformUploads.map(({ platform }) => `Uploading ${platform}...`));
 
       const results = await Promise.allSettled(
         platformUploads.map(async ({ platform, bundlePath, assetPaths }) => {
@@ -172,9 +167,7 @@ export const update: CommandModule = {
 
       logger.stopSpinner();
 
-      const firstFailure = results.find(
-        (r): r is PromiseRejectedResult => r.status === "rejected",
-      );
+      const firstFailure = results.find((r): r is PromiseRejectedResult => r.status === "rejected");
       if (firstFailure) {
         throw firstFailure.reason;
       }

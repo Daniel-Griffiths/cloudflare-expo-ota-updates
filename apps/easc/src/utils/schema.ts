@@ -1,26 +1,27 @@
 import chalk from "chalk";
-import { z } from "zod";
+import * as v from "valibot";
 
-const envSchema = z.object({
-  OTA_SERVER: z.url("OTA_SERVER must be a valid URL"),
-  OTA_API_KEY: z.string().min(1, "OTA_API_KEY is required"),
+const envSchema = v.object({
+  OTA_SERVER: v.pipe(v.string(), v.url("OTA_SERVER must be a valid URL")),
+  OTA_API_KEY: v.pipe(v.string(), v.minLength(1, "OTA_API_KEY is required")),
 });
 
-const channelSchema = z
-  .string()
-  .min(1, "Channel name is required")
-  .regex(
+const channelSchema = v.pipe(
+  v.string(),
+  v.minLength(1, "Channel name is required"),
+  v.regex(
     /^[a-zA-Z0-9-_]+$/,
     "Channel names can only contain letters, numbers, hyphens, and underscores",
-  );
+  ),
+);
 
-const configSchema = z.object({
+const configSchema = v.object({
   channel: channelSchema,
-  otaServer: z.url(),
-  apiKey: z.string().min(1),
+  otaServer: v.pipe(v.string(), v.url()),
+  apiKey: v.pipe(v.string(), v.minLength(1)),
 });
 
-export type IConfig = z.infer<typeof configSchema>;
+export type IConfig = v.InferOutput<typeof configSchema>;
 
 export interface IValidationResult {
   valid: boolean;
@@ -28,11 +29,11 @@ export interface IValidationResult {
 }
 
 /**
- * Format zod errors into user-friendly messages
+ * Format valibot issues into user-friendly messages
  */
-function formatZodError(error: z.ZodError, context?: string): string[] {
-  return error.issues.map((err) => {
-    const path = err.path.join(".");
+function formatIssues(issues: v.BaseIssue<unknown>[], context?: string): string[] {
+  return issues.map((err) => {
+    const path = (err.path ?? []).map((p) => p.key).join(".");
     const message = err.message;
 
     if (context === "environment") {
@@ -66,10 +67,10 @@ function formatZodError(error: z.ZodError, context?: string): string[] {
 }
 
 /**
- * Validate environment variables using zod
+ * Validate environment variables
  */
 export function validateEnvironment(): IValidationResult {
-  const result = envSchema.safeParse({
+  const result = v.safeParse(envSchema, {
     OTA_SERVER: process.env["OTA_SERVER"],
     OTA_API_KEY: process.env["OTA_API_KEY"],
   });
@@ -77,7 +78,7 @@ export function validateEnvironment(): IValidationResult {
   if (!result.success) {
     return {
       valid: false,
-      errors: formatZodError(result.error, "environment"),
+      errors: formatIssues(result.issues, "environment"),
     };
   }
 
@@ -85,7 +86,7 @@ export function validateEnvironment(): IValidationResult {
 }
 
 /**
- * Validate a channel name using zod
+ * Validate a channel name
  */
 export function validateChannel(channel: string | undefined): IValidationResult {
   if (!channel) {
@@ -100,12 +101,12 @@ export function validateChannel(channel: string | undefined): IValidationResult 
     };
   }
 
-  const result = channelSchema.safeParse(channel);
+  const result = v.safeParse(channelSchema, channel);
 
   if (!result.success) {
     return {
       valid: false,
-      errors: formatZodError(result.error, "channel"),
+      errors: formatIssues(result.issues, "channel"),
     };
   }
 

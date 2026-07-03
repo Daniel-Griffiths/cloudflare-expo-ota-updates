@@ -17,23 +17,23 @@
   },
   "dependencies": {
     "drizzle-orm": "1.0.0-rc.1",
-    "hono": "^4.12.16",
+    "hono": "^4.12.27",
     "mrmime": "^2.0.1",
-    "valibot": "^1.3.1"
+    "valibot": "^1.4.2"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.15.2",
-    "@inquirer/prompts": "^8.4.2",
-    "@cloudflare/workers-types": "^4.20260502.1",
-    "@types/node": "^25.6.0",
+    "@cloudflare/vitest-pool-workers": "^0.18.0",
+    "@cloudflare/workers-types": "^5.20260703.1",
+    "@inquirer/prompts": "^8.5.2",
+    "@types/node": "^26.1.0",
     "@types/yargs": "^17.0.35",
-    "@vitest/ui": "^4.1.5",
+    "@vitest/ui": "^4.1.9",
     "chalk": "5.6.2",
     "cli-table3": "^0.6.5",
     "drizzle-kit": "^0.31.10",
-    "ora": "^9.4.0",
-    "tsx": "^4.21.0",
-    "vitest": "^4.1.5",
+    "ora": "^9.4.1",
+    "tsx": "^4.23.0",
+    "vitest": "^4.1.9",
     "yargs": "^18.0.0"
   },
   "cloudflare": {

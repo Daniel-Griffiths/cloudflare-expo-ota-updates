@@ -12,7 +12,10 @@ export class UpdateCache {
     return kv?.get<T>(this._key(params), "json") ?? null;
   }
 
-  static async set(kv: KVNamespace | undefined, params: UpdateCacheKey & { data: unknown }): Promise<void> {
+  static async set(
+    kv: KVNamespace | undefined,
+    params: UpdateCacheKey & { data: unknown },
+  ): Promise<void> {
     const { data, ...key } = params;
     await kv?.put(this._key(key), JSON.stringify(data), { expirationTtl: this.TTL_SECONDS });
   }

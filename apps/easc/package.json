@@ -35,15 +35,15 @@
     "test:coverage": "vp test --coverage"
   },
   "dependencies": {
-    "@expo/fingerprint": "^0.11.0",
+    "@expo/fingerprint": "^0.20.2",
     "@inquirer/prompts": "^8.3.2",
     "chalk": "5.6.2",
     "tsx": "^4.21.0",
-    "yargs": "^18.0.0",
-    "zod": "^4.3.6"
+    "valibot": "^1.1.0",
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0",
+    "@types/node": "^26.1.0",
     "@types/yargs": "^17.0.35",
     "@vitest/ui": "^4.1.0",
     "vite-plus": "latest",

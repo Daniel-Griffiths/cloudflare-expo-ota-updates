@@ -19,6 +19,6 @@
     "db:studio": "bun run --filter '@cloudflare-expo-ota/worker' db:studio"
   },
   "devDependencies": {
-    "vite-plus": "latest"
+    "vite-plus": "0.2.2"
   }
 }
