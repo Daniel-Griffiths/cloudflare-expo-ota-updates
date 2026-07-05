@@ -9,7 +9,7 @@ import {
   getAssetFiles,
   checkExportDirectory,
 } from "../utils/files";
-import { uploadBundle, createDryRunSummary } from "../utils/upload";
+import { uploadBundle, createDryRunSummary, getUpdateSize, formatBytes } from "../utils/upload";
 import { createFingerprintAsync } from "@expo/fingerprint";
 import { Logger } from "../utils/logger";
 import { runx } from "../utils/runx";
@@ -106,6 +106,12 @@ export const update: CommandModule = {
     const { hash: fingerprint } = await createFingerprintAsync(process.cwd());
     logger.success(`Fingerprint: ${fingerprint}`);
 
+    const platformUploads = platforms.map((platform) => ({
+      platform,
+      bundlePath: findBundleFile(exportDir, metadata, platform),
+      assetPaths: getAssetFiles(exportDir, metadata, platform),
+    }));
+
     logger.section("📤 Deployment Info");
     logger.table([
       ["Server", config.otaServer],
@@ -114,13 +120,11 @@ export const update: CommandModule = {
       ["Fingerprint", fingerprint || ""],
       ["Export Dir", args.exportDir],
       ["Channel", channel],
+      ...platformUploads.map(({ platform, bundlePath, assetPaths }): [string, string] => [
+        `Size (${platform})`,
+        formatBytes(getUpdateSize(bundlePath, assetPaths)),
+      ]),
     ]);
-
-    const platformUploads = platforms.map((platform) => ({
-      platform,
-      bundlePath: findBundleFile(exportDir, metadata, platform),
-      assetPaths: getAssetFiles(exportDir, metadata, platform),
-    }));
 
     if (args.dryRun) {
       for (const { platform, bundlePath, assetPaths } of platformUploads) {

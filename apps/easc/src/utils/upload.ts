@@ -118,9 +118,7 @@ export function createDryRunSummary(options: {
   const { channel, platform, bundlePath, assetPaths, commitHash, runtimeVersion } = options;
 
   const bundleSize = fs.statSync(bundlePath).size;
-  const totalAssetSize = assetPaths.reduce((sum, path) => {
-    return sum + fs.statSync(path).size;
-  }, 0);
+  const totalAssetSize = getUpdateSize(bundlePath, assetPaths) - bundleSize;
 
   const lines = [
     `Platform: ${platform}`,
@@ -141,9 +139,18 @@ export function createDryRunSummary(options: {
 }
 
 /**
+ * Total size on disk of a bundle plus its assets
+ */
+export function getUpdateSize(bundlePath: string, assetPaths: string[]): number {
+  return assetPaths.reduce((sum, path) => {
+    return sum + fs.statSync(path).size;
+  }, fs.statSync(bundlePath).size);
+}
+
+/**
  * Format bytes to human readable string
  */
-function formatBytes(bytes: number): string {
+export function formatBytes(bytes: number): string {
   const sizes = ["Bytes", "KB", "MB", "GB"];
   if (bytes === 0) return "0 Bytes";
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
