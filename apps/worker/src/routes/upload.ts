@@ -215,7 +215,7 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
 
     const [bundleHash, bundleKey] = await Promise.all([
       computeFileHash(bundleFile.data, "base64"),
-      computeFileHash(bundleFile.data, "hex"),
+      computeFileHash(bundleFile.data, "hex", "MD5"),
     ]);
 
     // Get bundle file extension from filename, fallback to .hbc for Hermes bytecode
@@ -241,7 +241,7 @@ export async function uploadHandler(context: Context<{ Bindings: IEnv }>): Promi
         const filename = asset.filename || `asset-${index}`;
         const [hash, key, url] = await Promise.all([
           computeFileHash(asset.data, "base64"),
-          computeFileHash(asset.data, "hex"),
+          computeFileHash(asset.data, "hex", "MD5"),
           storage.uploadFile(
             `${appId}/${channel}/${runtimeVersion}/${updateId}/${filename}`,
             asset.data,

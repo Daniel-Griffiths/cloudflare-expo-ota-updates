@@ -206,6 +206,14 @@ describe("Upload Route", () => {
     const assets = JSON.parse(update!["assets_json"] as string);
     expect(Array.isArray(assets)).toBe(true);
     expect(assets.length).toBeGreaterThan(0);
+
+    // `key` must be the MD5 hex hash — Metro's asset key, which clients use to
+    // resolve downloaded assets at runtime; `hash` is the SHA-256 base64url
+    // integrity hash. Expected values are precomputed from "fake-image-data".
+    expect(assets[0].key).toBe("ba3bdea20bb237b110c09fc1aa780719");
+    expect(assets[0].hash).toBe("KNgdsZNw-Y_cHT5D-x74OnzuYvO-hv7ZI9X3NNpBMZw");
+
+    expect(update!["launch_asset_key"]).toBe("be30bb5c7766abf29f3efaccd78f29eb");
   });
 
   it("should store fingerprint when provided", async () => {
