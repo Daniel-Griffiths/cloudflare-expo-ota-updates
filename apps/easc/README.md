@@ -59,6 +59,7 @@ easc submit --profile development        # Use dev profile
 easc submit --auto-submit                # Auto-submit to stores
 easc submit --clear-cache                # Clean prebuild
 easc submit --output ./build.ipa         # Custom output path
+easc submit --submitter eas              # Upload iOS through EAS Submit instead of Transporter
 ```
 
 ## Development

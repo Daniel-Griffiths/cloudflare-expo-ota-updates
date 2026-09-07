@@ -5,6 +5,7 @@ import { Logger } from "../utils/logger";
 import { Platform, PlatformType } from "../enums/platform";
 import { runx } from "../utils/runx";
 import { getEasProfiles } from "../utils/eas";
+import { deliverWithTransporter, isTransporterAvailable } from "../utils/transporter";
 
 interface IArgs {
   platform: PlatformType | "all";
@@ -13,6 +14,7 @@ interface IArgs {
   clearCache: boolean;
   output?: string;
   nonInteractive: boolean;
+  submitter: "transporter" | "eas";
 }
 
 function findBuildArtifact(pattern: string): string | null {
@@ -67,6 +69,13 @@ export const submit: CommandModule = {
         type: "boolean",
         description: "Never prompt for user input",
         default: false,
+      })
+      .option("submitter", {
+        type: "string",
+        choices: ["transporter", "eas"] as const,
+        description:
+          "How to upload an iOS build: the Transporter app (no EAS queue; needs the app signed in) or EAS Submit",
+        default: isTransporterAvailable() ? "transporter" : "eas",
       })
       .example("$0 submit", "Build all platforms locally")
       .example("$0 submit -p ios -e development", "Build iOS with dev profile")
@@ -135,6 +144,17 @@ export const submit: CommandModule = {
           }
 
           logger.info(`Found artifact: ${artifactPath}`);
+
+          if (platform === Platform.iOS && args.submitter === "transporter") {
+            // Hand the .ipa to the Transporter app: goes straight to App Store Connect with
+            // the app's own Apple ID session, bypassing EAS Submit's queue. The upload runs
+            // inside Transporter, so the artifact is left on disk for it.
+            await deliverWithTransporter(artifactPath);
+            logger.success(
+              `${platformName} build handed to Transporter — watch its window for the upload; ${artifactPath} is kept until it finishes`,
+            );
+            continue;
+          }
 
           runx(`eas submit --platform ${platform} --path "${artifactPath}" --non-interactive`, {
             cwd: process.cwd(),
