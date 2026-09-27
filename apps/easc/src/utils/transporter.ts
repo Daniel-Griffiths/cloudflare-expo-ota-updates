@@ -67,9 +67,7 @@ function isTransporterRunning(): boolean {
  */
 export async function deliverWithTransporter(ipaPath: string): Promise<void> {
   if (!isTransporterAvailable()) {
-    throw new Error(
-      `Transporter is not installed at ${TRANSPORTER_APP} (macOS only).`,
-    );
+    throw new Error(`Transporter is not installed at ${TRANSPORTER_APP} (macOS only).`);
   }
   const ipa = path.resolve(ipaPath);
   if (!fs.existsSync(ipa)) throw new Error(`No such file: ${ipa}`);
@@ -101,9 +99,7 @@ export async function deliverWithTransporter(ipaPath: string): Promise<void> {
     height === undefined ||
     numbers.some(Number.isNaN)
   ) {
-    throw new Error(
-      `Could not read Transporter's window geometry (got "${raw}").`,
-    );
+    throw new Error(`Could not read Transporter's window geometry (got "${raw}").`);
   }
   const point = deliverButtonPoint({ x, y, width, height });
   osascript(

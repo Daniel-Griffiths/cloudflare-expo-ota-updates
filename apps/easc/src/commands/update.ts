@@ -13,6 +13,7 @@ import { uploadBundle, createDryRunSummary, getUpdateSize, formatBytes } from ".
 import { createFingerprintAsync } from "@expo/fingerprint";
 import { Logger } from "../utils/logger";
 import { runx } from "../utils/runx";
+import { hasSentryAuthToken, uploadSourceMapsToSentry, assertNoSourceMaps } from "../utils/sentry";
 
 interface IArgs {
   channel: string;
@@ -84,8 +85,8 @@ export const update: CommandModule = {
 
       runx(
         args.exportDir !== "dist"
-          ? `expo export --dump-sourcemap --output-dir ${args.exportDir}`
-          : `expo export --dump-sourcemap`,
+          ? `expo export --source-maps external --output-dir ${args.exportDir}`
+          : `expo export --source-maps external`,
         { cwd: process.cwd(), stdio: "inherit" },
       );
 
@@ -111,6 +112,10 @@ export const update: CommandModule = {
       bundlePath: findBundleFile(exportDir, metadata, platform),
       assetPaths: getAssetFiles(exportDir, metadata, platform),
     }));
+
+    assertNoSourceMaps(
+      platformUploads.flatMap(({ bundlePath, assetPaths }) => [bundlePath, ...assetPaths]),
+    );
 
     logger.section("📤 Deployment Info");
     logger.table([
@@ -142,6 +147,12 @@ export const update: CommandModule = {
         logger.success(`${platform} (dry run)`);
       }
     } else {
+      if (hasSentryAuthToken()) {
+        logger.info("Uploading source maps to Sentry...");
+        uploadSourceMapsToSentry(exportDir);
+        logger.success("Source maps uploaded to Sentry");
+      }
+
       logger.startSpinner(platformUploads.map(({ platform }) => `Uploading ${platform}...`));
 
       const results = await Promise.allSettled(
