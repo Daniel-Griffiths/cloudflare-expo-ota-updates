@@ -36,20 +36,21 @@
   },
   "dependencies": {
     "@expo/fingerprint": "^0.21.1",
-    "@inquirer/prompts": "^8.3.2",
-    "chalk": "5.6.2",
-    "tsx": "^4.21.0",
-    "valibot": "^1.1.0",
-    "yargs": "^18.0.0"
+    "@inquirer/prompts": "^8.7.2",
+    "chalk": "6.0.1",
+    "tsx": "^4.23.15",
+    "valibot": "^1.5.0",
+    "yargs": "^18.2.0"
   },
   "devDependencies": {
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.6.3",
     "@types/yargs": "^17.0.35",
-    "@vitest/ui": "^4.1.0",
-    "vite-plus": "latest",
-    "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
+    "@vitest/ui": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
   "engines": {
-    "node": ">=20.12.0"
+    "node": ">=22"
   }
 }

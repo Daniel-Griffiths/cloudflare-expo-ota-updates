@@ -19,6 +19,16 @@
     "db:studio": "bun run --filter '@cloudflare-expo-ota/worker' db:studio"
   },
   "devDependencies": {
-    "vite-plus": "0.2.2"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "overrides": {
+    "vite": "catalog:"
+  },
+  "catalog": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0",
+    "vitest": "5.0.1",
+    "vite-plus": "1.0.0",
+    "@vitest/ui": "5.0.1"
   }
 }
