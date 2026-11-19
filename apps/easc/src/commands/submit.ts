@@ -126,6 +126,7 @@ export const submit: CommandModule = {
         runx(`eas build ${buildFlags}`, {
           cwd: process.cwd(),
           stdio: "inherit",
+          env: { ...process.env, EAS_UPDATE_UPLOAD_EMBEDDED_BUNDLE: "0" },
         });
 
         logger.success(`${platformName} build completed`);
