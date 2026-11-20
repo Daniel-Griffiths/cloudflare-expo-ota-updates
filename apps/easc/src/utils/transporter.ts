@@ -17,7 +17,7 @@ export interface IWindowFrame {
 
 /**
  * Where the newest Active item's DELIVER button sits, relative to the window: the top row of
- * the Active list, ~174 pt below the window's origin, with the button ~683 pt to the right at
+ * the Active list, ~195 pt below the window's origin, with the button ~683 pt to the right at
  * the default 840 pt window width (it scales horizontally with the window).
  * Transporter's list is not exposed to accessibility, so the button is clicked by position.
  */
@@ -27,7 +27,7 @@ export function deliverButtonPoint(frame: IWindowFrame): {
 } {
   return {
     x: Math.round(frame.x + (683 * frame.width) / 840),
-    y: Math.round(frame.y + 174),
+    y: Math.round(frame.y + 195),
   };
 }
 
